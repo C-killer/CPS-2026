@@ -45,23 +45,27 @@ import fr.sorbonne_u.utils.URIGenerator;
 /**
  * The class <code>ProtocolTest</code>
  *
- * <p><strong>Description</strong></p>
+ * <p>
+ * <strong>Description</strong>
+ * </p>
  * 
- * <p><strong>Invariant</strong></p>
+ * <p>
+ * <strong>Invariant</strong>
+ * </p>
  * 
  * <pre>
  * invariant		true
  * </pre>
  * 
- * <p>Created on : 2020-06-17</p>
+ * <p>
+ * Created on : 2020-06-17
+ * </p>
  * 
- * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
+ * @author <a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public class			ProtocolTest
-{
+public class ProtocolTest {
 	@Test
-	public void			testLookupRequest()
-	{
+	public void testLookupRequest() {
 		String key = URIGenerator.generateURI();
 		String request = Request.LOOKUP_REQUEST_NAME + " " + key;
 
@@ -73,27 +77,26 @@ public class			ProtocolTest
 		Assertions.assertFalse(r.isUnknownRequest());
 		Assertions.assertTrue(request.equals(r.request2string()));
 
-		LookupRequest r1 = (LookupRequest)Request.string2request(request);
+		LookupRequest r1 = (LookupRequest) Request.string2request(request);
 		Assertions.assertTrue(r.equals(r1));
 
 		Assertions.assertThrows(
-			AssertionError.class,
-			() -> { new LookupRequest(null); });
+				AssertionError.class,
+				() -> {
+					new LookupRequest(null);
+				});
 		try {
 			new LookupRequest(null);
-		} catch(AssertionError e) {
+		} catch (AssertionError e) {
 			Assertions.assertTrue(
-						e.getCause() instanceof PreconditionException);
+					e.getCause() instanceof PreconditionException);
 		}
 	}
 
 	@Test
-	public void			testPutRequest()
-	{
+	public void testPutRequest() {
 		String key = URIGenerator.generateURI();
-		String value =
-			(new ConnectionData(ConnectionType.RMI, "localhost", 1)).
-															toString();
+		String value = (new ConnectionData(ConnectionType.RMI, "localhost", 1)).toString();
 		String request = Request.PUT_REQUEST_NAME + " " + key + " " + value;
 
 		PutRequest r = new PutRequest(key, value);
@@ -104,41 +107,46 @@ public class			ProtocolTest
 		Assertions.assertFalse(r.isUnknownRequest());
 		Assertions.assertTrue(request.equals(r.request2string()));
 
-		PutRequest r1 = (PutRequest)Request.string2request(request);
+		PutRequest r1 = (PutRequest) Request.string2request(request);
 		Assertions.assertTrue(r.equals(r1));
 
 		Assertions.assertThrows(
-			AssertionError.class,
-			() -> { new PutRequest(null, value); });
+				AssertionError.class,
+				() -> {
+					new PutRequest(null, value);
+				});
 		Assertions.assertThrows(
 				AssertionError.class,
-				() -> { new PutRequest(key, null); });
+				() -> {
+					new PutRequest(key, null);
+				});
 		Assertions.assertThrows(
 				AssertionError.class,
-				() -> { new PutRequest(null, null); });
+				() -> {
+					new PutRequest(null, null);
+				});
 		try {
 			new PutRequest(null, value);
-		} catch(AssertionError e) {
+		} catch (AssertionError e) {
 			Assertions.assertTrue(
-						e.getCause() instanceof PreconditionException);
+					e.getCause() instanceof PreconditionException);
 		}
 		try {
 			new PutRequest(key, null);
-		} catch(AssertionError e) {
+		} catch (AssertionError e) {
 			Assertions.assertTrue(
-						e.getCause() instanceof PreconditionException);
+					e.getCause() instanceof PreconditionException);
 		}
 		try {
 			new PutRequest(null, null);
-		} catch(AssertionError e) {
+		} catch (AssertionError e) {
 			Assertions.assertTrue(
-						e.getCause() instanceof PreconditionException);
+					e.getCause() instanceof PreconditionException);
 		}
 	}
 
 	@Test
-	public void			testRemoveRequest()
-	{
+	public void testRemoveRequest() {
 		String key = URIGenerator.generateURI();
 		String request = Request.REMOVE_REQUEST_NAME + " " + key;
 
@@ -150,23 +158,24 @@ public class			ProtocolTest
 		Assertions.assertFalse(r.isUnknownRequest());
 		Assertions.assertTrue(request.equals(r.request2string()));
 
-		RemoveRequest r1 = (RemoveRequest)Request.string2request(request);
+		RemoveRequest r1 = (RemoveRequest) Request.string2request(request);
 		Assertions.assertTrue(r.equals(r1));
 
 		Assertions.assertThrows(
-			AssertionError.class,
-			() -> { new RemoveRequest(null); });
+				AssertionError.class,
+				() -> {
+					new RemoveRequest(null);
+				});
 		try {
 			new RemoveRequest(null);
-		} catch(AssertionError e) {
+		} catch (AssertionError e) {
 			Assertions.assertTrue(
-						e.getCause() instanceof PreconditionException);
+					e.getCause() instanceof PreconditionException);
 		}
 	}
 
 	@Test
-	public void			testShutdownRequest()
-	{
+	public void testShutdownRequest() {
 		String request = Request.SHUTDOWN_REQUEST_NAME;
 
 		ShutdownRequest r = new ShutdownRequest();
@@ -177,13 +186,12 @@ public class			ProtocolTest
 		Assertions.assertFalse(r.isUnknownRequest());
 		Assertions.assertTrue(request.equals(r.request2string()));
 
-		ShutdownRequest r1 = (ShutdownRequest)Request.string2request(request);
+		ShutdownRequest r1 = (ShutdownRequest) Request.string2request(request);
 		Assertions.assertTrue(r.equals(r1));
 	}
 
 	@Test
-	public void			testUnknownRequest()
-	{
+	public void testUnknownRequest() {
 		String request = URIGenerator.generateURI();
 
 		UnknownRequest r = new UnknownRequest(request);
@@ -194,178 +202,170 @@ public class			ProtocolTest
 		Assertions.assertTrue(r.isUnknownRequest());
 		Assertions.assertTrue(request.equals(r.request2string()));
 
-		UnknownRequest r1 = (UnknownRequest)Request.string2request(request);
+		UnknownRequest r1 = (UnknownRequest) Request.string2request(request);
 		Assertions.assertTrue(r.equals(r1));
 	}
 
 	@Test
-	public void			testLookupResponse()
-	{
+	public void testLookupResponse() {
 		String key = URIGenerator.generateURI();
-		String value =
-				(new ConnectionData(ConnectionType.RMI, "localhost", 1)).
-																toString();
+		String value = (new ConnectionData(ConnectionType.RMI, "localhost", 1)).toString();
 
 		String positive = Response.LOOKUP_RESPONSE_NAME + " "
-							+ Response.OK + " "
-							+ value;
+				+ Response.OK + " "
+				+ value;
 		String negative = Response.LOOKUP_RESPONSE_NAME + " "
-							+ Response.NOK + " "
-							+ key;
+				+ Response.NOK + " "
+				+ key;
 
 		LookupResponse p = new LookupResponse(false, value);
 		Assertions.assertTrue(positive.equals(p.response2string()));
 		try {
-			LookupResponse p1 =
-						(LookupResponse)Response.string2response(positive);
+			LookupResponse p1 = (LookupResponse) Response.string2response(positive);
 			Assertions.assertTrue(p.equals(p1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-							"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		LookupResponse n = new LookupResponse(true, key);
 		Assertions.assertTrue(negative.equals(n.response2string()));
 		try {
-			LookupResponse n1 =
-						(LookupResponse)Response.string2response(negative);
+			LookupResponse n1 = (LookupResponse) Response.string2response(negative);
 			Assertions.assertTrue(n.equals(n1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-						"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		Assertions.assertThrows(
-			AssertionError.class,
-			() -> { new LookupResponse(true, null); });
+				AssertionError.class,
+				() -> {
+					new LookupResponse(true, null);
+				});
 		try {
 			new LookupResponse(true, null);
-		} catch(AssertionError e) {
+		} catch (AssertionError e) {
 			Assertions.assertTrue(
-						e.getCause() instanceof PreconditionException);
+					e.getCause() instanceof PreconditionException);
 		}
 
 		try {
 			Assertions.assertTrue(value.equals(p.interpret().toString()));
-		} catch (GlobalRegistryResponseException |
-											BadConnectionDataException e) {
+		} catch (GlobalRegistryResponseException | BadConnectionDataException e) {
 			Assertions.assertTrue(false,
 					"exception " + e + " should not be thrown!");
 		}
 		Assertions.assertThrows(GlobalRegistryResponseException.class,
-								() -> { n.interpret(); });
+				() -> {
+					n.interpret();
+				});
 	}
 
 	@Test
-	public void			testPutResponse()
-	{
+	public void testPutResponse() {
 		String key = URIGenerator.generateURI();
 
 		String positive = Response.PUT_RESPONSE_NAME + " " + Response.OK;
 		String negative = Response.PUT_RESPONSE_NAME + " "
-												+ Response.NOK + " " + key;
+				+ Response.NOK + " " + key;
 
 		PutResponse p = new PutResponse();
 		Assertions.assertTrue(positive.equals(p.response2string()));
 		try {
-			PutResponse p1 = (PutResponse)Response.string2response(positive);
+			PutResponse p1 = (PutResponse) Response.string2response(positive);
 			Assertions.assertTrue(p.equals(p1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-							"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		PutResponse n = new PutResponse(key);
 		Assertions.assertTrue(negative.equals(n.response2string()));
 		try {
-			PutResponse n1 = (PutResponse)Response.string2response(negative);
+			PutResponse n1 = (PutResponse) Response.string2response(negative);
 			Assertions.assertTrue(n.equals(n1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-						"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		try {
 			Assertions.assertTrue(null == p.interpret());
-		} catch (GlobalRegistryResponseException |
-											BadConnectionDataException e) {
+		} catch (GlobalRegistryResponseException | BadConnectionDataException e) {
 			Assertions.assertTrue(false,
 					"exception " + e + " should not be thrown!");
 		}
 		Assertions.assertThrows(GlobalRegistryResponseException.class,
-								() -> { n.interpret(); });
+				() -> {
+					n.interpret();
+				});
 	}
 
 	@Test
-	public void			testRemoveResponse()
-	{
+	public void testRemoveResponse() {
 		String key = URIGenerator.generateURI();
 
 		String positive = Response.REMOVE_RESPONSE_NAME + " " + Response.OK;
 		String negative = Response.REMOVE_RESPONSE_NAME + " "
-												+ Response.NOK + " " + key;
+				+ Response.NOK + " " + key;
 
 		RemoveResponse p = new RemoveResponse();
 		Assertions.assertTrue(positive.equals(p.response2string()));
 		try {
-			RemoveResponse p1 =
-						(RemoveResponse)Response.string2response(positive);
+			RemoveResponse p1 = (RemoveResponse) Response.string2response(positive);
 			Assertions.assertTrue(p.equals(p1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-							"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		RemoveResponse n = new RemoveResponse(key);
 		Assertions.assertTrue(negative.equals(n.response2string()));
 		try {
-			RemoveResponse n1 =
-						(RemoveResponse)Response.string2response(negative);
+			RemoveResponse n1 = (RemoveResponse) Response.string2response(negative);
 			Assertions.assertTrue(n.equals(n1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-						"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		try {
 			Assertions.assertTrue(null == p.interpret());
-		} catch (GlobalRegistryResponseException |
-											BadConnectionDataException e) {
+		} catch (GlobalRegistryResponseException | BadConnectionDataException e) {
 			Assertions.assertTrue(false,
 					"exception " + e + " should not be thrown!");
 		}
 		Assertions.assertThrows(GlobalRegistryResponseException.class,
-								() -> { n.interpret(); });
+				() -> {
+					n.interpret();
+				});
 	}
 
 	@Test
-	public void			testShutdownResponse()
-	{
+	public void testShutdownResponse() {
 		String positive = Response.SHUTDOWN_RESPONSE_NAME + " " + Response.OK;
 
 		ShutdownResponse p = new ShutdownResponse();
 		Assertions.assertTrue(positive.equals(p.response2string()));
 		try {
-			ShutdownResponse p1 =
-						(ShutdownResponse)Response.string2response(positive);
+			ShutdownResponse p1 = (ShutdownResponse) Response.string2response(positive);
 			Assertions.assertTrue(p.equals(p1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-							"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		try {
 			Assertions.assertTrue(null == p.interpret());
-		} catch (GlobalRegistryResponseException |
-											BadConnectionDataException e) {
+		} catch (GlobalRegistryResponseException | BadConnectionDataException e) {
 			Assertions.assertTrue(false,
 					"exception " + e + " should not be thrown!");
 		}
 	}
 
 	@Test
-	public void			testErrorResponse()
-	{
+	public void testErrorResponse() {
 		String key = URIGenerator.generateURI();
 		String request = "xyz " + key;
 		String positive = Response.ERROR_RESPONSE_NAME + " " + request;
@@ -373,16 +373,17 @@ public class			ProtocolTest
 		ErrorResponse p = new ErrorResponse(request);
 		Assertions.assertTrue(positive.equals(p.response2string()));
 		try {
-			ErrorResponse p1 =
-						(ErrorResponse)Response.string2response(positive);
+			ErrorResponse p1 = (ErrorResponse) Response.string2response(positive);
 			Assertions.assertTrue(p.equals(p1));
 		} catch (GlobalRegistryResponseException e) {
 			Assertions.assertTrue(false,
-							"exception " + e + " should not be thrown!");
+					"exception " + e + " should not be thrown!");
 		}
 
 		Assertions.assertThrows(GlobalRegistryResponseException.class,
-								() -> { p.interpret(); });
+				() -> {
+					p.interpret();
+				});
 	}
 }
 // -----------------------------------------------------------------------------

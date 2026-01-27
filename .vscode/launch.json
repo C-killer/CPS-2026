@@ -1,0 +1,20 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "Launch Current File",
+			"request": "launch",
+			"mainClass": "${file}",
+			"console": "integratedTerminal"
+		},
+		{
+			"type": "java",
+			"name": "Launch CPS Project",
+			"request": "launch",
+			"mainClass": "fr.sorbonne_u.cps.projet2026.Main",
+			"projectName": "CPS-Projet",
+			"console": "integratedTerminal"
+		}
+	]
+}

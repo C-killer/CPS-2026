@@ -1,0 +1,23 @@
+{
+  "java.project.sourcePaths": [
+    "CPS-Projet/src",
+    "BCM4Java-22012026-src/src",
+    "BCM4Java-22012026-src/examples",
+    "BCM4Java-22012026-src/examples-basic-plugins",
+    "CPS-Projet-2026-base/application-base",
+    "CPS-Projet-2026-base/pubsub-base"
+  ],
+  "java.project.outputPath": "CPS-Projet/bin",
+  "java.project.referencedLibraries": [
+    "BCM4Java-22012026.jar",
+    "commons-math3-3.6.1.jar",
+    "javassist.jar",
+    "jing.jar",
+    "junit-platform-console-standalone-1.10.1.jar"
+  ],
+  "files.encoding": "utf8",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": false
+}
