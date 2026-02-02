@@ -1,5 +1,8 @@
 package fr.sorbonne_u.messages;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import java.io.Serializable;
 import java.time.Instant;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
@@ -179,21 +182,20 @@ public class MessageFilter implements MessageFilterI {
 			if (properties == null)
 				return false;
 
-			String[] targetNames = multiValuesFilter.getNames();
-			Serializable[] values = new Serializable[targetNames.length];
+			Map<String, Serializable> tmp = new HashMap<>();
 
-			for (int i = 0; i < targetNames.length; i++) {
-				String targetName = targetNames[i];
-				boolean flag = false;
-				for (PropertyI p : properties) {
-					if (p != null && p.getName().equals(targetName)) {
-						values[i] = p.getValue();
-						flag = true;
-						break;
-					}
-				}
-				if (!flag)
+			for (PropertyI p : properties) {
+				tmp.put(p.getName(), p.getValue());
+			}
+
+			Serializable[] values = new Serializable[multiValuesFilter.getNames().length];
+
+			for (int i = 0; i < multiValuesFilter.getNames().length; i++) {
+				Serializable v = tmp.get(multiValuesFilter.getNames()[i]);
+				if (v == null) {
 					return false;
+				}
+				values[i] = v;
 			}
 
 			return multiValuesFilter.match(values);
