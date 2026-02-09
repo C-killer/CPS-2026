@@ -3,6 +3,8 @@ package fr.sorbonne_u.messages;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
+
 import java.io.Serializable;
 import java.time.Instant;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
@@ -20,7 +22,7 @@ public class MessageFilter implements MessageFilterI {
 			TimeFilterI timeFilter) {
 		this.propertyFilters = (propertyFilters != null) ? propertyFilters : new PropertyFilterI[0];
 		this.propertiesFilters = (propertiesFilters != null) ? propertiesFilters : new PropertiesFilterI[0];
-		this.timeFilter = (timeFilter != null) ? timeFilter : new TimeFilter(null, null);
+		this.timeFilter = (timeFilter != null) ? timeFilter : new TimeFilter.JokerFilter();
 	}
 
 	@Override
@@ -202,26 +204,63 @@ public class MessageFilter implements MessageFilterI {
 		}
 	}
 
-	public static class TimeFilter implements TimeFilterI {
-		private static final long serialVersionUID = 1L;
+	public class TimeFilter {
 
-		private final Instant start;
-		private final Instant end;
-
-		public TimeFilter(Instant start, Instant end) {
-			this.start = start;
-			this.end = end;
+		public static class JokerFilter implements TimeFilterI {
+			@Override
+			public boolean match(Instant timestamp) {
+				return true;
+			}
 		}
 
-		@Override
-		public boolean match(Instant timestamp) {
-			if (timestamp == null)
-				return false;
+		public static class BeforeFilter implements TimeFilterI {
+			private Instant fin;
 
-			boolean afterStart = (start == null) || !timestamp.isBefore(start);
-			boolean beforeEnd = (end == null) || !timestamp.isAfter(end);
+			public BeforeFilter(Instant fin) {
+				this.fin = fin;
+			}
 
-			return afterStart && beforeEnd;
+			@Override
+			public boolean match(Instant timestamp) {
+				if (timestamp == null) {
+					return false;
+				}
+				return !timestamp.isAfter(fin);
+			}
+		}
+
+		public static class AfterFilter implements TimeFilterI {
+			private Instant start;
+
+			public AfterFilter(Instant start) {
+				this.start = start;
+			}
+
+			@Override
+			public boolean match(Instant timestamp) {
+				if (timestamp == null) {
+					return false;
+				}
+				return !timestamp.isBefore(start);
+			}
+		}
+
+		public static class BetweenFilter implements TimeFilterI {
+			private Instant start;
+			private Instant fin;
+
+			public BetweenFilter(Instant start, Instant fin) {
+				this.start = start;
+				this.fin = fin;
+			}
+
+			@Override
+			public boolean match(Instant timestamp) {
+				if (timestamp == null) {
+					return false;
+				}
+				return !timestamp.isBefore(start) && !timestamp.isAfter(fin);
+			}
 		}
 	}
 }
