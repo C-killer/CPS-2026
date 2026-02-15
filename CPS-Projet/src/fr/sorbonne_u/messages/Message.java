@@ -39,7 +39,7 @@ public class Message implements MessageI {
 
 	private Serializable payload;
 	private final Instant timestamp;
-	private final Map<String, MessageI.PropertyI> properties;
+	private final Map<String, MessageI.PropertyI> properties; // name → PropertyI
 
 	public Message(Serializable payload) {
 		this(payload, Instant.now());
@@ -65,9 +65,6 @@ public class Message implements MessageI {
 		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException(
 					"Property name must be non-null and non-empty.");
-		}
-		if (this.properties.containsKey(name)) {
-			throw new IllegalArgumentException("Property already exists: " + name);
 		}
 		this.properties.put(name, new Property(name, value));
 	}
@@ -103,6 +100,7 @@ public class Message implements MessageI {
 	}
 
 	@Override
+	// keep timestamp
 	public MessageI copy() {
 		Message m = new Message(this.payload, this.timestamp);
 		for (MessageI.PropertyI p : this.properties.values()) {

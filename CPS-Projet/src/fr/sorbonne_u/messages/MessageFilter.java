@@ -3,8 +3,6 @@ package fr.sorbonne_u.messages;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-
 import java.io.Serializable;
 import java.time.Instant;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
@@ -88,12 +86,78 @@ public class MessageFilter implements MessageFilterI {
 		private final Serializable value;
 
 		public ValueFilter(Serializable value) {
+			if (value == null) {
+				throw new IllegalArgumentException("Value cannot be null");
+			}
 			this.value = value;
 		}
 
 		@Override
 		public boolean match(Serializable value) {
 			return this.value.equals(value);
+		}
+
+		public static class AnyValueFilter implements MessageFilterI.ValueFilterI {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean match(Serializable value) {
+				return true;
+			}
+		}
+
+		public static class GreaterThanFilter implements MessageFilterI.ValueFilterI {
+			private static final long serialVersionUID = 1L;
+			private final double threshold;
+
+			public GreaterThanFilter(double threshold) {
+				this.threshold = threshold;
+			}
+
+			@Override
+			public boolean match(Serializable value) {
+				if (value instanceof Number) {
+					return ((Number) value).doubleValue() > threshold;
+				}
+				return false;
+			}
+		}
+
+		public static class LessThanFilter implements MessageFilterI.ValueFilterI {
+			private static final long serialVersionUID = 1L;
+			private final double threshold;
+
+			public LessThanFilter(double threshold) {
+				this.threshold = threshold;
+			}
+
+			@Override
+			public boolean match(Serializable value) {
+				if (value instanceof Number) {
+					return ((Number) value).doubleValue() < threshold;
+				}
+				return false;
+			}
+		}
+
+		public static class BetweenFilter implements MessageFilterI.ValueFilterI {
+			private static final long serialVersionUID = 1L;
+			private final double min;
+			private final double max;
+
+			public BetweenFilter(double min, double max) {
+				this.min = min;
+				this.max = max;
+			}
+
+			@Override
+			public boolean match(Serializable value) {
+				if (value instanceof Number) {
+					double v = ((Number) value).doubleValue();
+					return v >= min && v <= max;
+				}
+				return false;
+			}
 		}
 	}
 
@@ -110,7 +174,7 @@ public class MessageFilter implements MessageFilterI {
 				throw new IllegalArgumentException("ValueFilter cannot be null");
 			this.name = name;
 			this.valueFilter = valueFilter;
-		};
+		}
 
 		@Override
 		public String getName() {
@@ -120,7 +184,7 @@ public class MessageFilter implements MessageFilterI {
 		@Override
 		public MessageFilterI.ValueFilterI getValueFilter() {
 			return valueFilter;
-		};
+		}
 
 		@Override
 		public boolean match(MessageI.PropertyI property) {
@@ -134,11 +198,17 @@ public class MessageFilter implements MessageFilterI {
 		private static final long serialVersionUID = 1L;
 
 		private final String[] names;
+		private final Serializable[] expectedV;
 
-		public MultiValuesFilter(String[] names) {
-			if (names == null || names.length == 0)
-				throw new IllegalArgumentException("Names array cannot be empty");
+		public MultiValuesFilter(String[] names, Serializable[] expectedValues) {
+			if (names == null || names.length < 2) {
+				throw new IllegalArgumentException("Names array must contain at least 2 elements");
+			}
+			if (expectedValues == null || expectedValues.length != names.length) {
+				throw new IllegalArgumentException("Expected values array must have the same length as names array");
+			}
 			this.names = names;
+			this.expectedV = expectedValues;
 		}
 
 		@Override
@@ -147,19 +217,16 @@ public class MessageFilter implements MessageFilterI {
 		}
 
 		@Override
-		public boolean match(Serializable[] values) {
-			if (values == null || values.length != names.length) {
+		public boolean match(Serializable... values) {
+			if (values == null || values.length != expectedV.length) {
 				return false;
 			}
-			boolean flag = true;
-			int i;
-			for (i = 0; i < names.length; i++) {
-				if (names[i] != values[i]) {
-					flag = false;
-					break;
+			for (int i = 0; i < expectedV.length; i++) {
+				if (!expectedV[i].equals(values[i])) {
+					return false;
 				}
 			}
-			return flag;
+			return true;
 		}
 	}
 
@@ -180,7 +247,7 @@ public class MessageFilter implements MessageFilterI {
 		}
 
 		@Override
-		public boolean match(PropertyI[] properties) {
+		public boolean match(PropertyI... properties) {
 			if (properties == null)
 				return false;
 
@@ -204,9 +271,11 @@ public class MessageFilter implements MessageFilterI {
 		}
 	}
 
-	public class TimeFilter {
+	public static class TimeFilter {
 
 		public static class JokerFilter implements TimeFilterI {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean match(Instant timestamp) {
 				return true;
@@ -214,6 +283,7 @@ public class MessageFilter implements MessageFilterI {
 		}
 
 		public static class BeforeFilter implements TimeFilterI {
+			private static final long serialVersionUID = 1L;
 			private Instant fin;
 
 			public BeforeFilter(Instant fin) {
@@ -230,6 +300,7 @@ public class MessageFilter implements MessageFilterI {
 		}
 
 		public static class AfterFilter implements TimeFilterI {
+			private static final long serialVersionUID = 1L;
 			private Instant start;
 
 			public AfterFilter(Instant start) {
@@ -246,6 +317,7 @@ public class MessageFilter implements MessageFilterI {
 		}
 
 		public static class BetweenFilter implements TimeFilterI {
+			private static final long serialVersionUID = 1L;
 			private Instant start;
 			private Instant fin;
 
