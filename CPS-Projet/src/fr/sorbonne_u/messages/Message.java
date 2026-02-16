@@ -45,7 +45,7 @@ public class Message implements MessageI {
 		this(payload, Instant.now());
 	}
 
-	private Message(Serializable payload, Instant timestamp) {
+	public Message(Serializable payload, Instant timestamp) {
 		this.payload = payload;
 		this.timestamp = timestamp;
 		this.properties = new HashMap<>();
@@ -122,5 +122,25 @@ public class Message implements MessageI {
 	@Override
 	public Instant getTimeStamp() {
 		return this.timestamp;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Message{");
+		sb.append("payload=").append(this.payload);
+		sb.append(", time=").append(this.timestamp);
+		sb.append(", properties={");
+
+		boolean first = true;
+		for (MessageI.PropertyI p : this.properties.values()) {
+			if (!first)
+				sb.append(", ");
+			sb.append(p.getName()).append("=").append(p.getValue());
+			first = false;
+		}
+
+		sb.append("}}");
+		return sb.toString();
 	}
 }

@@ -1,0 +1,61 @@
+package fr.sorbonne_u.publication;
+
+import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.cvm.AbstractCVM;
+
+import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
+import fr.sorbonne_u.messages.MessageFilter;
+
+public class CVM extends AbstractCVM {
+
+	public CVM() throws Exception {
+		super();
+	}
+
+	public static final int NB_CHANNELS = 3;
+
+	@Override
+	public void deploy() throws Exception {
+		// 1) Broker
+		AbstractComponent.createComponent(
+				Broker.class.getCanonicalName(),
+				new Object[] { NB_CHANNELS });
+
+		// 2) Subscriber client
+		// Subscriber client (5 params)
+		AbstractComponent.createComponent(
+				Client.class.getCanonicalName(),
+				new Object[] {
+						"client-subscriber-receiving",
+						Broker.registrationPortURI(),
+						RegistrationClass.FREE,
+						"channel0",
+						new MessageFilter(null, null, null) // 注意：这里不是 null
+				});
+
+		// Publisher client (5 params)
+		AbstractComponent.createComponent(
+				Client.class.getCanonicalName(),
+				new Object[] {
+						"client-publisher-receiving",
+						Broker.registrationPortURI(),
+						RegistrationClass.FREE,
+						"channel0",
+						new fr.sorbonne_u.messages.Message("demo") // 如果你的 Message 构造器不同，见下方
+				});
+
+		super.deploy();
+	}
+
+	public static void main(String[] args) {
+		try {
+			CVM cvm = new CVM();
+			// standard BCM lifecycle: deploy -> start -> execute -> finalise -> shutdown
+			cvm.startStandardLifeCycle(10000L);
+			System.exit(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+}
