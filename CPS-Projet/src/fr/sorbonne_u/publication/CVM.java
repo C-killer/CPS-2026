@@ -7,7 +7,6 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
 
 public class CVM extends AbstractCVM {
-
 	public CVM() throws Exception {
 		super();
 	}
@@ -15,6 +14,13 @@ public class CVM extends AbstractCVM {
 	public static final int NB_CHANNELS = 3;
 
 	@Override
+	// deploy():
+
+	// 创建1个Broker,初始化3个频道。
+
+	// 创建1个订阅者Client,监听channel0。
+
+	// 创建1个发布者Client,准备向channel0发送demo消息。
 	public void deploy() throws Exception {
 		// 1) Broker
 		AbstractComponent.createComponent(

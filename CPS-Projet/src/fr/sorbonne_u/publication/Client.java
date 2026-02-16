@@ -46,6 +46,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 	// set after register
 	protected String brokerPublishingInboundURI;
 
+	// 通用构造函数
 	public Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
@@ -77,6 +78,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 	}
 
 	// Subscriber constructor (no null args)
+	// 默认subscriber构造函数
 	public Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
@@ -104,6 +106,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 	}
 
 	// Publisher constructor (no null args)
+	// 默认publisher构造函数
 	public Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
@@ -130,7 +133,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		this.publishingOutbound.publishPort();
 	}
 
-	@Override
+	@Override // 将registrationOutBound连接到Broker注册入口端口,交互基础
 	public synchronized void start() {
 		try {
 			super.start();
@@ -145,7 +148,8 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		}
 	}
 
-	@Override
+	@Override // 注册,调用register,会获取
+				// Broker返回的brokerPublishingInboundURI,这是发布消息所需的动态地址,拿到地址后,立即连接publishingOutbound
 	public void execute() throws Exception {
 		// 1) register (receptionPortURI == receivingInboundURI)
 		try {
@@ -184,18 +188,22 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		}
 	}
 
+	// 通过registrationOutbound告诉Broker:“我想接收channel频道里符合 filter 条件的消息”
 	protected void doSubscribe() throws Exception {
 		MessageFilterI f = (this.filter != null) ? this.filter : new MessageFilter(null, null, null);
 		this.registrationOutbound.subscribe(this.receivingInboundURI, this.channel, f);
-		this.logMessage("Subscribed to " + this.channel);
+		this.logMessage("Subscribed to " + this.channel);// print
 	}
 
+	// 准备好要发送的MessageI
+	// 通过publishingOutbound将消息推送到Broker
 	protected void doPublish() throws Exception {
 		MessageI m = (this.messageToPublish != null) ? this.messageToPublish : defaultMessage();
 		this.publishingOutbound.publish(this.receivingInboundURI, this.channel, m);
 		this.logMessage("Published 1 message to " + this.channel);
 	}
 
+	// 默认生成如风速的消息用于测试
 	protected MessageI defaultMessage() throws Exception {
 		// Minimal message with timestamp + a couple of properties (adjust if your
 		// Message ctor differs)
@@ -218,7 +226,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		this.logMessage("RECEIVED batch on " + channel + " : " + (messages == null ? 0 : messages.length));
 	}
 
-	@Override
+	@Override // 断连
 	public synchronized void finalise() throws Exception {
 		// disconnect outbounds if connected
 		try {
@@ -232,7 +240,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		super.finalise();
 	}
 
-	@Override
+	@Override // 销毁端口
 	public synchronized void shutdown() throws RuntimeException, ComponentShutdownException {
 		try {
 			this.receivingInboundPort.unpublishPort();

@@ -71,7 +71,7 @@ public class Broker extends AbstractComponent
 		return registered.containsKey(receptionPortURI);
 	}
 
-	@Override
+	@Override // 注册+registration等级
 	public boolean registered(String receptionPortURI, RegistrationClass rc) throws RemoteException {
 		return rc != null && rc.equals(registered.get(receptionPortURI));
 	}
@@ -90,7 +90,7 @@ public class Broker extends AbstractComponent
 		return PUBLISHING_INBOUND_URI;
 	}
 
-	@Override
+	@Override // 修改服务等级
 	public String modifyServiceClass(String receptionPortURI, RegistrationClass rc)
 			throws RemoteException, AlreadyRegisteredException {
 		if (!registered.containsKey(receptionPortURI)) {
@@ -101,7 +101,7 @@ public class Broker extends AbstractComponent
 		return PUBLISHING_INBOUND_URI;
 	}
 
-	@Override
+	@Override // 客户端离开,清除连接,删除记录
 	public void unregister(String receptionPortURI) throws RemoteException, UnknownIdentifierException {
 		if (!registered.containsKey(receptionPortURI)) {
 			throw new UnknownIdentifierException("unregister: unknown identifier " + receptionPortURI);
@@ -136,7 +136,7 @@ public class Broker extends AbstractComponent
 		return subs != null && subs.containsKey(receptionPortURI);
 	}
 
-	@Override
+	@Override // 订阅
 	public void subscribe(String receptionPortURI, String channel, MessageFilterI filter) throws RemoteException {
 		if (!channels.contains(channel)) {
 			throw new RemoteException("subscribe: unknown channel " + channel);
@@ -148,7 +148,7 @@ public class Broker extends AbstractComponent
 				.put(receptionPortURI, filter);
 	}
 
-	@Override
+	@Override // 取消订阅
 	public void unsubscribe(String receptionPortURI, String channel) throws RemoteException {
 		if (!channels.contains(channel)) {
 			throw new RemoteException("unsubscribe: unknown channel " + channel);
@@ -159,7 +159,7 @@ public class Broker extends AbstractComponent
 		}
 	}
 
-	@Override
+	@Override // 更新过滤器
 	public boolean modifyFilter(String receptionPortURI, String channel, MessageFilterI filter) throws RemoteException {
 		if (!channels.contains(channel)) {
 			throw new RemoteException("modifyFilter: unknown channel " + channel);
@@ -208,6 +208,10 @@ public class Broker extends AbstractComponent
 	// ---------------------------------------------------------------------
 	// Internal delivery helper
 	// ---------------------------------------------------------------------
+
+	// 1.找到该频道的所有订阅者
+	// 2.对每条消,调用订阅者的过滤器进行匹配
+	// 3.如果匹配成功,则通过ReceivingOutbound端口将消
 	protected void deliverToSubscribers(String channel, MessageI[] messages) throws RemoteException {
 		Map<String, MessageFilterI> subs = subscriptions.get(channel);
 		if (subs == null || subs.isEmpty())
@@ -228,6 +232,7 @@ public class Broker extends AbstractComponent
 		}
 	}
 
+	// 如果 Broker 还没连接过某个客户端，它会在此刻动态创建一个出口端口并完成连接,如果已经连接过，则直接复用已有的端口，提高效率。
 	protected ReceivingOutbound getOrConnectReceivingOutbound(String clientReceptionInboundURI) throws RemoteException {
 		ReceivingOutbound rop = receivingOutboundPorts.get(clientReceptionInboundURI);
 		if (rop != null)
