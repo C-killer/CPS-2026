@@ -12,7 +12,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 
 public class RegistrationConnector extends AbstractConnector implements RegistrationCI {
 
-	@Override
+	@Override // 检查client是否存在
 	public boolean registered(String receptionPortURI) throws RemoteException {
 		try {
 			return ((RegistrationCI) this.offering).registered(receptionPortURI);
@@ -22,7 +22,7 @@ public class RegistrationConnector extends AbstractConnector implements Registra
 		}
 	}
 
-	@Override
+	@Override // 检查client是否以特定服务等级
 	public boolean registered(String receptionPortURI, RegistrationClass rc) throws RemoteException {
 		try {
 			return ((RegistrationCI) this.offering).registered(receptionPortURI, rc);

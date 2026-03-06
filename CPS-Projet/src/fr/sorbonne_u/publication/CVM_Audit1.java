@@ -7,7 +7,7 @@ import fr.sorbonne_u.components.cvm.AbstractCVM;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.messages.MessageFilter;
-import fr.sorbonne_u.messages.WindmillFilter;
+import fr.sorbonne_u.publication.components.*;
 
 public class CVM_Audit1 extends AbstractCVM {
 

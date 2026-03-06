@@ -5,6 +5,7 @@ import fr.sorbonne_u.components.cvm.AbstractCVM;
 
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
+import fr.sorbonne_u.publication.components.*;
 
 public class CVM extends AbstractCVM {
 	public CVM() throws Exception {

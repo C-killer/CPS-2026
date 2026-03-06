@@ -1,4 +1,4 @@
-package fr.sorbonne_u.publication.ports;
+package fr.sorbonne_u.publication.ports.outbound;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
