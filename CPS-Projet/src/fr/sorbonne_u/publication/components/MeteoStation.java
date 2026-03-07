@@ -1,5 +1,6 @@
 package fr.sorbonne_u.publication.components;
 
+import fr.sorbonne_u.components.utils.tests.TestScenario;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.publication.Client;
@@ -15,14 +16,16 @@ public class MeteoStation extends Client {
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
 			String channel,
-			MessageI messageToPublish) throws Exception {
+			MessageI messageToPublish,
+			TestScenario scenario) throws Exception {
 		super(
 				receivingInboundURI,
 				brokerRegistrationInboundURI,
 				serviceClass,
 				channel,
 				null, // no subscription filter
-				messageToPublish);
+				messageToPublish,
+				scenario);
 	}
 
 	/**
@@ -32,13 +35,15 @@ public class MeteoStation extends Client {
 	public MeteoStation(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
-			String channel) throws Exception {
+			String channel,
+			TestScenario scenario) throws Exception {
 		super(
 				receivingInboundURI,
 				brokerRegistrationInboundURI,
 				RegistrationClass.FREE,
 				channel,
 				null,
-				null);
+				null,
+				scenario);
 	}
 }

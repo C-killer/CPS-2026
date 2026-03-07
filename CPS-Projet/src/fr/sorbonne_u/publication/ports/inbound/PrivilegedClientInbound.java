@@ -25,7 +25,7 @@ public class PrivilegedClientInbound extends AbstractInboundPort implements Priv
 	public boolean channelExists(String channel)
 			throws RemoteException {
 		try {
-			return ((PrivilegedClientImpli) this.getOwner()).channelExists(channel);
+			return ((PrivilegedClientCI) this.getOwner()).channelExists(channel);
 		} catch (RemoteException e) {
 			throw e;
 		} catch (Exception e) {
@@ -37,7 +37,7 @@ public class PrivilegedClientInbound extends AbstractInboundPort implements Priv
 	public boolean channelQuotaReached(String receptionPortURI)
 			throws RemoteException, UnknownIdentifierException {
 		try {
-			return ((PrivilegedClientImpli) this.getOwner())
+			return ((PrivilegedClientCI) this.getOwner())
 					.channelQuotaReached(receptionPortURI);
 		} catch (RemoteException | UnknownIdentifierException e) {
 			throw e;
@@ -50,7 +50,7 @@ public class PrivilegedClientInbound extends AbstractInboundPort implements Priv
 	public void createChannel(String receptionPortURI, String channel)
 			throws RemoteException, UnknownIdentifierException {
 		try {
-			((PrivilegedClientImpli) this.getOwner())
+			((PrivilegedClientCI) this.getOwner())
 					.createChannel(receptionPortURI, channel);
 		} catch (RemoteException | UnknownIdentifierException e) {
 			throw e;
@@ -63,7 +63,7 @@ public class PrivilegedClientInbound extends AbstractInboundPort implements Priv
 	public void destroyChannel(String receptionPortURI, String channel)
 			throws RemoteException, UnknownIdentifierException, UnknownChannelException {
 		try {
-			((PrivilegedClientImpli) this.getOwner())
+			((PrivilegedClientCI) this.getOwner())
 					.destroyChannel(receptionPortURI, channel);
 		} catch (RemoteException | UnknownIdentifierException | UnknownChannelException e) {
 			throw e;
@@ -76,7 +76,7 @@ public class PrivilegedClientInbound extends AbstractInboundPort implements Priv
 	public void destroyChannelNow(String receptionPortURI, String channel)
 			throws RemoteException, UnknownIdentifierException, UnknownChannelException {
 		try {
-			((PrivilegedClientImpli) this.getOwner())
+			((PrivilegedClientCI) this.getOwner())
 					.destroyChannelNow(receptionPortURI, channel);
 		} catch (RemoteException | UnknownIdentifierException | UnknownChannelException e) {
 			throw e;

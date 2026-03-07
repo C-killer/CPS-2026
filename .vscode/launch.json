@@ -3,6 +3,13 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "CVM_ScenarioTest",
+			"request": "launch",
+			"mainClass": "fr.sorbonne_u.publication.CVM_ScenarioTest",
+			"projectName": "CPS-2026_14caf91e"
+		},
+		{
+			"type": "java",
 			"name": "CVM_PluginTest",
 			"request": "launch",
 			"mainClass": "fr.sorbonne_u.publication.CVM_PluginTest",

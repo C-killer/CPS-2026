@@ -1,5 +1,6 @@
 package fr.sorbonne_u.publication.components;
 
+import fr.sorbonne_u.components.utils.tests.TestScenario;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
@@ -16,14 +17,16 @@ public class Windmill extends Client {
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
 			String channel,
-			MessageFilterI filter) throws Exception {
+			MessageFilterI filter,
+			TestScenario scenario) throws Exception {
 		super(
 				receivingInboundURI,
 				brokerRegistrationInboundURI,
 				serviceClass,
 				channel,
 				filter,
-				null); // no publication message for windmill
+				null,
+				scenario); // no publication message for windmill
 	}
 
 	/**
@@ -32,13 +35,15 @@ public class Windmill extends Client {
 	public Windmill(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
-			String channel) throws Exception {
+			String channel,
+			TestScenario scenario) throws Exception {
 		super(
 				receivingInboundURI,
 				brokerRegistrationInboundURI,
 				RegistrationClass.FREE,
 				channel,
 				new MessageFilter(null, null, null),
-				null);
+				null,
+				scenario);
 	}
 }
