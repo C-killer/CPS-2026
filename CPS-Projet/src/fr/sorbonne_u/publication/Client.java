@@ -17,6 +17,16 @@ import fr.sorbonne_u.utils.aclocks.ClocksServer;
 import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 
+/*
+ * Version pluginisée du client.
+ *
+ * Cette classe remplace l'ancienne approche monolithique du composant client
+ * par une décomposition en rôles, chacun porté par un greffon spécialisé :
+ * - ClientRegistrationPlugin : gestion de l'enregistrement auprès du broker ;
+ * - ClientPublicationPlugin  : gestion de la publication des messages ;
+ * - ClientSubscriptionPlugin : gestion des abonnements et de la réception.
+ */
+
 public class Client extends AbstractComponent implements ReceivingCI {
 
 	protected final String receivingInboundURI;
@@ -43,6 +53,26 @@ public class Client extends AbstractComponent implements ReceivingCI {
 	protected ClientSubscriptionPlugin subscriptionPlugin;
 
 	// constructeur
+	/*
+	 * Nous avons conçu deux constructeurs de base :
+	 * l'un permet d'initialiser l'ensemble des attributs du composant Client,
+	 * tandis que l'autre en constitue une version simplifiée ne conservant que les
+	 * paramètres de configuration essentiels et fixant filter et messageToPublish à
+	 * null.
+	 * Cette version simplifiée permet au client de s'adapter plus facilement aux
+	 * différents rôles, tels que publisher ou subscriber.
+	 * 
+	 * Par ailleurs, chacun de ces deux constructeurs possède également une variante
+	 * avec paramètre TestScenario, afin de permettre l'exécution des composants
+	 * dans un scénario de test avec contrôle temporel.
+	 * 
+	 * 我们设计了两个基础构造函数：
+	 * 一个用于初始化 Client 的全部属性；
+	 * 另一个是简化版本，只保留基本配置参数，并将 filter 和 messageToPublish 设为 null。这种简化版本使 Client
+	 * 能够更加灵活地适应 publisher 或 subscriber 等不同角色的功能需求。
+	 * 
+	 * 此外，我们还分别为这两个基础构造函数设计了带 TestScenario 参数的版本，以支持在测试场景中按照预定时间顺序执行组件的操作。
+	 */
 	public Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
@@ -117,6 +147,17 @@ public class Client extends AbstractComponent implements ReceivingCI {
 
 	/**
 	 * Initialise les plugins.
+	 */
+
+	/*
+	 * La méthode initialisePlugins() installe et initialise les différents greffons
+	 * du client en fonction de sa configuration.
+	 * Ces greffons prennent en charge les principales interactions avec le broker,
+	 * notamment l’enregistrement, la publication et la souscription.
+	 * 
+	 * initialisePlugins() 方法根据 Client 在构造时的配置初始化并安装相应的插件，并通过这些插件实现客户端与 broker
+	 * 之间的注册、发布和订阅等功能。
+	 * 
 	 */
 	protected void initialisePlugins() throws Exception {
 
