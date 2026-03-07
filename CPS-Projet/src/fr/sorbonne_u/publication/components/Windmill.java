@@ -3,26 +3,42 @@ package fr.sorbonne_u.publication.components;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
+import fr.sorbonne_u.publication.Client;
 
-//代表系统中的消费者/订阅者,它订阅特定频道(如气象频道)并根据过滤器接收数据。
-public class Windmill extends Client_before_plugins {
+/**
+ * Windmill = subscriber client.
+ * It subscribes to one channel with a filter and receives matching messages.
+ */
+public class Windmill extends Client {
 
-	public Windmill(String receivingInboundURI,
+	public Windmill(
+			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
 			String channel,
 			MessageFilterI filter) throws Exception {
-		super(receivingInboundURI, brokerRegistrationInboundURI, serviceClass, channel, filter);
+		super(
+				receivingInboundURI,
+				brokerRegistrationInboundURI,
+				serviceClass,
+				channel,
+				filter,
+				null); // no publication message for windmill
 	}
 
-	// Convenience constructor with a default "wind" filter
-	public Windmill(String receivingInboundURI,
+	/**
+	 * Convenience constructor: FREE service + match-all filter.
+	 */
+	public Windmill(
+			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			String channel) throws Exception {
-		super(receivingInboundURI,
+		super(
+				receivingInboundURI,
 				brokerRegistrationInboundURI,
 				RegistrationClass.FREE,
 				channel,
-				new MessageFilter(null, null, null)); // match all; refine later if you want
+				new MessageFilter(null, null, null),
+				null);
 	}
 }

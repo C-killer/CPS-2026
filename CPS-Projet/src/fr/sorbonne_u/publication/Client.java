@@ -154,7 +154,7 @@ public class Client extends AbstractComponent implements ReceivingCI {
 		}
 
 		// publish message if provided
-		if (this.messageToPublish != null) {
+		if (this.messageToPublish != null && !"dummy".equals(this.messageToPublish.getPayload())) {
 
 			Thread.sleep(300);
 

@@ -1,18 +1,13 @@
 package fr.sorbonne_u.publication;
 
-import java.time.Instant;
-
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
-import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.messages.MessageFilter;
-import fr.sorbonne_u.publication.components.MeteoOffice;
-import fr.sorbonne_u.publication.components.MeteoStation;
-import fr.sorbonne_u.publication.components.Windmill;
+import fr.sorbonne_u.publication.components.Client_before_plugins;
 
 public class CVM_Audit1 extends AbstractCVM {
-
 	public CVM_Audit1() throws Exception {
 		super();
 	}
@@ -20,67 +15,40 @@ public class CVM_Audit1 extends AbstractCVM {
 	public static final int NB_CHANNELS = 3;
 
 	@Override
+	// deploy():
+
+	// 创建1个Broker,初始化3个频道。
+
+	// 创建1个订阅者Client,监听channel0。
+
+	// 创建1个发布者Client,准备向channel0发送demo消息。
 	public void deploy() throws Exception {
-		// Broker
+		// 1) Broker
 		AbstractComponent.createComponent(
 				Broker.class.getCanonicalName(),
 				new Object[] { NB_CHANNELS });
 
-		// Windmill (subscriber)
+		// 2) Subscriber client
+		// Subscriber client (5 params)
 		AbstractComponent.createComponent(
-				Windmill.class.getCanonicalName(),
+				Client_before_plugins.class.getCanonicalName(),
 				new Object[] {
-						"windmill-receiving",
+						"client-subscriber-receiving",
 						Broker.registrationPortURI(),
 						RegistrationClass.FREE,
 						"channel0",
-						new MessageFilter(null, null, null) // match-all for demo
-				// new WindmillFilter()
+						new MessageFilter(null, null, null) // 注意：这里不是 null
 				});
 
-		// Meteo station 1 (publisher): wind speed 42
-		Message m1 = new Message("station1", Instant.now());
-		m1.putProperty("type", "wind");
-		m1.putProperty("speed", 42);
-
+		// Publisher client (5 params)
 		AbstractComponent.createComponent(
-				MeteoStation.class.getCanonicalName(),
+				Client_before_plugins.class.getCanonicalName(),
 				new Object[] {
-						"station1-receiving",
+						"client-publisher-receiving",
 						Broker.registrationPortURI(),
 						RegistrationClass.FREE,
 						"channel0",
-						m1
-				});
-
-		// Meteo station 2 (publisher): wind speed 10
-		Message m2 = new Message("station2", Instant.now());
-		m2.putProperty("type", "wind");
-		m2.putProperty("speed", 10);
-
-		AbstractComponent.createComponent(
-				MeteoStation.class.getCanonicalName(),
-				new Object[] {
-						"station2-receiving",
-						Broker.registrationPortURI(),
-						RegistrationClass.FREE,
-						"channel0",
-						m2
-				});
-
-		// Meteo office (publisher): alert message
-		Message office = new Message("office", Instant.now());
-		office.putProperty("type", "alert");
-		office.putProperty("level", "orange");
-
-		AbstractComponent.createComponent(
-				MeteoOffice.class.getCanonicalName(),
-				new Object[] {
-						"office-receiving",
-						Broker.registrationPortURI(),
-						RegistrationClass.FREE,
-						"channel0",
-						office
+						new fr.sorbonne_u.messages.Message("demo")
 				});
 
 		super.deploy();
@@ -89,7 +57,8 @@ public class CVM_Audit1 extends AbstractCVM {
 	public static void main(String[] args) {
 		try {
 			CVM_Audit1 cvm = new CVM_Audit1();
-			cvm.startStandardLifeCycle(5000L);
+			// standard BCM lifecycle: deploy -> start -> execute -> finalise -> shutdown
+			cvm.startStandardLifeCycle(10000L);
 			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();
