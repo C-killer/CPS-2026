@@ -1,57 +1,45 @@
 package fr.sorbonne_u.publication;
 
 import java.rmi.RemoteException;
-import java.time.Instant;
 
 import fr.sorbonne_u.components.AbstractComponent;
-import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
-import fr.sorbonne_u.publication.connectors.PublishingConnector;
-import fr.sorbonne_u.publication.connectors.RegistrationConnector;
-import fr.sorbonne_u.publication.implementations.ReceivingImplI;
-import fr.sorbonne_u.publication.ports.PublishingOutbound;
-import fr.sorbonne_u.publication.ports.ReceivingInbound;
-import fr.sorbonne_u.publication.ports.RegistrationOutbound;
-
-import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
+import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
+import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
-
-import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.messages.MessageFilter;
+import fr.sorbonne_u.publication.plugins.ClientPublicationPlugin;
+import fr.sorbonne_u.publication.plugins.ClientRegistrationPlugin;
+import fr.sorbonne_u.publication.plugins.ClientSubscriptionPlugin;
 
-public class Client extends AbstractComponent implements ReceivingImplI {
+public class Client extends AbstractComponent implements ReceivingCI {
 
-	public enum Role {
-		SUBSCRIBER, PUBLISHER
-	}
-
-	// ----- configuration -----
-	protected final String receivingInboundURI; // must be used as receptionPortURI
+	protected final String receivingInboundURI;
 	protected final String brokerRegistrationInboundURI;
 	protected final RegistrationClass serviceClass;
-	protected final Role role;
+
+	/**
+	 * channel pour publication ou subscription
+	 * On supprime role pour realiser d'etre publisher et subscriber en meme temps
+	 */
 	protected final String channel;
 
-	// subscriber-only
+	/** optional message filter */
 	protected final MessageFilterI filter;
 
-	// publisher-only
+	/** optional message to publish */
 	protected final MessageI messageToPublish;
 
-	// ----- ports -----
-	protected final ReceivingInbound receivingInboundPort; // offers ReceivingCI
-	protected final RegistrationOutbound registrationOutbound; // requires RegistrationCI
-	protected final PublishingOutbound publishingOutbound; // requires PublishingCI
+	// plugins
+	protected ClientRegistrationPlugin registrationPlugin;
+	protected ClientPublicationPlugin publicationPlugin;
+	protected ClientSubscriptionPlugin subscriptionPlugin;
 
-	// set after register
-	protected String brokerPublishingInboundURI;
-
-	// 通用构造函数
+	// constructeur
 	public Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
-			Role role,
 			String channel,
 			MessageFilterI filter,
 			MessageI messageToPublish) throws Exception {
@@ -60,200 +48,153 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
 		this.serviceClass = serviceClass;
-		this.role = role;
+
 		this.channel = channel;
 		this.filter = filter;
 		this.messageToPublish = messageToPublish;
 
-		// offers ReceivingCI
-		this.receivingInboundPort = new ReceivingInbound(this.receivingInboundURI, this);
-		this.receivingInboundPort.publishPort();
-
-		// requires RegistrationCI + PublishingCI
-		this.registrationOutbound = new RegistrationOutbound(this);
-		this.registrationOutbound.publishPort();
-
-		this.publishingOutbound = new PublishingOutbound(this);
-		this.publishingOutbound.publishPort();
+		this.initialisePlugins();
 	}
 
-	// Subscriber constructor (no null args)
-	// 默认subscriber构造函数
 	public Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
-			String channel,
-			MessageFilterI filter) throws Exception {
-		super(1, 0);
-
-		this.receivingInboundURI = receivingInboundURI;
-		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
-		this.serviceClass = serviceClass;
-		this.role = Role.SUBSCRIBER;
-		this.channel = channel;
-		this.filter = filter;
-		this.messageToPublish = null;
-
-		this.receivingInboundPort = new ReceivingInbound(this.receivingInboundURI, this);
-		this.receivingInboundPort.publishPort();
-
-		this.registrationOutbound = new RegistrationOutbound(this);
-		this.registrationOutbound.publishPort();
-
-		this.publishingOutbound = new PublishingOutbound(this);
-		this.publishingOutbound.publishPort();
+			String channel) throws Exception {
+		this(receivingInboundURI,
+				brokerRegistrationInboundURI,
+				serviceClass,
+				channel,
+				null,
+				null);
 	}
 
-	// Publisher constructor (no null args)
-	// 默认publisher构造函数
-	public Client(
-			String receivingInboundURI,
-			String brokerRegistrationInboundURI,
-			RegistrationClass serviceClass,
-			String channel,
-			MessageI messageToPublish) throws Exception {
-		super(1, 0);
+	/**
+	 * Initialise les plugins.
+	 */
+	protected void initialisePlugins() throws Exception {
 
-		this.receivingInboundURI = receivingInboundURI;
-		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
-		this.serviceClass = serviceClass;
-		this.role = Role.PUBLISHER;
-		this.channel = channel;
-		this.filter = null;
-		this.messageToPublish = messageToPublish;
+		this.registrationPlugin = new ClientRegistrationPlugin();
+		this.registrationPlugin.setPluginURI("reg-plugin-" + this.receivingInboundURI);
+		this.registrationPlugin.configure(
+				this.receivingInboundURI,
+				this.brokerRegistrationInboundURI,
+				this.serviceClass);
 
-		this.receivingInboundPort = new ReceivingInbound(this.receivingInboundURI, this);
-		this.receivingInboundPort.publishPort();
+		this.publicationPlugin = new ClientPublicationPlugin();
+		this.publicationPlugin.setPluginURI("pub-plugin-" + this.receivingInboundURI);
+		this.publicationPlugin.configure(
+				this.receivingInboundURI,
+				this.brokerRegistrationInboundURI,
+				this.serviceClass);
 
-		this.registrationOutbound = new RegistrationOutbound(this);
-		this.registrationOutbound.publishPort();
+		this.subscriptionPlugin = new ClientSubscriptionPlugin();
+		this.subscriptionPlugin.setPluginURI("sub-plugin-" + this.receivingInboundURI);
+		this.subscriptionPlugin.configure(
+				this.receivingInboundURI,
+				this.brokerRegistrationInboundURI,
+				this.serviceClass);
 
-		this.publishingOutbound = new PublishingOutbound(this);
-		this.publishingOutbound.publishPort();
+		this.installPlugin(this.registrationPlugin);
+		this.installPlugin(this.publicationPlugin);
+		this.installPlugin(this.subscriptionPlugin);
 	}
 
-	@Override // 将registrationOutBound连接到Broker注册入口端口,交互基础
+	public ClientRegistrationPlugin getRegistrationPlugin() {
+		return this.registrationPlugin;
+	}
+
+	public ClientPublicationPlugin getPublicationPlugin() {
+		return this.publicationPlugin;
+	}
+
+	public ClientSubscriptionPlugin getSubscriptionPlugin() {
+		return this.subscriptionPlugin;
+	}
+
+	@Override
 	public synchronized void start() {
 		try {
 			super.start();
 
-			// Connect RegistrationOutbound -> Broker RegistrationInbound
-			this.registrationOutbound.doConnection(
-					this.brokerRegistrationInboundURI,
-					RegistrationConnector.class.getCanonicalName());
+			this.registrationPlugin.initialise();
+			this.publicationPlugin.initialise();
+			this.subscriptionPlugin.initialise();
 
 		} catch (Exception e) {
 			throw new RuntimeException("Client.start failed", e);
 		}
 	}
 
-	@Override // 注册,调用register,会获取
-				// Broker返回的brokerPublishingInboundURI,这是发布消息所需的动态地址,拿到地址后,立即连接publishingOutbound
+	@Override
 	public void execute() throws Exception {
-		// 1) register (receptionPortURI == receivingInboundURI)
-		try {
-			System.out.println("[" + this.receivingInboundURI + "] execute: begin, role=" + this.role);
-			this.brokerPublishingInboundURI = this.registrationOutbound.register(this.receivingInboundURI,
-					this.serviceClass);
-			this.logMessage("Registered. Publishing inbound URI = " + this.brokerPublishingInboundURI);
-		} catch (Exception e) {
-			// Will catch AlreadyRegisteredException too (checked) if you added it
-			// everywhere
-			this.logMessage("Register failed: " + e.getClass().getSimpleName() + " : " + e.getMessage());
-			throw e;
+
+		System.out.println("[" + this.receivingInboundURI + "] execute begin");
+
+		// register to broker
+		this.registrationPlugin.register(this.serviceClass);
+
+		String brokerPublishingInboundURI = this.registrationPlugin.getBrokerPublishingInboundURI();
+
+		this.logMessage("Registered. Publishing inbound URI = " +
+				brokerPublishingInboundURI);
+
+		// connect publication plugin
+		this.publicationPlugin.connectToBroker(brokerPublishingInboundURI);
+
+		// subscribe if channel exists
+		if (this.channel != null) {
+
+			this.subscriptionPlugin.subscribe(
+					this.channel,
+					(this.filter != null) ? this.filter : new MessageFilter(null, null, null));
+
+			System.out.println("[" + this.receivingInboundURI +
+					"] subscribed to " + this.channel);
 		}
-		System.out.println(
-				"[" + this.receivingInboundURI + "] registered, publishingURI=" + this.brokerPublishingInboundURI);
 
-		// 2) connect PublishingOutbound -> broker publishing inbound
-		this.publishingOutbound.doConnection(
-				this.brokerPublishingInboundURI,
-				PublishingConnector.class.getCanonicalName());
+		// publish message if provided
+		if (this.messageToPublish != null) {
 
-		// 3) role behavior
-		switch (this.role) {
-			case SUBSCRIBER:
-				doSubscribe();
-				System.out.println("[" + this.receivingInboundURI + "] subscribed to " + this.channel);
-				break;
-			case PUBLISHER:
-				// give subscriber time to subscribe (simple deterministic demo)
-				Thread.sleep(300);
-				doPublish();
-				System.out.println("[" + this.receivingInboundURI + "] published to " + this.channel);
-				break;
-			default:
-				throw new IllegalStateException("Unknown role " + this.role);
+			Thread.sleep(300);
+
+			this.publicationPlugin.publish(
+					this.channel,
+					this.messageToPublish);
+
+			System.out.println("[" + this.receivingInboundURI +
+					"] published to " + this.channel);
 		}
 	}
 
-	// 通过registrationOutbound告诉Broker:“我想接收channel频道里符合 filter 条件的消息”
-	protected void doSubscribe() throws Exception {
-		MessageFilterI f = (this.filter != null) ? this.filter : new MessageFilter(null, null, null);
-		this.registrationOutbound.subscribe(this.receivingInboundURI, this.channel, f);
-		this.logMessage("Subscribed to " + this.channel);// print
-	}
-
-	// 准备好要发送的MessageI
-	// 通过publishingOutbound将消息推送到Broker
-	protected void doPublish() throws Exception {
-		MessageI m = (this.messageToPublish != null) ? this.messageToPublish : defaultMessage();
-		this.publishingOutbound.publish(this.receivingInboundURI, this.channel, m);
-		this.logMessage("Published 1 message to " + this.channel);
-	}
-
-	// 默认生成如风速的消息用于测试
-	protected MessageI defaultMessage() throws Exception {
-		// Minimal message with timestamp + a couple of properties (adjust if your
-		// Message ctor differs)
-		Message msg = new Message("demo", Instant.now());
-		msg.putProperty("type", "wind");
-		msg.putProperty("speed", 42);
-		return msg;
-	}
-
-	// ----- ReceivingImplI -----
+	/*
+	 * Recevoir les messages
+	 */
 	@Override
-	public void receive(String channel, MessageI message) throws RemoteException {
-		System.out.println(
-				"[" + this.receivingInboundURI + "] receive: begin, channel=" + channel + ", message=" + message);
-		this.logMessage("RECEIVED on " + channel + " : " + message);
+	public void receive(String channel, MessageI message)
+			throws RemoteException {
+		this.subscriptionPlugin.receive(channel, message);
 	}
 
 	@Override
-	public void receive(String channel, MessageI[] messages) throws RemoteException {
-		this.logMessage("RECEIVED batch on " + channel + " : " + (messages == null ? 0 : messages.length));
+	public void receive(String channel, MessageI[] messages)
+			throws RemoteException {
+		this.subscriptionPlugin.receive(channel, messages);
 	}
 
-	@Override // 断连
-	public synchronized void finalise() throws Exception {
-		// disconnect outbounds if connected
-		try {
-			this.publishingOutbound.doDisconnection();
-		} catch (Exception ignored) {
-		}
-		try {
-			this.registrationOutbound.doDisconnection();
-		} catch (Exception ignored) {
-		}
-		super.finalise();
+	public void createChannel(String channel) throws Exception {
+		this.publicationPlugin.createChannel(channel);
 	}
 
-	@Override // 销毁端口
-	public synchronized void shutdown() throws RuntimeException, ComponentShutdownException {
-		try {
-			this.receivingInboundPort.unpublishPort();
-		} catch (Exception ignored) {
-		}
-		try {
-			this.publishingOutbound.unpublishPort();
-		} catch (Exception ignored) {
-		}
-		try {
-			this.registrationOutbound.unpublishPort();
-		} catch (Exception ignored) {
-		}
-		super.shutdown();
+	public void destroyChannel(String channel) throws Exception {
+		this.publicationPlugin.destroyChannel(channel);
+	}
+
+	public void destroyChannelNow(String channel) throws Exception {
+		this.publicationPlugin.destroyChannelNow(channel);
+	}
+
+	public boolean channelQuotaReached() throws Exception {
+		return this.publicationPlugin.channelQuotaReached();
 	}
 }

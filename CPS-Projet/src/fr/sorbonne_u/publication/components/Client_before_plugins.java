@@ -19,7 +19,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.messages.MessageFilter;
 
-public class Client extends AbstractComponent implements ReceivingImplI {
+public class Client_before_plugins extends AbstractComponent implements ReceivingImplI {
 
 	public enum Role {
 		SUBSCRIBER, PUBLISHER
@@ -48,7 +48,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 	protected String brokerPublishingInboundURI;
 
 	// 通用构造函数
-	public Client(
+	public Client_before_plugins(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -83,7 +83,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 
 	// Subscriber constructor (no null args)
 	// 默认subscriber构造函数
-	public Client(
+	public Client_before_plugins(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -114,7 +114,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 
 	// Publisher constructor (no null args)
 	// 默认publisher构造函数
-	public Client(
+	public Client_before_plugins(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,

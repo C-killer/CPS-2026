@@ -5,7 +5,7 @@ import fr.sorbonne_u.components.cvm.AbstractCVM;
 
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
-import fr.sorbonne_u.publication.components.*;
+import fr.sorbonne_u.publication.components.Client_before_plugins;
 
 public class CVM extends AbstractCVM {
 	public CVM() throws Exception {
@@ -31,7 +31,7 @@ public class CVM extends AbstractCVM {
 		// 2) Subscriber client
 		// Subscriber client (5 params)
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				Client_before_plugins.class.getCanonicalName(),
 				new Object[] {
 						"client-subscriber-receiving",
 						Broker.registrationPortURI(),
@@ -42,13 +42,13 @@ public class CVM extends AbstractCVM {
 
 		// Publisher client (5 params)
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				Client_before_plugins.class.getCanonicalName(),
 				new Object[] {
 						"client-publisher-receiving",
 						Broker.registrationPortURI(),
 						RegistrationClass.FREE,
 						"channel0",
-						new fr.sorbonne_u.messages.Message("demo") // 如果你的 Message 构造器不同，见下方
+						new fr.sorbonne_u.messages.Message("demo")
 				});
 
 		super.deploy();

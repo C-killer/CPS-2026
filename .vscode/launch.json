@@ -3,6 +3,20 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "CVM_Audit1",
+			"request": "launch",
+			"mainClass": "fr.sorbonne_u.publication.CVM_Audit1",
+			"projectName": "CPS-2026_14caf91e"
+		},
+		{
+			"type": "java",
+			"name": "CVM",
+			"request": "launch",
+			"mainClass": "fr.sorbonne_u.publication.CVM",
+			"projectName": "CPS-2026_14caf91e"
+		},
+		{
+			"type": "java",
 			"name": "Launch Current File",
 			"request": "launch",
 			"mainClass": "${file}",

@@ -2,7 +2,7 @@ package fr.sorbonne_u.publication.plugins;
 
 import fr.sorbonne_u.components.AbstractPlugin;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
-import fr.sorbonne_u.publication.components.Client;
+import fr.sorbonne_u.publication.Client;
 
 //设定抽象类,ClientPublicationPlugin,ClientRegistrationPlugin.java,ClientSubscriptionPlugin继承之
 public abstract class AbstractClientPlugin extends AbstractPlugin {
