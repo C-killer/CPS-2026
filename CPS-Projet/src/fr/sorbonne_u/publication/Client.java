@@ -6,9 +6,9 @@ import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.utils.tests.TestScenario;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
-import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
+import fr.sorbonne_u.publication.implementations.ReceivingImplI;
 import fr.sorbonne_u.publication.plugins.ClientPublicationPlugin;
 import fr.sorbonne_u.publication.plugins.ClientRegistrationPlugin;
 import fr.sorbonne_u.publication.plugins.ClientSubscriptionPlugin;
@@ -17,62 +17,20 @@ import fr.sorbonne_u.utils.aclocks.ClocksServer;
 import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 
-/*
- * Version pluginisée du client.
- *
- * Cette classe remplace l'ancienne approche monolithique du composant client
- * par une décomposition en rôles, chacun porté par un greffon spécialisé :
- * - ClientRegistrationPlugin : gestion de l'enregistrement auprès du broker ;
- * - ClientPublicationPlugin  : gestion de la publication des messages ;
- * - ClientSubscriptionPlugin : gestion des abonnements et de la réception.
- */
-
-public class Client extends AbstractComponent implements ReceivingCI {
+public class Client extends AbstractComponent implements ReceivingImplI {
 
 	protected final String receivingInboundURI;
 	protected final String brokerRegistrationInboundURI;
 	protected final RegistrationClass serviceClass;
-
-	/**
-	 * channel pour publication ou subscription
-	 * On supprime role pour realiser d'etre publisher et subscriber en meme temps
-	 */
 	protected final String channel;
-
-	/** optional message filter */
 	protected final MessageFilterI filter;
-
-	/** optional message to publish */
 	protected final MessageI messageToPublish;
-
 	protected final TestScenario scenario;
 
-	// plugins
 	protected ClientRegistrationPlugin registrationPlugin;
 	protected ClientPublicationPlugin publicationPlugin;
 	protected ClientSubscriptionPlugin subscriptionPlugin;
 
-	// constructeur
-	/*
-	 * Nous avons conçu deux constructeurs de base :
-	 * l'un permet d'initialiser l'ensemble des attributs du composant Client,
-	 * tandis que l'autre en constitue une version simplifiée ne conservant que les
-	 * paramètres de configuration essentiels et fixant filter et messageToPublish à
-	 * null.
-	 * Cette version simplifiée permet au client de s'adapter plus facilement aux
-	 * différents rôles, tels que publisher ou subscriber.
-	 * 
-	 * Par ailleurs, chacun de ces deux constructeurs possède également une variante
-	 * avec paramètre TestScenario, afin de permettre l'exécution des composants
-	 * dans un scénario de test avec contrôle temporel.
-	 * 
-	 * 我们设计了两个基础构造函数：
-	 * 一个用于初始化 Client 的全部属性；
-	 * 另一个是简化版本，只保留基本配置参数，并将 filter 和 messageToPublish 设为 null。这种简化版本使 Client
-	 * 能够更加灵活地适应 publisher 或 subscriber 等不同角色的功能需求。
-	 * 
-	 * 此外，我们还分别为这两个基础构造函数设计了带 TestScenario 参数的版本，以支持在测试场景中按照预定时间顺序执行组件的操作。
-	 */
 	public Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
@@ -80,12 +38,11 @@ public class Client extends AbstractComponent implements ReceivingCI {
 			String channel,
 			MessageFilterI filter,
 			MessageI messageToPublish) throws Exception {
-		super(1, 1);
+		super(2, 1);
 
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
 		this.serviceClass = serviceClass;
-
 		this.channel = channel;
 		this.filter = filter;
 		this.messageToPublish = messageToPublish;
@@ -102,12 +59,11 @@ public class Client extends AbstractComponent implements ReceivingCI {
 			MessageFilterI filter,
 			MessageI messageToPublish,
 			TestScenario scenario) throws Exception {
-		super(1, 1);
+		super(2, 1);
 
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
 		this.serviceClass = serviceClass;
-
 		this.channel = channel;
 		this.filter = filter;
 		this.messageToPublish = messageToPublish;
@@ -145,20 +101,6 @@ public class Client extends AbstractComponent implements ReceivingCI {
 				scenario);
 	}
 
-	/**
-	 * Initialise les plugins.
-	 */
-
-	/*
-	 * La méthode initialisePlugins() installe et initialise les différents greffons
-	 * du client en fonction de sa configuration.
-	 * Ces greffons prennent en charge les principales interactions avec le broker,
-	 * notamment l’enregistrement, la publication et la souscription.
-	 * 
-	 * initialisePlugins() 方法根据 Client 在构造时的配置初始化并安装相应的插件，并通过这些插件实现客户端与 broker
-	 * 之间的注册、发布和订阅等功能。
-	 * 
-	 */
 	protected void initialisePlugins() throws Exception {
 
 		this.registrationPlugin = new ClientRegistrationPlugin();
@@ -218,7 +160,6 @@ public class Client extends AbstractComponent implements ReceivingCI {
 
 		System.out.println("[" + this.receivingInboundURI + "] execute begin");
 
-		// register to broker
 		this.registrationPlugin.register(this.serviceClass);
 
 		String brokerPublishingInboundURI = this.registrationPlugin.getBrokerPublishingInboundURI();
@@ -226,13 +167,11 @@ public class Client extends AbstractComponent implements ReceivingCI {
 		this.logMessage("Registered. Publishing inbound URI = " +
 				brokerPublishingInboundURI);
 
-		// connect publication plugin
 		this.publicationPlugin.connectToBroker(brokerPublishingInboundURI);
 
 		if (this.scenario != null) {
 			this.logMessage("Executing scenario...");
 
-			// 1. 获取时钟
 			ClocksServerOutboundPort clockPort = new ClocksServerOutboundPort(this);
 			clockPort.publishPort();
 			this.doPortConnection(
@@ -242,10 +181,8 @@ public class Client extends AbstractComponent implements ReceivingCI {
 
 			AcceleratedClock clock = clockPort.getClock(this.scenario.getClockURI());
 
-			// 2. 等待时钟启动
 			clock.waitUntilStart();
 
-			// 3. 调度该组件的所有步骤
 			String myURI = this.receivingInboundURI;
 
 			while (!this.scenario.scenarioTerminated(myURI)) {
@@ -257,13 +194,10 @@ public class Client extends AbstractComponent implements ReceivingCI {
 			clockPort.unpublishPort();
 			clockPort.destroyPort();
 
-			// scenario 模式下不执行默认 subscribe/publish
 			return;
 		}
 
-		// subscribe if channel exists
 		if (this.channel != null) {
-
 			this.subscriptionPlugin.subscribe(
 					this.channel,
 					(this.filter != null) ? this.filter : new MessageFilter(null, null, null));
@@ -272,7 +206,6 @@ public class Client extends AbstractComponent implements ReceivingCI {
 					"] subscribed to " + this.channel);
 		}
 
-		// publish message if provided
 		if (this.messageToPublish != null
 				&& !"dummy".equals(this.messageToPublish.getPayload())) {
 
@@ -287,23 +220,56 @@ public class Client extends AbstractComponent implements ReceivingCI {
 		}
 	}
 
-	/*
-	 * Recevoir les messages
-	 */
+	// Utiliser runTask pour transformer la méthode de réception des messages en une
+	// exécution asynchrone et non bloquante
 	@Override
-	public void receive(String channel, MessageI message)
-			throws RemoteException {
-		this.subscriptionPlugin.receive(channel, message);
+	public void receive(String channel, MessageI message) throws RemoteException {
+		try {
+			this.runTask(c -> {
+				try {
+					((Client) c).getSubscriptionPlugin().receive(channel, message);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+		} catch (Exception e) {
+			throw new RemoteException("Error async receive", e);
+		}
 	}
 
 	@Override
-	public void receive(String channel, MessageI[] messages)
-			throws RemoteException {
-		this.subscriptionPlugin.receive(channel, messages);
+	public void receive(String channel, MessageI[] messages) throws RemoteException {
+		try {
+			this.runTask(c -> {
+				try {
+					((Client) c).getSubscriptionPlugin().receive(channel, messages);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+		} catch (Exception e) {
+			throw new RemoteException("Error async batch receive", e);
+		}
 	}
 
-	public void createChannel(String channel) throws Exception {
-		this.publicationPlugin.createChannel(channel);
+	public boolean hasCreatedChannel(String channel) throws Exception {
+		return this.publicationPlugin.hasCreatedChannel(channel);
+	}
+
+	public boolean isAuthorisedUser(String channel, String uri) throws Exception {
+		return this.publicationPlugin.isAuthorisedUser(channel, uri);
+	}
+
+	public void modifyAuthorisedUsers(String channel, String autorisedUsers) throws Exception {
+		this.publicationPlugin.modifyAuthorisedUsers(channel, autorisedUsers);
+	}
+
+	public void removeAuthorisedUsers(String channel, String regularExpression) throws Exception {
+		this.publicationPlugin.removeAuthorisedUsers(channel, regularExpression);
+	}
+
+	public void createChannel(String channel, String autorisedUsers) throws Exception {
+		this.publicationPlugin.createChannel(channel, autorisedUsers);
 	}
 
 	public void destroyChannel(String channel) throws Exception {
@@ -321,7 +287,7 @@ public class Client extends AbstractComponent implements ReceivingCI {
 	public void runScenarioCreateChannels() {
 		try {
 			System.out.println("Scenario: create channel " + this.channel);
-			this.createChannel(this.channel);
+			this.createChannel(this.channel, ".*");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

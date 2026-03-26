@@ -11,8 +11,9 @@ import fr.sorbonne_u.cps.pubsub.exceptions.UnknownIdentifierException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 import fr.sorbonne_u.publication.implementations.RegistrationImplI;
+import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
-public class RegistrationInbound extends AbstractInboundPort implements RegistrationCI {
+public class RegistrationInbound extends AbstractInboundPort implements RegistrationImplI {
 
 	private static final long serialVersionUID = 1L;
 
@@ -85,11 +86,21 @@ public class RegistrationInbound extends AbstractInboundPort implements Registra
 	}
 
 	@Override
-	public boolean channelExists(String channel) throws RemoteException {
+	public boolean channelExist(String channel) throws RemoteException {
 		try {
-			return this.getOwner().handleRequest(o -> ((RegistrationImplI) o).channelExists(channel));
+			return this.getOwner().handleRequest(o -> ((RegistrationImplI) o).channelExist(channel));
 		} catch (Exception e) {
 			throw new RemoteException("Cannot schedule: channelExists(channel)", e);
+		}
+	}
+
+	@Override
+	public boolean channelAuthorised(String receptionPortURI, String channel) throws RemoteException {
+		try {
+			return this.getOwner()
+					.handleRequest(o -> ((RegistrationImplI) o).channelAuthorised(receptionPortURI, channel));
+		} catch (Exception e) {
+			throw new RemoteException("Cannot schedule: channelAuthorised(receptionPortURI, channel)", e);
 		}
 	}
 

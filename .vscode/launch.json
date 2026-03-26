@@ -3,6 +3,27 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "CVM_Audit1",
+			"request": "launch",
+			"mainClass": "fr.sorbonne_u.publication.CVM_Audit1",
+			"projectName": "CPS-2026_7bd1ba9e"
+		},
+		{
+			"type": "java",
+			"name": "CVM_ScenarioTest",
+			"request": "launch",
+			"mainClass": "fr.sorbonne_u.publication.CVM_ScenarioTest",
+			"projectName": "CPS-2026_7bd1ba9e"
+		},
+		{
+			"type": "java",
+			"name": "CVM_PluginTest",
+			"request": "launch",
+			"mainClass": "fr.sorbonne_u.publication.CVM_PluginTest",
+			"projectName": "CPS-2026_7bd1ba9e"
+		},
+		{
+			"type": "java",
 			"name": "CVM_ScenarioTest",
 			"request": "launch",
 			"mainClass": "fr.sorbonne_u.publication.CVM_ScenarioTest",

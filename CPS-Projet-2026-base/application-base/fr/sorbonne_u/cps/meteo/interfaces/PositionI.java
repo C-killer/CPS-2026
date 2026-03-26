@@ -59,6 +59,19 @@ extends		Serializable
 	// Signature and default methods
 	// -------------------------------------------------------------------------
 
+	/**
+	 * return true if {@code p} is equals to {@code this}.
+	 * 
+	 * <p><strong>Contract</strong></p>
+	 * 
+	 * <pre>
+	 * pre	{@code true}	// no precondition.
+	 * post	{@code true}	// no postcondition.
+	 * </pre>
+	 *
+	 * @param p	a position to be compared to {@code this}.
+	 * @return	true if {@code p} is equals to {@code this}.
+	 */
 	public boolean		equals(PositionI p);
 }
 // -----------------------------------------------------------------------------

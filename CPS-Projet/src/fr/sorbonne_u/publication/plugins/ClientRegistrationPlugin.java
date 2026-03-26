@@ -45,7 +45,7 @@ public class ClientRegistrationPlugin
 
 	@Override
 	public boolean registered(RegistrationClass rc) throws Exception {
-		return this.registrationOutbound.registered(this.receivingInboundURI, rc);
+		return this.registrationOutbound.registered(this.receivingInboundURI);
 	}
 
 	@Override
@@ -92,4 +92,5 @@ public class ClientRegistrationPlugin
 		this.removeRequiredInterface(RegistrationCI.class);
 		super.uninstall();
 	}
+
 }

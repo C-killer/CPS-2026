@@ -1,36 +1,33 @@
 package fr.sorbonne_u.publication.implementations;
 
-import java.rmi.RemoteException;
-
-import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyRegisteredException;
-import fr.sorbonne_u.cps.pubsub.exceptions.NotSubscribedChannelException;
-import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
-import fr.sorbonne_u.cps.pubsub.exceptions.UnknownIdentifierException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
 public interface RegistrationImplI {
-	boolean registered(String receptionPortURI) throws RemoteException;
 
-	boolean registered(String receptionPortURI, RegistrationClass rc) throws RemoteException;
+	boolean registered(String receptionPortURI) throws Exception;
 
-	String register(String receptionPortURI, RegistrationClass rc) throws RemoteException, AlreadyRegisteredException;
+	boolean registered(String receptionPortURI, RegistrationClass rc) throws Exception;
+
+	String register(String receptionPortURI, RegistrationClass rc) throws Exception;
 
 	String modifyServiceClass(String receptionPortURI, RegistrationClass rc)
-			throws RemoteException, AlreadyRegisteredException;
+			throws Exception;
 
-	void unregister(String receptionPortURI) throws RemoteException, UnknownIdentifierException;
+	void unregister(String receptionPortURI) throws Exception;
 
-	boolean channelExists(String channel) throws RemoteException;
+	boolean channelExist(String channel) throws Exception;
 
-	boolean subscribed(String receptionPortURI, String channel) throws RemoteException, UnknownChannelException;
+	boolean channelAuthorised(String receptionPortURI, String channel) throws Exception;
+
+	boolean subscribed(String receptionPortURI, String channel) throws Exception;
 
 	void subscribe(String receptionPortURI, String channel, MessageFilterI filter)
-			throws RemoteException, UnknownChannelException;
+			throws Exception;
 
 	void unsubscribe(String receptionPortURI, String channel)
-			throws RemoteException, UnknownChannelException, NotSubscribedChannelException;
+			throws Exception;
 
 	boolean modifyFilter(String receptionPortURI, String channel, MessageFilterI filter)
-			throws RemoteException, UnknownChannelException, NotSubscribedChannelException;
+			throws Exception;
 }

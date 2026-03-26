@@ -59,12 +59,17 @@ public class ClientPublicationPlugin
 
 	@Override
 	public boolean channelExist(String channel) {
-		return true;
+		try {
+			return this.owner().getRegistrationPlugin().getRegistrationOutbound().channelExist(channel);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
-	public boolean channelAuthorised(String channel) {
-		return true;
+	public boolean channelAuthorised(String channel) throws Exception {
+		return this.owner().getRegistrationPlugin().getRegistrationOutbound()
+				.channelAuthorised(this.receivingInboundURI, channel);
 	}
 
 	@Override
@@ -93,11 +98,11 @@ public class ClientPublicationPlugin
 		return m;
 	}
 
-	public void createChannel(String channel) throws Exception {
+	public void createChannel(String channel, String autorisedUsers) throws Exception {
 		if (this.serviceClass == RegistrationClass.FREE) {
 			throw new IllegalStateException("FREE client cannot create channels");
 		}
-		this.privilegedPublishingOutbound.createChannel(this.receivingInboundURI, channel);
+		this.privilegedPublishingOutbound.createChannel(this.receivingInboundURI, channel, autorisedUsers);
 	}
 
 	public void destroyChannel(String channel) throws Exception {
@@ -121,6 +126,36 @@ public class ClientPublicationPlugin
 		return this.privilegedPublishingOutbound.channelQuotaReached(this.receivingInboundURI);
 	}
 
+	// Operations de privileged
+	public boolean hasCreatedChannel(String channel) throws Exception {
+		if (this.serviceClass == RegistrationClass.FREE) {
+			return false;
+		}
+		return this.privilegedPublishingOutbound.hasCreatedChannel(this.receivingInboundURI, channel);
+	}
+
+	public boolean isAuthorisedUser(String channel, String uri) throws Exception {
+		if (this.serviceClass == RegistrationClass.FREE) {
+			return false;
+		}
+		return this.privilegedPublishingOutbound.isAuthorisedUser(channel, uri);
+	}
+
+	public void modifyAuthorisedUsers(String channel, String autorisedUsers) throws Exception {
+		if (this.serviceClass == RegistrationClass.FREE) {
+			throw new IllegalStateException("FREE client cannot modify channel authorisations");
+		}
+		this.privilegedPublishingOutbound.modifyAuthorisedUsers(this.receivingInboundURI, channel, autorisedUsers);
+	}
+
+	public void removeAuthorisedUsers(String channel, String regularExpression) throws Exception {
+		if (this.serviceClass == RegistrationClass.FREE) {
+			throw new IllegalStateException("FREE client cannot remove channel authorisations");
+		}
+		this.privilegedPublishingOutbound.removeAuthorisedUsers(this.receivingInboundURI, channel, regularExpression);
+	}
+
+	// End de operations de privileged
 	@Override
 	public void finalise() throws Exception {
 		try {
@@ -153,5 +188,31 @@ public class ClientPublicationPlugin
 		this.removeRequiredInterface(PrivilegedClientCI.class);
 
 		super.uninstall();
+	}
+
+	@Override
+	public void asyncPublishAndNotify(String channel, MessageI message) throws Exception {
+		String notificationURI = this.receivingInboundURI + "-notification";
+
+		if (this.serviceClass == RegistrationClass.FREE) {
+			this.publishingOutbound.asyncPublishAndNotify(
+					this.receivingInboundURI, channel, message, notificationURI);
+		} else {
+			this.privilegedPublishingOutbound.asyncPublishAndNotify(
+					this.receivingInboundURI, channel, message, notificationURI);
+		}
+	}
+
+	@Override
+	public void asyncPublishAndNotify(String channel, ArrayList<MessageI> messages) throws Exception {
+		String notificationURI = this.receivingInboundURI + "-notification";
+
+		if (this.serviceClass == RegistrationClass.FREE) {
+			this.publishingOutbound.asyncPublishAndNotify(
+					this.receivingInboundURI, channel, messages, notificationURI);
+		} else {
+			this.privilegedPublishingOutbound.asyncPublishAndNotify(
+					this.receivingInboundURI, channel, messages, notificationURI);
+		}
 	}
 }

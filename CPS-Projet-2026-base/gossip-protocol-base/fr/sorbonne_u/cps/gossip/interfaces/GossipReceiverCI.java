@@ -1,4 +1,4 @@
-package fr.sorbonne_u.cps.meteo.interfaces;
+package fr.sorbonne_u.cps.gossip.interfaces;
 
 // Copyright Jacques Malenfant, Sorbonne Universite.
 // Jacques.Malenfant@lip6.fr
@@ -33,11 +33,13 @@ package fr.sorbonne_u.cps.meteo.interfaces;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import java.io.Serializable;
+import fr.sorbonne_u.components.interfaces.OfferedCI;
 
 // -----------------------------------------------------------------------------
 /**
- * The interface <code>RegionI</code>
+ * The component interface <code>GossipReceiverCI</code> declares the signatures
+ * of the service offered by a component playing the receiver role in the gossip
+ * protocol.
  *
  * <p><strong>Description</strong></p>
  * 
@@ -47,30 +49,23 @@ import java.io.Serializable;
  * invariant	{@code true}	// no more invariant
  * </pre>
  * 
- * <p>Created on : 2026-01-23</p>
+ * <p>Created on : 2026-02-12</p>
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface		RegionI
-extends		Serializable
+public interface		GossipReceiverCI
+extends		OfferedCI,
+			GossipReceiverI
 {
 	// -------------------------------------------------------------------------
 	// Signature and default methods
 	// -------------------------------------------------------------------------
 
 	/**
-	 * return true if {@code p} is inside this region.
-	 * 
-	 * <p><strong>Contract</strong></p>
-	 * 
-	 * <pre>
-	 * pre	{@code true}	// no precondition.
-	 * post	{@code true}	// no postcondition.
-	 * </pre>
-	 *
-	 * @param p	a position to be compared.
-	 * @return	true if {@code p} is inside this region.
+	 * @see fr.sorbonne_u.cps.gossip.interfaces.GossipReceiverI#receive(fr.sorbonne_u.cps.gossip.interfaces.GossipMessageI[])
 	 */
-	public boolean		in(PositionI p);
+	@Override
+	public void			receive(GossipMessageI[] gossipMessages)
+	throws Exception;
 }
 // -----------------------------------------------------------------------------

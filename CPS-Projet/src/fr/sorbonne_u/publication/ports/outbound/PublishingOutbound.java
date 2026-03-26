@@ -8,8 +8,9 @@ import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI;
+import fr.sorbonne_u.publication.implementations.PublishingImplI;
 
-public class PublishingOutbound extends AbstractOutboundPort implements PublishingCI {
+public class PublishingOutbound extends AbstractOutboundPort implements PublishingImplI {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +26,7 @@ public class PublishingOutbound extends AbstractOutboundPort implements Publishi
 	public void publish(String receptionPortURI, String channel, MessageI message)
 			throws RemoteException, UnknownChannelException {
 		try {
-			((PublishingCI) this.getConnector())
+			((PublishingImplI) this.getConnector())
 					.publish(receptionPortURI, channel, message);
 		} catch (UnknownChannelException e) {
 			throw e;
@@ -39,13 +40,37 @@ public class PublishingOutbound extends AbstractOutboundPort implements Publishi
 	public void publish(String receptionPortURI, String channel, ArrayList<MessageI> messages)
 			throws RemoteException, UnknownChannelException {
 		try {
-			((PublishingCI) this.getConnector())
+			((PublishingImplI) this.getConnector())
 					.publish(receptionPortURI, channel, messages);
 		} catch (UnknownChannelException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new RemoteException(
 					"Error: publish(receptionPortURI, channel, messages)", e);
+		}
+	}
+
+	@Override
+	public void asyncPublishAndNotify(String receptionPortURI, String channel, MessageI message,
+			String notificationInboundPortURI) throws Exception {
+		try {
+			((PublishingImplI) this.getConnector())
+					.asyncPublishAndNotify(receptionPortURI, channel, message, notificationInboundPortURI);
+		} catch (Exception e) {
+			throw new RemoteException(
+					"Error: asyncPublishAndNotify(receptionPortURI, channel, message, notificationInboundPortURI)", e);
+		}
+	}
+
+	@Override
+	public void asyncPublishAndNotify(String receptionPortURI, String channel, ArrayList<MessageI> messages,
+			String notificationInboundPortURI) throws Exception {
+		try {
+			((PublishingImplI) this.getConnector())
+					.asyncPublishAndNotify(receptionPortURI, channel, messages, notificationInboundPortURI);
+		} catch (Exception e) {
+			throw new RemoteException(
+					"Error: asyncPublishAndNotify(receptionPortURI, channel, messages, notificationInboundPortURI)", e);
 		}
 	}
 }

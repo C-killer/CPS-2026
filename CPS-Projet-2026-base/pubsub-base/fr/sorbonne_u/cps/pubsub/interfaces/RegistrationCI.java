@@ -35,11 +35,6 @@ package fr.sorbonne_u.cps.pubsub.interfaces;
 
 import fr.sorbonne_u.components.interfaces.OfferedCI;
 import fr.sorbonne_u.components.interfaces.RequiredCI;
-import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyRegisteredException;
-import fr.sorbonne_u.cps.pubsub.exceptions.NotSubscribedChannelException;
-import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
-import fr.sorbonne_u.cps.pubsub.exceptions.UnknownIdentifierException;
-import java.rmi.RemoteException;
 
 // -----------------------------------------------------------------------------
 /**
@@ -125,6 +120,8 @@ extends		OfferedCI,
 	// Signature and default methods
 	// -------------------------------------------------------------------------
 
+	// Registration management
+
 	/**
 	 * return true if {@code receptionPortURI} has already been registered,
 	 * otherwise false.
@@ -138,10 +135,10 @@ extends		OfferedCI,
 	 *
 	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
 	 * @return					true if {@code receptionPortURI} has already been registered, otherwise false.
-	 * @throws RemoteException	when a RMI error occurs.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public boolean		registered(String receptionPortURI)
-	throws	RemoteException;
+	throws Exception;
 
 	/**
 	 * return true if {@code receptionPortURI} has already been registered
@@ -158,10 +155,10 @@ extends		OfferedCI,
 	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
 	 * @param rc				the registration class.
 	 * @return					true if {@code receptionPortURI} has already been registered with service class {@code rc}, otherwise false.
-	 * @throws RemoteException	when a RMI error occurs.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public boolean		registered(String receptionPortURI, RegistrationClass rc)
-	throws	RemoteException;
+	throws Exception;
 
 	/**
 	 * register on the publication/subscription system passing the URI of the
@@ -177,20 +174,19 @@ extends		OfferedCI,
 	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code rc != null}
 	 * post	{@code registered(receptionPortURI)}
+	 * post	{@code registered(receptionPortURI, rc)}
 	 * </pre>
 	 *
-	 * @param receptionPortURI				URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @param rc							the required registration class.
-	 * @return								an URI of an inbound port offering the component interface {@code PublishingCI}.
-	 * @throws RemoteException				when a RMI error occurs.
-	 * @throws AlreadyRegisteredException	when {@code receptionPortURI} has already been registered.
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @param rc				the required registration class.
+	 * @return					an URI of an inbound port offering the component interface {@code PublishingCI}.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public String		register(String receptionPortURI, RegistrationClass rc)
-	throws	RemoteException,
-			AlreadyRegisteredException;
+	throws Exception;
 
 	/**
-	 * upgrade or downgradeq the registration to the class {@code rc}, returning
+	 * upgrade or degrade the registration to the class {@code rc}, returning
 	 * a new URI of an inbound port offering the component interface
 	 * {@code PublishingCI}.
 	 * 
@@ -199,22 +195,18 @@ extends		OfferedCI,
 	 * <pre>
 	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code rc != null}
-	 * pre	{@code registered(receptionPortURI)}
-	 * pre	{@code !registered(receptionPortURI, rc)}
 	 * post	{@code registered(receptionPortURI, rc)}
 	 * </pre>
 	 *
-	 * @param receptionPortURI				URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @param rc							the required registration class.
-	 * @return								an URI of an inbound port offering the component interface {@code PublishingCI}.
-	 * @throws RemoteException				when a RMI error occurs.
-	 * @throws AlreadyRegisteredException	when {@code receptionPortURI} has already been registered.
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @param rc				the required registration class.
+	 * @return					an URI of an inbound port offering the component interface {@code PublishingCI}.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public String		modifyServiceClass(
 		String receptionPortURI,
 		RegistrationClass rc
-		) throws	RemoteException,
-					AlreadyRegisteredException;
+		) throws Exception;
 
 	/**
 	 * unregister from the publication/subscription system.
@@ -223,16 +215,16 @@ extends		OfferedCI,
 	 * 
 	 * <pre>
 	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
-	 * post	{@code true}	// no postcondition.
+	 * post	{@code !registered(receptionPortURI)}
 	 * </pre>
 	 *
-	 * @param receptionPortURI				URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @throws RemoteException				when a RMI error occurs.
-	 * @throws UnknownIdentifierException	when {@code receptionPortURI} is not registered.
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public void			unregister(String receptionPortURI)
-	throws	RemoteException,
-			UnknownIdentifierException;
+	throws Exception;
+
+	// Channel subscription management
 
 	/**
 	 * return true if {@code channel} exists, otherwise false.
@@ -244,11 +236,33 @@ extends		OfferedCI,
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param channel			name of a potential channel.
-	 * @return					true if {@code channel} exists, otherwise false.
-	 * @throws RemoteException	when a RMI error occurs.
+	 * @param channel		name of a potential channel.
+	 * @return				true if {@code channel} exists, otherwise false.
+	 * @throws Exception	<i>to do</i>.
 	 */
-	public boolean		channelExists(String channel) throws RemoteException;
+	public boolean		channelExist(String channel) throws Exception;
+
+	/**
+	 * return true if the use of {@code channel} is authorised for
+	 * {@code receptionPortURI}, otherwise false.
+	 * 
+	 * <p><strong>Contract</strong></p>
+	 * 
+	 * <pre>
+	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
+	 * pre	{@code channel != null && !channel.isEmpty()}
+	 * post	{@code true}	// no postcondition.
+	 * </pre>
+	 *
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @param channel			name of a potential channel.
+	 * @return					true if the use of {@code channel} is authorised for {@code receptionPortURI}, otherwise false.
+	 * @throws Exception		<i>to do</i>.
+	 */
+	public boolean		channelAuthorised(
+		String receptionPortURI,
+		String channel
+		) throws Exception;
 	
 	/**
 	 * return true if {@code receptionPortURI} has subscribed to {@code channel},
@@ -262,17 +276,13 @@ extends		OfferedCI,
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI			URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel					name of an existing channel.
-	 * @return							true if {@code receptionPortURI} has subscribed to {@code channel}, otherwise false.
-	 * @throws RemoteException			when a RMI error occurs.
-	 * @throws UnknownChannelException	when {@code channel} does not exist.
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @param channel			name of an existing and authorised channel.
+	 * @return					true if {@code receptionPortURI} has subscribed to {@code channel}, otherwise false.
+	 * @throws Exception		<i>to do</i>.
 	 */
-	public boolean		subscribed(
-			String receptionPortURI,
-			String channel
-			) throws	RemoteException,
-						UnknownChannelException;
+	public boolean		subscribed(String receptionPortURI, String channel)
+	throws Exception;
 
 	/**
 	 * subscribe to {@code channel} with filter {@code filter}.
@@ -283,21 +293,19 @@ extends		OfferedCI,
 	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
 	 * pre	{@code filter != null}
-	 * post	{@code true}	// no postcondition.
+	 * post	{@code subscribed(receptionPortURI, channel)}
 	 * </pre>
 	 *
-	 * @param receptionPortURI				URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel						name of an existing channel.
-	 * @param filter						filter that accepts the message the component wants to receive.
-	 * @throws RemoteException				when a RMI error occurs.
-	 * @throws UnknownChannelException		when {@code channel} does not exist.
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @param channel			name of an existing channel.
+	 * @param filter			filter that accepts the message the component wants to receive.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public void			subscribe(
 		String receptionPortURI,
 		String channel,
 		MessageFilterI filter
-		) throws	RemoteException,
-					UnknownChannelException;
+		) throws Exception;
 
 	/**
 	 * unsubscribe from {@code channel}.
@@ -307,21 +315,17 @@ extends		OfferedCI,
 	 * <pre>
 	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
-	 * post	{@code true}	// no postcondition.
+	 * post	{@code !subscribed(receptionPortURI, channel)}
 	 * </pre>
 	 *
-	 * @param receptionPortURI					URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel							name of an existing channel.
-	 * @throws RemoteException					when a RMI error occurs.
-	 * @throws UnknownChannelException			when {@code channel} does not exist.
-	 * @throws NotSubscribedChannelException	when the component did not subscribe to {@code channel}.
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @param channel			name of an existing channel.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public void			unsubscribe(
 		String receptionPortURI,
 		String channel
-		) throws	RemoteException,
-					UnknownChannelException,
-					NotSubscribedChannelException;
+		) throws Exception;
 
 	/**
 	 * modify the filter placed on {@code channel} to {@code filter}.
@@ -331,24 +335,20 @@ extends		OfferedCI,
 	 * <pre>
 	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
-	 * pre	{@code true}	// no precondition.
+	 * pre	{@code filter != null}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI					URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel							name of an existing channel.
-	 * @param filter							filter that accepts the message the component wants to receive.
-	 * @return									true if the modification has been performed, otherwise false.
-	 * @throws RemoteException					when a RMI error occurs.
-	 * @throws UnknownChannelException			when {@code channel} does not exist.
-	 * @throws NotSubscribedChannelException	when the component did not subscribe to {@code channel}.
+	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
+	 * @param channel			name of an existing channel.
+	 * @param filter			filter that accepts the message the component wants to receive.
+	 * @return					true if the modification has been performed, otherwise false.
+	 * @throws Exception		<i>to do</i>.
 	 */
 	public boolean		modifyFilter(
 		String receptionPortURI,
 		String channel,
 		MessageFilterI filter
-		) throws	RemoteException,
-					UnknownChannelException,
-					NotSubscribedChannelException;
+		) throws Exception;
 }
 // -----------------------------------------------------------------------------

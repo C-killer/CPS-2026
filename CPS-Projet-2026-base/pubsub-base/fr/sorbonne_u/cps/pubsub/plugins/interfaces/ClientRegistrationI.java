@@ -1,4 +1,4 @@
-package fr.sorbonne_u.cps.pubsub.interfaces;
+package fr.sorbonne_u.cps.pubsub.plugins.interfaces;
 
 // Copyright Jacques Malenfant, Sorbonne Universite.
 // Jacques.Malenfant@lip6.fr
@@ -33,13 +33,14 @@ package fr.sorbonne_u.cps.pubsub.interfaces;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import fr.sorbonne_u.components.interfaces.OfferedCI;
-import fr.sorbonne_u.components.interfaces.RequiredCI;
+import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
+import fr.sorbonne_u.components.PluginI;
+import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyRegisteredException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnknownClientException;
 
 // -----------------------------------------------------------------------------
 /**
- * The component interface <code>ReceivingCI</code> is offered by the
- * publication/subscription system to receive messages.
+ * The class <code>ClientRegistrationI</code>
  *
  * <p><strong>Description</strong></p>
  * 
@@ -49,57 +50,98 @@ import fr.sorbonne_u.components.interfaces.RequiredCI;
  * invariant	{@code true}	// no more invariant
  * </pre>
  * 
- * <p>Created on : 2026-01-20</p>
+ * <p>Created on : 2026-02-04</p>
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface		ReceivingCI
-extends		OfferedCI,
-			RequiredCI
+public interface		ClientRegistrationI
+extends		PluginI
 {
 	// -------------------------------------------------------------------------
 	// Signature and default methods
 	// -------------------------------------------------------------------------
 
 	/**
-	 * receive {@code message} from {@code channel}; the call is executed
-	 * asynchronously to free the client component thread as soon as the
-	 * corresponding task is submitted to the receiver.
+	 * return true if the component has already been registered, otherwise false.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code channel != null && !channel.isEmpty()}
-	 * pre	{@code message != null}
+	 * pre	{@code true}	// no precondition.
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param channel		name of the channel from which {@code messsage} is received.
-	 * @param message		message received by the component.
-	 * @throws Exception	<i>to do</i>.
+	 * @return	true if the component has already been registered, otherwise false.
 	 */
-	public void			receive(String channel, MessageI message)
-	throws Exception;
+	public boolean		registered();
 
 	/**
-	 * receive {@code messages} from {@code channel}; the call is executed
-	 * asynchronously to free the client component thread as soon as the
-	 * corresponding task is submitted to the receiver.
+	 * return true if the component has already been registered with service
+	 * class {@code rc}, otherwise false.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code channel != null && !channel.isEmpty()}
-	 * pre	{@code messages != null && messages.size() > 0}
-	 * pre	{@code Stream.of(messages).allMatch(m -> m != null)}
+	 * pre	{@code rc != null}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param channel		name of the channel from which {@code messsage} is received.
-	 * @param messages		array of messages received by the component.
-	 * @throws Exception	<i>to do</i>.
+	 * @param rc						the registration class.
+	 * @return							true if {@code receptionPortURI} has already been registered with service class {@code rc}, otherwise false.
+	 * @throws UnknownClientException	when the component is not registered yet.
 	 */
-	public void			receive(String channel, MessageI[] messages)
-	throws Exception;
+	public boolean		registered(RegistrationClass rc)
+	throws	UnknownClientException;
+
+	/**
+	 * register on the publication/subscription system with service
+	 * class {@code rc}.
+	 * 
+	 * <p><strong>Contract</strong></p>
+	 * 
+	 * <pre>
+	 * pre	{@code rc != null}
+	 * post	{@code registered(rc)}
+	 * </pre>
+	 *
+	 * @param rc							the required registration class.
+	 * @throws AlreadyRegisteredException	when the component is already registered.
+	 */
+	public void			register(RegistrationClass rc)
+	throws AlreadyRegisteredException;
+
+	/**
+	 * upgrade or degrade the registration to the class {@code rc}, returning
+	 * a new URI of an inbound port offering the component interface
+	 * {@code PublishingCI}.
+	 * 
+	 * <p><strong>Contract</strong></p>
+	 * 
+	 * <pre>
+	 * pre	{@code rc != null}
+	 * post	{@code registered(rc)}
+	 * </pre>
+	 *
+	 * @param rc							the required registration class.
+	 * @throws UnknownClientException		when the component is not registered yet.
+	 * @throws AlreadyRegisteredException	when the component is already registered with the service class {@code rc}.
+	 */
+	public void			modifyServiceClass(RegistrationClass rc)
+	throws	UnknownClientException,
+			AlreadyRegisteredException;
+
+	/**
+	 * unregister from the publication/subscription system.
+	 * 
+	 * <p><strong>Contract</strong></p>
+	 * 
+	 * <pre>
+	 * pre	{@code true}	// no precondition.
+	 * post	{@code !registered()}
+	 * </pre>
+	 *
+	 * @throws UnknownClientException	when the component is not registered yet.
+	 */
+	public void			unregister() throws UnknownClientException;
 }
 // -----------------------------------------------------------------------------

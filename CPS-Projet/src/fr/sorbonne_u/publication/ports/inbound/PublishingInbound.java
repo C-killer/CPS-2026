@@ -10,7 +10,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI;
 import fr.sorbonne_u.publication.implementations.PublishingImplI;
 
-public class PublishingInbound extends AbstractInboundPort implements PublishingCI {
+public class PublishingInbound extends AbstractInboundPort implements PublishingImplI {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,15 +28,16 @@ public class PublishingInbound extends AbstractInboundPort implements Publishing
 	public void publish(String receptionPortURI, String channel, MessageI message)
 			throws RemoteException, UnknownChannelException {
 		try {
-			this.getOwner().handleRequest(o -> {
-				((PublishingImplI) o).publish(receptionPortURI, channel, message);
-				return null;
+			this.getOwner().runTask(o -> {
+				try {
+					((PublishingImplI) o).publish(receptionPortURI, channel, message);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			});
-		} catch (UnknownChannelException e) {
-			throw e;
 		} catch (Exception e) {
 			throw new RemoteException(
-					"Cannot schedule: publish(receptionPortURI, channel, message)", e);
+					"Cannot schedule async publish(receptionPortURI, channel, message)", e);
 		}
 	}
 
@@ -44,15 +45,52 @@ public class PublishingInbound extends AbstractInboundPort implements Publishing
 	public void publish(String receptionPortURI, String channel, ArrayList<MessageI> messages)
 			throws RemoteException, UnknownChannelException {
 		try {
-			this.getOwner().handleRequest(o -> {
-				((PublishingImplI) o).publish(receptionPortURI, channel, messages);
-				return null;
+			this.getOwner().runTask(o -> {
+				try {
+					((PublishingImplI) o).publish(receptionPortURI, channel, messages);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			});
-		} catch (UnknownChannelException e) {
-			throw e;
 		} catch (Exception e) {
 			throw new RemoteException(
-					"Cannot schedule: publish(receptionPortURI, channel, messages)", e);
+					"Cannot schedule async publish(receptionPortURI, channel, messages)", e);
+		}
+	}
+
+	public void asyncPublishAndNotify(String receptionPortURI, String channel, MessageI message,
+			String notificationInboundPortURI) throws Exception {
+		try {
+			this.getOwner().runTask(o -> {
+				try {
+					((PublishingImplI) o).asyncPublishAndNotify(receptionPortURI, channel, message,
+							notificationInboundPortURI);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			});
+		} catch (Exception e) {
+			throw new RemoteException(
+					"Cannot schedule asyncPublishAndNotify(receptionPortURI, channel, message, notificationInboundPortURI)",
+					e);
+		}
+	}
+
+	public void asyncPublishAndNotify(String receptionPortURI, String channel, ArrayList<MessageI> messages,
+			String notificationInboundPortURI) throws Exception {
+		try {
+			this.getOwner().runTask(o -> {
+				try {
+					((PublishingImplI) o).asyncPublishAndNotify(receptionPortURI, channel, messages,
+							notificationInboundPortURI);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			});
+		} catch (Exception e) {
+			throw new RemoteException(
+					"Cannot schedule asyncPublishAndNotify(receptionPortURI, channel, messages, notificationInboundPortURI)",
+					e);
 		}
 	}
 }

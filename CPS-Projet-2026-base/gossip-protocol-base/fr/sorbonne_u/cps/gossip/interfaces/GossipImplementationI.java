@@ -1,4 +1,4 @@
-package fr.sorbonne_u.cps.meteo.interfaces;
+package fr.sorbonne_u.cps.gossip.interfaces;
 
 // Copyright Jacques Malenfant, Sorbonne Universite.
 // Jacques.Malenfant@lip6.fr
@@ -33,13 +33,29 @@ package fr.sorbonne_u.cps.meteo.interfaces;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import java.io.Serializable;
-
 // -----------------------------------------------------------------------------
 /**
- * The interface <code>RegionI</code>
+ * The interface <code>GossipImplementationI</code> declares the signatures of
+ * the methods to be implemented by the components participating in the gossip
+ * protocol.
  *
  * <p><strong>Description</strong></p>
+ * 
+ * <p>
+ * A component participating in a gossip protocol requires the component
+ * interface {@code GossipSenderCI} and its method {@code send} to propagate
+ * gossip messages to its neighbours. It offers the component interface
+ * {@code GossipReceiverCI} with a method {@code receive} through which it
+ * receives the gossip messages coming from its neighbours.
+ * </p>
+ * <p>
+ * To process incoming gossip messages, the component must implement a method
+ * {@code receive} declared by the interface {@code GossipReceiverI}. The
+ * traditional implementation of gossip protocols then use a method
+ * {@code update} declared in this interface to both to integrate the incoming
+ * messages in its state and to select the messages that it will propagate to
+ * its own neighbours.
+ * </p>
  * 
  * <p><strong>Invariants</strong></p>
  * 
@@ -47,30 +63,30 @@ import java.io.Serializable;
  * invariant	{@code true}	// no more invariant
  * </pre>
  * 
- * <p>Created on : 2026-01-23</p>
+ * <p>Created on : 2026-02-12</p>
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface		RegionI
-extends		Serializable
+public interface		GossipImplementationI
+extends		GossipReceiverI
 {
 	// -------------------------------------------------------------------------
 	// Signature and default methods
 	// -------------------------------------------------------------------------
 
 	/**
-	 * return true if {@code p} is inside this region.
+	 * compute an updated state from the state received from the sender and the
+	 * state of the receiver to be returned to the sender in the gossip protocol.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code true}	// no precondition.
+	 * pre	{@code fromSender != null && fromSender.length > 0}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param p	a position to be compared.
-	 * @return	true if {@code p} is inside this region.
+	 * @param fromSender	gossip messages received from the sender in the gossip protocol.
 	 */
-	public boolean		in(PositionI p);
+	public void			update(GossipMessageI[] fromSender);
 }
 // -----------------------------------------------------------------------------

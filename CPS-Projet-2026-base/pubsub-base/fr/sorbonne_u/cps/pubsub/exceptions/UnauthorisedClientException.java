@@ -1,4 +1,4 @@
-package fr.sorbonne_u.cps.meteo.interfaces;
+package fr.sorbonne_u.cps.pubsub.exceptions;
 
 // Copyright Jacques Malenfant, Sorbonne Universite.
 // Jacques.Malenfant@lip6.fr
@@ -33,44 +33,73 @@ package fr.sorbonne_u.cps.meteo.interfaces;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
-import java.io.Serializable;
+import fr.sorbonne_u.components.exceptions.BCMException;
 
 // -----------------------------------------------------------------------------
 /**
- * The interface <code>RegionI</code>
+ * The class <code>UnauthrorisedClientException</code>
  *
  * <p><strong>Description</strong></p>
+ * 
+ * <p><strong>Implementation Invariants</strong></p>
+ * 
+ * <pre>
+ * invariant	{@code true}	// TODO	// no more invariant
+ * </pre>
  * 
  * <p><strong>Invariants</strong></p>
  * 
  * <pre>
- * invariant	{@code true}	// no more invariant
+ * invariant	{@code true}	// TODO	// no more invariant
  * </pre>
  * 
- * <p>Created on : 2026-01-23</p>
+ * <p>Created on : 2026-02-04</p>
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface		RegionI
-extends		Serializable
+public class			UnauthorisedClientException
+extends		BCMException
 {
 	// -------------------------------------------------------------------------
-	// Signature and default methods
+	// Constants and variables
 	// -------------------------------------------------------------------------
 
-	/**
-	 * return true if {@code p} is inside this region.
-	 * 
-	 * <p><strong>Contract</strong></p>
-	 * 
-	 * <pre>
-	 * pre	{@code true}	// no precondition.
-	 * post	{@code true}	// no postcondition.
-	 * </pre>
-	 *
-	 * @param p	a position to be compared.
-	 * @return	true if {@code p} is inside this region.
-	 */
-	public boolean		in(PositionI p);
+	private static final long serialVersionUID = 1L;
+
+	// -------------------------------------------------------------------------
+	// Constructors
+	// -------------------------------------------------------------------------
+
+	public				UnauthorisedClientException()
+	{
+	}
+
+	public				UnauthorisedClientException(String message)
+	{
+		super(message);
+	}
+
+	public				UnauthorisedClientException(Throwable cause)
+	{
+		super(cause);
+	}
+
+	public				UnauthorisedClientException(
+		String message,
+		Throwable cause
+		)
+	{
+		super(message, cause);
+	}
+
+	public				UnauthorisedClientException(
+		String message,
+		Throwable cause,
+		boolean enableSuppression,
+		boolean writableStackTrace
+		)
+	{
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
 }
 // -----------------------------------------------------------------------------

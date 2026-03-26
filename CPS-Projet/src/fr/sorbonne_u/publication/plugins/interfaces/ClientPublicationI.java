@@ -13,4 +13,8 @@ public interface ClientPublicationI extends PluginI {
 	void publish(String channel, MessageI message) throws Exception;
 
 	void publish(String channel, ArrayList<MessageI> messages) throws Exception;
+
+	void asyncPublishAndNotify(String channel, MessageI message) throws Exception;
+
+	void asyncPublishAndNotify(String channel, ArrayList<MessageI> messages) throws Exception;
 }

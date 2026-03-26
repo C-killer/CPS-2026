@@ -6,8 +6,9 @@ import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
+import fr.sorbonne_u.publication.implementations.ReceivingImplI;
 
-public class ReceivingOutbound extends AbstractOutboundPort implements ReceivingCI {
+public class ReceivingOutbound extends AbstractOutboundPort implements ReceivingImplI {
 
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +23,7 @@ public class ReceivingOutbound extends AbstractOutboundPort implements Receiving
 	@Override
 	public void receive(String channel, MessageI message) throws RemoteException {
 		try {
-			((ReceivingCI) this.getConnector()).receive(channel, message);
+			((ReceivingImplI) this.getConnector()).receive(channel, message);
 		} catch (RemoteException e) {
 			throw e;
 		} catch (Exception e) {
@@ -34,7 +35,7 @@ public class ReceivingOutbound extends AbstractOutboundPort implements Receiving
 	@Override
 	public void receive(String channel, MessageI[] messages) throws RemoteException {
 		try {
-			((ReceivingCI) this.getConnector()).receive(channel, messages);
+			((ReceivingImplI) this.getConnector()).receive(channel, messages);
 		} catch (RemoteException e) {
 			throw e;
 		} catch (Exception e) {

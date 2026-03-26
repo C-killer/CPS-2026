@@ -33,11 +33,18 @@ package fr.sorbonne_u.cps.pubsub.interfaces;
 // The fact that you are presently reading this means that you have had
 // knowledge of the CeCILL-C license and that you accept its terms.
 
+import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyExistingChannelException;
+import fr.sorbonne_u.cps.pubsub.exceptions.ChannelQuotaExceededException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnauthorisedClientException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnknownClientException;
+import fr.sorbonne_u.components.PluginI;
+
 // -----------------------------------------------------------------------------
 /**
- * The component interface <code>PrivilegedClientCI</code> declares the methods
- * to be offered by a publication/subscription system to its privileged clients
- * to manage the channels.
+ * The interface <code>PrivilegedClientI</code> declares the method signatures
+ * through which a publication/subscription system privileged user manages the
+ * its channels.
  *
  * <p><strong>Description</strong></p>
  * 
@@ -51,8 +58,8 @@ package fr.sorbonne_u.cps.pubsub.interfaces;
  * 
  * @author	<a href="mailto:Jacques.Malenfant@lip6.fr">Jacques Malenfant</a>
  */
-public interface		PrivilegedClientCI
-extends		PublishingCI
+public interface		PrivilegedClientI
+extends		PluginI
 {
 	// -------------------------------------------------------------------------
 	// Signature and default methods
@@ -64,38 +71,33 @@ extends		PublishingCI
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel			channel to be tested.
-	 * @return					true if the component has created {@code channel}.
-	 * @throws Exception		<i>to do</i>.
+	 * @param channel					channel to be tested.
+	 * @return							true if the component has created {@code channel}.
+	 * @throws UnknownClientException	when {@code receptionPortURI} does not correspond to a registered component.
+	 * @throws UnknownChannelException	when the channel does not exist.
 	 */
-	public boolean		hasCreatedChannel(
-		String receptionPortURI,
-		String channel
-		) throws Exception;
+	public boolean		hasCreatedChannel(String channel)
+	throws	UnknownClientException,
+			UnknownChannelException;
 			
 	/**
-	 * return true if the component registered under {@code receptionPortURI}
-	 * has reached its channel quota.
+	 * return true if the component has reached its channel quota.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
+	 * pre	{@code true}	// no precondition.
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI	URI of the inbound port offering the component interface {@code ReceivingCI}.
-	 * @return					true if the component registered under {@code receptionPortURI} has reached its channel quota.
-	 * @throws Exception		<i>to do</i>.
+	 * @return							true if the component registered under {@code receptionPortURI} has reached its channel quota.
+	 * @throws UnknownClientException	when {@code receptionPortURI} does not correspond to a registered component.
 	 */
-	public boolean		channelQuotaReached(String receptionPortURI)
-	throws	Exception;
+	public boolean		channelQuotaReached() throws UnknownClientException;
 
 	/**
 	 * create a new channel of the given name with a set of users authorised to
@@ -104,31 +106,26 @@ extends		PublishingCI
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
 	 * pre	{@code autorisedUsers == null || !autorisedUsers.isEmpty()}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI	identifier of the requesting component <i>i.e.</i>, URI of its inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel			name of the channel to be created.
-	 * @param autorisedUsers	regular expression that matches the URIs of components that must be authorised to use the new channel.
-	 * @throws Exception		<i>to do</i>.
+	 * @param channel							name of the channel to be created.
+	 * @param autorisedUsers					regular expression that matches the URIs of components that must be authorised to use the new channel.
+	 * @throws UnknownClientException			when {@code receptionPortURI} does not correspond to a registered component.
+	 * @throws AlreadyExistingChannelException	when the channel to be created already exists.
+	 * @throws ChannelQuotaExceededException	when, the user tries to exceed its channel quota.
 	 */
 	public void			createChannel(
-		String receptionPortURI,
 		String channel,
 		String autorisedUsers
-		) throws Exception;
+		) throws	UnknownClientException,
+					AlreadyExistingChannelException,
+					ChannelQuotaExceededException;
 
 	/**
 	 * return true if {@code uri} is authorised to use {@code channel}.
-	 * 
-	 * <p>Deprecated</p>
-	 * 
-	 * <p>
-	 * This method duplicates {@code RegistrationCI::channelAuthorised}.
-	 * </p>
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
@@ -138,68 +135,39 @@ extends		PublishingCI
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param channel		name of an existing channel.
-	 * @param uri			URI of component to be tested.
-	 * @return				true if {@code uri} is authorised to use {@code channel}.
-	 * @throws Exception	<i>to do</i>.
+	 * @param channel					name of an existing channel.
+	 * @param uri						URI of component to be tested.
+	 * @return							true if {@code uri} is authorised to use {@code channel}.
+	 * @throws UnknownClientException	when {@code uri} does not correspond to a registered component.
+	 * @throws UnknownChannelException	when the channel does not exist.
 	 */
-	@Deprecated
 	public boolean		isAuthorisedUser(String channel, String uri)
-	throws Exception;
+	throws	UnknownClientException,
+			UnknownChannelException;
 
 	/**
-	 * replace the users authorised to use {@code channel}.
+	 * modify the users authorised to use {@code channel}.
 	 * 
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
 	 * pre	{@code autorisedUsers != null && !autorisedUsers.isEmpty()}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI	identifier of the requesting component <i>i.e.</i>, URI of its inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel			name of the channel.
-	 * @param autorisedUsers	regular expression that matches the URIs of components that must be authorised to use the new channel.
-	 * @throws Exception		<i>to do</i>.
+	 * @param channel						name of the channel.
+	 * @param autorisedUsers				regular expression that matches the URIs of components that must be authorised to use the new channel.
+	 * @throws UnknownClientException		when {@code receptionPortURI} or {@code uri} does not correspond to a registered component.
+	 * @throws UnknownChannelException		when the channel does not exist.
+	 * @throws UnauthorisedClientException	when the user is not the one that created {@code channel}.
 	 */
 	public void			modifyAuthorisedUsers(
-		String receptionPortURI,
 		String channel,
 		String autorisedUsers
-		) throws Exception;
-
-	/**
-	 * remove {@code uri} from the users authorised to use {@code channel}.
-	 * 
-	 * <p>Deprecated</p>
-	 * 
-	 * <p>
-	 * This method should have been deprecated when a regular expression was
-	 * adopted to check the authorised users.
-	 * </p>
-	 * 
-	 * <p><strong>Contract</strong></p>
-	 * 
-	 * <pre>
-	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
-	 * pre	{@code channel != null && !channel.isEmpty()}
-	 * pre	{@code regularExpression != null && !regularExpression.isEmpty()}
-	 * post	{@code true}	// no postcondition.
-	 * </pre>
-	 *
-	 * @param receptionPortURI	identifier of the requesting component <i>i.e.</i>, URI of its inbound port offering the component interface {@code ReceivingCI}.
-	 * @param channel			name of the channel.
-	 * @param regularExpression	regular expression that matches the URIs of components that must be authorised to use the new channel.
-	 * @throws Exception		<i>to do</i>.
-	 */
-	@Deprecated
-	public void			removeAuthorisedUsers(
-		String receptionPortURI,
-		String channel,
-		String regularExpression
-		) throws Exception;
+		) throws	UnknownClientException,
+					UnknownChannelException,
+					UnauthorisedClientException;
 
 	/**
 	 * destroy the given channel when no more messages are currently waiting
@@ -208,17 +176,19 @@ extends		PublishingCI
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI				URI of the inbound port offering the component interface {@code ReceivingCI}.
 	 * @param channel						name of the channel to be destroyed.
-	 * @throws Exception					<i>to do</i>.
+	 * @throws UnknownClientException		when {@code receptionPortURI} does not correspond to a registered component.
+	 * @throws UnknownChannelException		when the channel to be destroyed does not exist.
+	 * @throws UnauthorisedClientException	when the user is not the one that created {@code channel}.
 	 */
-	public void			destroyChannel(String receptionPortURI, String channel)
-	throws Exception;
+	public void			destroyChannel(String channel)
+	throws	UnknownClientException,
+			UnknownChannelException,
+			UnauthorisedClientException;
 
 	/**
 	 * destroy the given channel immediately, even if the channel has still
@@ -227,18 +197,18 @@ extends		PublishingCI
 	 * <p><strong>Contract</strong></p>
 	 * 
 	 * <pre>
-	 * pre	{@code receptionPortURI != null && !receptionPortURI.isEmpty()}
 	 * pre	{@code channel != null && !channel.isEmpty()}
 	 * post	{@code true}	// no postcondition.
 	 * </pre>
 	 *
-	 * @param receptionPortURI				URI of the inbound port offering the component interface {@code ReceivingCI}.
 	 * @param channel						name of the channel to be destroyed.
-	 * @throws Exception					<i>to do</i>.
+	 * @throws UnknownClientException		when {@code receptionPortURI} does not correspond to a registered component.
+	 * @throws UnknownChannelException		when the channel to be destroyed does not exist.
+	 * @throws UnauthorisedClientException	when the user is not the one that created {@code channel}.
 	 */
-	public void			destroyChannelNow(
-		String receptionPortURI,
-		String channel
-		) throws Exception;
+	public void			destroyChannelNow(String channel)
+	throws	UnknownClientException,
+			UnknownChannelException,
+			UnauthorisedClientException;
 }
 // -----------------------------------------------------------------------------
