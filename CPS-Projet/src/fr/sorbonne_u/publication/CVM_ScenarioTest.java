@@ -279,7 +279,7 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		try {
 			CVM_ScenarioTest cvm = new CVM_ScenarioTest();
 
-			cvm.startStandardLifeCycle(20000L);
+			cvm.startStandardLifeCycle(15000L);
 
 			System.exit(0);
 		} catch (Exception e) {

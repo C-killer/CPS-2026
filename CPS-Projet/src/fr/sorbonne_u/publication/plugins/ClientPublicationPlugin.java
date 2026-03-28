@@ -184,8 +184,8 @@ public class ClientPublicationPlugin
 		} catch (Exception ignored) {
 		}
 
-		this.removeRequiredInterface(PublishingCI.class);
 		this.removeRequiredInterface(PrivilegedClientCI.class);
+		this.removeRequiredInterface(PublishingCI.class);
 
 		super.uninstall();
 	}

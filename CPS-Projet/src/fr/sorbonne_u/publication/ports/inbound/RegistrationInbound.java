@@ -11,7 +11,6 @@ import fr.sorbonne_u.cps.pubsub.exceptions.UnknownIdentifierException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 import fr.sorbonne_u.publication.implementations.RegistrationImplI;
-import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
 public class RegistrationInbound extends AbstractInboundPort implements RegistrationCI {
 

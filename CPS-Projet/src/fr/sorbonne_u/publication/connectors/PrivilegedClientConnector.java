@@ -20,6 +20,7 @@ public class PrivilegedClientConnector extends AbstractConnector implements Priv
 		return ((RegistrationCI) this.offering).channelExist(channel);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isAuthorisedUser(String channel, String uri) throws Exception {
 		return ((PrivilegedClientCI) this.offering).isAuthorisedUser(channel, uri);
@@ -30,6 +31,7 @@ public class PrivilegedClientConnector extends AbstractConnector implements Priv
 		((PrivilegedClientCI) this.offering).modifyAuthorisedUsers(receptionPortURI, channel, autorisedUsers);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void removeAuthorisedUsers(String receptionPortURI, String channel, String regularExpression)
 			throws Exception {

@@ -166,7 +166,7 @@ public class CVM_PluginTest extends AbstractCVM {
 		try {
 			CVM_PluginTest cvm = new CVM_PluginTest();
 
-			cvm.startStandardLifeCycle(10000L);
+			cvm.startStandardLifeCycle(5000L);
 
 			System.exit(0);
 		} catch (Exception e) {

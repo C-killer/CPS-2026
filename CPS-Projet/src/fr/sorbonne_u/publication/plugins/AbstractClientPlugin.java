@@ -16,7 +16,7 @@ public abstract class AbstractClientPlugin extends AbstractPlugin {
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass) {
-		this.receivingInboundURI = receivingInboundURI;
+		this.receivingInboundURI = receivingInboundURI + "-port";
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
 		this.serviceClass = serviceClass;
 	}

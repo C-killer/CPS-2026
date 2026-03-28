@@ -31,6 +31,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isAuthorisedUser(String channel, String uri) throws Exception {
 		try {
@@ -50,6 +51,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void removeAuthorisedUsers(String receptionPortURI, String channel, String regularExpression)
 			throws Exception {

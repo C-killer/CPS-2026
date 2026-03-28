@@ -3,6 +3,7 @@ package fr.sorbonne_u.publication;
 import java.rmi.RemoteException;
 
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.exceptions.ComponentStartException;
 import fr.sorbonne_u.components.utils.tests.TestScenario;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
@@ -14,6 +15,7 @@ import fr.sorbonne_u.publication.plugins.ClientRegistrationPlugin;
 import fr.sorbonne_u.publication.plugins.ClientSubscriptionPlugin;
 import fr.sorbonne_u.utils.aclocks.AcceleratedClock;
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
+import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
 import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 
@@ -38,7 +40,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 			String channel,
 			MessageFilterI filter,
 			MessageI messageToPublish) throws Exception {
-		super(2, 1);
+		super(receivingInboundURI, 2, 1);
 
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
@@ -59,7 +61,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 			MessageFilterI filter,
 			MessageI messageToPublish,
 			TestScenario scenario) throws Exception {
-		super(2, 1);
+		super(receivingInboundURI, 2, 1);
 
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
@@ -142,16 +144,11 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 	}
 
 	@Override
-	public synchronized void start() {
+	public synchronized void start() throws ComponentStartException {
 		try {
 			super.start();
-
-			this.registrationPlugin.initialise();
-			this.publicationPlugin.initialise();
-			this.subscriptionPlugin.initialise();
-
 		} catch (Exception e) {
-			throw new RuntimeException("Client.start failed", e);
+			throw new ComponentStartException("Client.start failed", e);
 		}
 	}
 
@@ -172,6 +169,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		if (this.scenario != null) {
 			this.logMessage("Executing scenario...");
 
+			this.addRequiredInterface(ClocksServerCI.class);
 			ClocksServerOutboundPort clockPort = new ClocksServerOutboundPort(this);
 			clockPort.publishPort();
 			this.doPortConnection(
@@ -179,9 +177,14 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 					ClocksServer.STANDARD_INBOUNDPORT_URI,
 					ClocksServerConnector.class.getCanonicalName());
 
-			AcceleratedClock clock = clockPort.getClock(this.scenario.getClockURI());
-
-			clock.waitUntilStart();
+			AcceleratedClock rawClock = clockPort.getClock(this.scenario.getClockURI());
+			rawClock.waitUntilStart();
+			AcceleratedClock clock = new AcceleratedClock(
+					rawClock.getClockURI(),
+					rawClock.getStartEpochNanos(),
+					rawClock.getStartInstant(),
+					this.scenario.getEndInstant(),
+					rawClock.getAccelerationFactor());
 
 			String myURI = this.receivingInboundURI;
 
@@ -193,6 +196,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 			this.doPortDisconnection(clockPort.getPortURI());
 			clockPort.unpublishPort();
 			clockPort.destroyPort();
+			this.removeRequiredInterface(ClocksServerCI.class);
 
 			return;
 		}
