@@ -147,6 +147,15 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		return this.subscriptionPlugin;
 	}
 
+	/**
+	 * Hook called by {@link fr.sorbonne_u.publication.ports.inbound.ReceivingInbound}
+	 * after the subscription plugin has logged the message.
+	 * Subclasses (e.g. {@code Windmill}) override this to add domain logic.
+	 */
+	public void onMessageReceived(String channel, MessageI message) {
+		// default: no extra processing
+	}
+
 	@Override
 	public synchronized void start() throws ComponentStartException {
 		try {

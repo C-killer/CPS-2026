@@ -62,7 +62,7 @@ public class CVM_Audit1 extends AbstractCVM {
 		try {
 			CVM_Audit1 cvm = new CVM_Audit1();
 			// standard BCM lifecycle: deploy -> start -> execute -> finalise -> shutdown
-			cvm.startStandardLifeCycle(10000L);
+			cvm.startStandardLifeCycle(5000L);
 			System.exit(0);
 		} catch (Exception e) {
 			e.printStackTrace();

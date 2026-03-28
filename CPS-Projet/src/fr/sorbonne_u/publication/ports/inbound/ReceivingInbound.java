@@ -37,6 +37,7 @@ public class ReceivingInbound extends AbstractInboundPort implements ReceivingCI
 					if (o instanceof Client) {
 						Client c = (Client) o;
 						c.getSubscriptionPlugin().receive(channel, message);
+						c.onMessageReceived(channel, message);
 					} else {
 						((ReceivingImplI) o).receive(channel, message);
 					}
@@ -57,6 +58,9 @@ public class ReceivingInbound extends AbstractInboundPort implements ReceivingCI
 					if (o instanceof Client) {
 						Client c = (Client) o;
 						c.getSubscriptionPlugin().receive(channel, messages);
+						for (MessageI m : messages) {
+							c.onMessageReceived(channel, m);
+						}
 					} else {
 						((ReceivingImplI) o).receive(channel, messages);
 					}
