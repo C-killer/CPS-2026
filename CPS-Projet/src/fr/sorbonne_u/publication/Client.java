@@ -294,7 +294,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 
 	public void runScenarioCreateChannels() {
 		try {
-			System.out.println("Scenario: create channel " + this.channel);
+			System.out.println("[" + this.receivingInboundURI + "] Scenario: create channel " + this.channel);
 			this.createChannel(this.channel, ".*");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -326,6 +326,15 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 						this.messageToPublish);
 			}
 
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void runScenarioDestroyChannel() {
+		try {
+			System.out.println("[" + this.receivingInboundURI + "] Scenario: destroy channel " + this.channel);
+			this.destroyChannel(this.channel);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

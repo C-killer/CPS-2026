@@ -35,6 +35,14 @@
 		},
 		{
 			"type": "java",
+			"name": "CVM_FilterDemo",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.CVM_FilterDemo",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
 			"name": "Launch Current File",
 			"request": "launch",
 			"mainClass": "${file}",
