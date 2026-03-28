@@ -15,6 +15,10 @@ import fr.sorbonne_u.publication.ports.outbound.PrivilegedClientOutbound;
 import fr.sorbonne_u.publication.ports.outbound.PublishingOutbound;
 
 //使Client的操作分化到该插件,发布插件能实现从发布到销毁端口相关周期操作
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class ClientPublicationPlugin
 		extends AbstractClientPlugin
 		implements ClientPublicationI {

@@ -8,6 +8,9 @@ import fr.sorbonne_u.publication.Client;
 /**
  * MeteoStation = publisher client.
  * It publishes one weather message to a channel.
+ 
+ * @author PENG Kairui
+ * @author CHU Feiyang
  */
 public class MeteoStation extends Client {
 

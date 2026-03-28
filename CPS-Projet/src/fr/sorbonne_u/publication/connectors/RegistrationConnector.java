@@ -10,6 +10,10 @@ import fr.sorbonne_u.cps.pubsub.exceptions.UnknownIdentifierException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class RegistrationConnector extends AbstractConnector implements RegistrationCI {
 
 	@Override // 检查client是否存在

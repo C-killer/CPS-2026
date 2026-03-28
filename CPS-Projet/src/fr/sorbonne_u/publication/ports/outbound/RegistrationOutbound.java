@@ -8,6 +8,10 @@ import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyRegisteredException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class RegistrationOutbound extends AbstractOutboundPort implements RegistrationCI {
 
 	private static final long serialVersionUID = 1L;

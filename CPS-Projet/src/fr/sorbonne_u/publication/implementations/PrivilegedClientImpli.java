@@ -1,6 +1,10 @@
 package fr.sorbonne_u.publication.implementations;
 
 //semaine4
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public interface PrivilegedClientImpli extends PublishingImplI {
 
 	boolean hasCreatedChannel(String receptionPortURI, String channel) throws Exception;

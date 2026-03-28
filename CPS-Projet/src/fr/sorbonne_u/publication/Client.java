@@ -19,6 +19,10 @@ import fr.sorbonne_u.utils.aclocks.ClocksServerCI;
 import fr.sorbonne_u.utils.aclocks.ClocksServerConnector;
 import fr.sorbonne_u.utils.aclocks.ClocksServerOutboundPort;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class Client extends AbstractComponent implements ReceivingImplI {
 
 	protected final String receivingInboundURI;

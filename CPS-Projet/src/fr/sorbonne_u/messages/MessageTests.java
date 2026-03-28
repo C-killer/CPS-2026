@@ -8,6 +8,10 @@ import java.time.Instant;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI.*;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownPropertyException;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class MessageTests {
 	private Message message;
 	private String payload;

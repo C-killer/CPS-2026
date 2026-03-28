@@ -8,6 +8,9 @@ import fr.sorbonne_u.publication.Client;
 /**
  * MeteoOffice = publisher client.
  * It typically publishes alert messages.
+ 
+ * @author PENG Kairui
+ * @author CHU Feiyang
  */
 public class MeteoOffice extends Client {
 

@@ -5,6 +5,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.publication.Client;
 
 //设定抽象类,ClientPublicationPlugin,ClientRegistrationPlugin.java,ClientSubscriptionPlugin继承之
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public abstract class AbstractClientPlugin extends AbstractPlugin {
 	private static final long serialVersionUID = 1L;
 

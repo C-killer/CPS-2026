@@ -8,6 +8,10 @@ import java.util.Map;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownPropertyException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class Message implements MessageI {
 	private static final long serialVersionUID = 1L;
 

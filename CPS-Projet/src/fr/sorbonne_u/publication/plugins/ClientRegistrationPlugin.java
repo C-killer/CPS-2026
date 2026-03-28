@@ -7,6 +7,10 @@ import fr.sorbonne_u.publication.connectors.RegistrationConnector;
 import fr.sorbonne_u.publication.plugins.interfaces.ClientRegistrationI;
 import fr.sorbonne_u.publication.ports.outbound.RegistrationOutbound;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class ClientRegistrationPlugin
 		extends AbstractClientPlugin
 		implements ClientRegistrationI {

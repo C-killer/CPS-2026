@@ -1,14 +1,24 @@
 package fr.sorbonne_u.publication;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractCVM;
+import fr.sorbonne_u.cps.meteo.interfaces.MeteoAlertI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.messages.MessageFilter;
+import fr.sorbonne_u.meteo.MeteoAlert;
+import fr.sorbonne_u.meteo.Position;
+import fr.sorbonne_u.meteo.RectangularRegion;
+import fr.sorbonne_u.meteo.WindData;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class CVM_PluginTest extends AbstractCVM {
 
 	public static final int NB_CHANNELS = 2;
@@ -18,25 +28,54 @@ public class CVM_PluginTest extends AbstractCVM {
 	}
 
 	protected static Message windMessage(
-			String payload,
+			String description,
 			int speed,
 			String zone) throws Exception {
 
-		Message m = new Message(payload, Instant.now());
+		WindData wd = new WindData(new Position(0, 0), zoneToX(speed, zone), zoneToY(speed, zone));
+		Message m = new Message(wd, Instant.now());
 		m.putProperty("type", "wind");
-		m.putProperty("speed", speed);
+		m.putProperty("speed", wd.force());
 		m.putProperty("zone", zone);
 		return m;
 	}
 
 	protected static Message alertMessage(
-			String payload,
+			String description,
 			String level) throws Exception {
 
-		Message m = new Message(payload, Instant.now());
+		MeteoAlert alert = new MeteoAlert(
+				MeteoAlertI.AlertType.STORM,
+				parseLevel(level),
+				new RectangularRegion[]{ new RectangularRegion(new Position(0, 45), new Position(10, 52)) },
+				Instant.now(),
+				Duration.ofHours(6));
+		Message m = new Message(alert, Instant.now());
 		m.putProperty("type", "alert");
 		m.putProperty("level", level);
 		return m;
+	}
+
+	private static double zoneToX(int speed, String zone) {
+		if ("east".equals(zone))  return speed;
+		if ("west".equals(zone))  return -speed;
+		return 0;
+	}
+
+	private static double zoneToY(int speed, String zone) {
+		if ("north".equals(zone)) return speed;
+		if ("south".equals(zone)) return -speed;
+		return 0;
+	}
+
+	private static MeteoAlertI.Level parseLevel(String level) {
+		switch (level.toLowerCase()) {
+			case "red":    return MeteoAlertI.Level.RED;
+			case "yellow": return MeteoAlertI.Level.YELLOW;
+			case "green":  return MeteoAlertI.Level.GREEN;
+			case "scarlet":return MeteoAlertI.Level.SCARLET;
+			default:       return MeteoAlertI.Level.ORANGE;
+		}
 	}
 
 	// Filters

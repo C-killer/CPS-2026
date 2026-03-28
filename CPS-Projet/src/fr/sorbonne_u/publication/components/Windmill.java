@@ -9,6 +9,9 @@ import fr.sorbonne_u.publication.Client;
 /**
  * Windmill = subscriber client.
  * It subscribes to one channel with a filter and receives matching messages.
+ 
+ * @author PENG Kairui
+ * @author CHU Feiyang
  */
 public class Windmill extends Client {
 

@@ -11,6 +11,10 @@ import fr.sorbonne_u.messages.MessageFilter;
 import fr.sorbonne_u.publication.plugins.interfaces.ClientSubscriptionI;
 import fr.sorbonne_u.publication.ports.inbound.ReceivingInbound;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class ClientSubscriptionPlugin
 		extends AbstractClientPlugin
 		implements ClientSubscriptionI {

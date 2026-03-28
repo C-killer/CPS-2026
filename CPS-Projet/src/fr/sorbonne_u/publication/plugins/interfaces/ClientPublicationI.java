@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import fr.sorbonne_u.components.PluginI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public interface ClientPublicationI extends PluginI {
 	boolean channelExist(String channel);
 

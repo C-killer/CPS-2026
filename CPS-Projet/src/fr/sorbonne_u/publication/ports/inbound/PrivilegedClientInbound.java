@@ -11,6 +11,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI;
 import fr.sorbonne_u.publication.implementations.*;
 
 //Semaine4
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class PrivilegedClientInbound extends AbstractInboundPort implements PrivilegedClientCI {
 	private static final long serialVersionUID = 1L;
 

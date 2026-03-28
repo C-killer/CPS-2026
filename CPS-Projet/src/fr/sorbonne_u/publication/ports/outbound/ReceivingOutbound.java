@@ -7,6 +7,10 @@ import fr.sorbonne_u.components.ports.AbstractOutboundPort;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class ReceivingOutbound extends AbstractOutboundPort implements ReceivingCI {
 
 	private static final long serialVersionUID = 1L;

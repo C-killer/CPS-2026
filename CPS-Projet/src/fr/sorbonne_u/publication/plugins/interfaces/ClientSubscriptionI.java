@@ -7,6 +7,10 @@ import fr.sorbonne_u.components.PluginI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public interface ClientSubscriptionI extends PluginI {
 	boolean channelExist(String channel);
 

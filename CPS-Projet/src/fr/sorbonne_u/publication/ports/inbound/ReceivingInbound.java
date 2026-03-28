@@ -9,6 +9,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
 import fr.sorbonne_u.publication.Client;
 import fr.sorbonne_u.publication.implementations.ReceivingImplI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class ReceivingInbound extends AbstractInboundPort implements ReceivingCI {
 
 	private static final long serialVersionUID = 1L;

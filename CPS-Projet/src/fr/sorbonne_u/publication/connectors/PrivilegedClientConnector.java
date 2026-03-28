@@ -8,6 +8,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 
 //semaine4
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class PrivilegedClientConnector extends AbstractConnector implements PrivilegedClientCI {
 
 	@Override

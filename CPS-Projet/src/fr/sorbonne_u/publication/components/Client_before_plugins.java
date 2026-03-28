@@ -23,6 +23,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.messages.MessageFilter;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class Client_before_plugins extends AbstractComponent implements ReceivingImplI {
 
 	public enum Role {

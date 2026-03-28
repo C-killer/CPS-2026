@@ -9,6 +9,10 @@ import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class PublishingOutbound extends AbstractOutboundPort implements PublishingCI {
 
 	private static final long serialVersionUID = 1L;

@@ -4,6 +4,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
 //另一个生产者角色,通常用于发布更高层级的消息,如天气预警(Alert)。
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class MeteoOffice_before extends Client_before_plugins {
 
 	protected MeteoOffice_before(String receivingInboundURI,

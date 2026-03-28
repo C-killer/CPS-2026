@@ -3,6 +3,10 @@ package fr.sorbonne_u.publication.implementations;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public interface RegistrationImplI {
 
 	boolean registered(String receptionPortURI) throws Exception;

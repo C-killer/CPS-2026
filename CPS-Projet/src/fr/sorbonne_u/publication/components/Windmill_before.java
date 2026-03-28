@@ -5,6 +5,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
 
 //代表系统中的消费者/订阅者,它订阅特定频道(如气象频道)并根据过滤器接收数据。
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class Windmill_before extends Client_before_plugins {
 
 	protected Windmill_before(String receivingInboundURI,

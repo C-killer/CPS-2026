@@ -31,6 +31,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class Broker extends AbstractComponent
 		implements RegistrationImplI, PrivilegedClientImpli {
 

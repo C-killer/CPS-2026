@@ -4,6 +4,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
 //代表系统中的生产者/发布者负责采集并向Broker发送气象数据(如风速)
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class MeteoStation_before extends Client_before_plugins {
 
 	protected MeteoStation_before(String receivingInboundURI,

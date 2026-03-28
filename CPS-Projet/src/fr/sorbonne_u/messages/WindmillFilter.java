@@ -3,27 +3,46 @@ package fr.sorbonne_u.messages;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
+/**
+ * A filter that accepts wind messages whose speed is >= 30.
+ * Used by windmill subscriber clients to select strong-wind readings.
+ *
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class WindmillFilter implements MessageFilterI {
+
+	private static final long serialVersionUID = 1L;
+
+	/** Minimum wind speed (inclusive) to pass the filter. */
+	private static final double MIN_SPEED = 30.0;
+
+	private final PropertyFilterI[] propertyFilters;
+
+	public WindmillFilter() {
+		this.propertyFilters = new PropertyFilterI[] {
+				new MessageFilter.PropertyFilter(
+						"speed",
+						new MessageFilter.ValueFilter.GreaterThanFilter(MIN_SPEED - 1))
+		};
+	}
 
 	@Override
 	public boolean match(MessageI message) {
+		if (message == null) return false;
 		try {
-			Object type = message.getPropertyValue("type");
+			Object type     = message.getPropertyValue("type");
 			Object speedObj = message.getPropertyValue("speed");
 
-			if (type == null || speedObj == null)
+			if (!"wind".equals(type) || speedObj == null) return false;
+
+			double speed;
+			if (speedObj instanceof Number) {
+				speed = ((Number) speedObj).doubleValue();
+			} else {
 				return false;
-
-			if (!"wind".equals(type))
-				return false;
-
-			if (!(speedObj instanceof Integer))
-				return false;
-
-			int speed = (Integer) speedObj;
-
-			return speed >= 30;
-
+			}
+			return speed >= MIN_SPEED;
 		} catch (Exception e) {
 			return false;
 		}
@@ -31,19 +50,16 @@ public class WindmillFilter implements MessageFilterI {
 
 	@Override
 	public PropertyFilterI[] getPropertyFilters() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getPropertyFilters'");
+		return this.propertyFilters.clone();
 	}
 
 	@Override
 	public PropertiesFilterI[] getPropertiesFilters() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getPropertiesFilters'");
+		return new PropertiesFilterI[0];
 	}
 
 	@Override
 	public TimeFilterI getTimeFilter() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTimeFilter'");
+		return new MessageFilter.TimeFilter.JokerFilter();
 	}
 }

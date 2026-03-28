@@ -7,6 +7,10 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
 import fr.sorbonne_u.publication.components.Client_before_plugins;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public class CVM_Audit1 extends AbstractCVM {
 	public CVM_Audit1() throws Exception {
 		super();

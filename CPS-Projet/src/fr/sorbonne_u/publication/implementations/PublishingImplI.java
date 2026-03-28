@@ -4,6 +4,10 @@ import java.util.ArrayList;
 
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
+/**
+ * @author PENG Kairui
+ * @author CHU Feiyang
+ */
 public interface PublishingImplI {
 	void publish(String receptionPortURI, String channel, MessageI message)
 			throws Exception;
