@@ -35,9 +35,7 @@ public class ReceivingInbound extends AbstractInboundPort implements ReceivingCI
 			this.getOwner().runTask(o -> {
 				try {
 					if (o instanceof Client) {
-						Client c = (Client) o;
-						c.getSubscriptionPlugin().receive(channel, message);
-						c.onMessageReceived(channel, message);
+						((Client) o).getSubscriptionPlugin().receive(channel, message);
 					} else {
 						((ReceivingImplI) o).receive(channel, message);
 					}
@@ -56,11 +54,7 @@ public class ReceivingInbound extends AbstractInboundPort implements ReceivingCI
 			this.getOwner().runTask(o -> {
 				try {
 					if (o instanceof Client) {
-						Client c = (Client) o;
-						c.getSubscriptionPlugin().receive(channel, messages);
-						for (MessageI m : messages) {
-							c.onMessageReceived(channel, m);
-						}
+						((Client) o).getSubscriptionPlugin().receive(channel, messages);
 					} else {
 						((ReceivingImplI) o).receive(channel, messages);
 					}

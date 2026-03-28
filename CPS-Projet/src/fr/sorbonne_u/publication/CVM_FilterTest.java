@@ -51,7 +51,7 @@ import fr.sorbonne_u.utils.aclocks.ClocksServer;
  * @author PENG Kairui
  * @author CHU Feiyang
  */
-public class CVM_FilterDemo extends AbstractCVM {
+public class CVM_FilterTest extends AbstractCVM {
 
 	// Broker pre-creates channel0 only
 	public static final int    NB_CHANNELS        = 1;
@@ -72,7 +72,7 @@ public class CVM_FilterDemo extends AbstractCVM {
 
 	public static final String TEMP_CHANNEL = "temp-channel";
 
-	public CVM_FilterDemo() throws Exception {
+	public CVM_FilterTest() throws Exception {
 		super();
 	}
 
@@ -282,7 +282,7 @@ public class CVM_FilterDemo extends AbstractCVM {
 
 	public static void main(String[] args) {
 		try {
-			CVM_FilterDemo cvm = new CVM_FilterDemo();
+			CVM_FilterTest cvm = new CVM_FilterTest();
 			cvm.startStandardLifeCycle(10000L);
 			System.exit(0);
 		} catch (Exception e) {

@@ -35,10 +35,18 @@
 		},
 		{
 			"type": "java",
-			"name": "CVM_FilterDemo",
+			"name": "CVM_FilterTest",
 			"request": "launch",
 			"vmArgs": "-ea",
-			"mainClass": "fr.sorbonne_u.publication.CVM_FilterDemo",
+			"mainClass": "fr.sorbonne_u.publication.CVM_FilterTest",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "CVM_AsyncTest",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.CVM_AsyncTest",
 			"projectName": "CPS-2026"
 		},
 		{

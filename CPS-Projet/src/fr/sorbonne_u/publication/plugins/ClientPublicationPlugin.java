@@ -10,7 +10,9 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.publication.connectors.PrivilegedClientConnector;
 import fr.sorbonne_u.publication.connectors.PublishingConnector;
+import fr.sorbonne_u.publication.interfaces.AbnormalTerminationNotificationCI;
 import fr.sorbonne_u.publication.plugins.interfaces.ClientPublicationI;
+import fr.sorbonne_u.publication.ports.inbound.AbnormalTerminationNotificationInbound;
 import fr.sorbonne_u.publication.ports.outbound.PrivilegedClientOutbound;
 import fr.sorbonne_u.publication.ports.outbound.PublishingOutbound;
 
@@ -26,7 +28,9 @@ public class ClientPublicationPlugin
 
 	protected PublishingOutbound publishingOutbound;
 	protected PrivilegedClientOutbound privilegedPublishingOutbound;
+	protected AbnormalTerminationNotificationInbound notificationInbound;
 	protected String brokerPublishingInboundURI;
+	protected String notificationInboundURI;
 
 	@Override
 	public void installOn(ComponentI owner) throws Exception {
@@ -34,12 +38,18 @@ public class ClientPublicationPlugin
 
 		this.addRequiredInterface(PublishingCI.class);
 		this.addRequiredInterface(PrivilegedClientCI.class);
+		this.addOfferedInterface(AbnormalTerminationNotificationCI.class);
 
 		this.publishingOutbound = new PublishingOutbound(owner);
 		this.publishingOutbound.publishPort();
 
 		this.privilegedPublishingOutbound = new PrivilegedClientOutbound(owner);
 		this.privilegedPublishingOutbound.publishPort();
+
+		this.notificationInboundURI = this.receivingInboundURI + "-notification";
+		this.notificationInbound = new AbnormalTerminationNotificationInbound(
+				this.notificationInboundURI, owner);
+		this.notificationInbound.publishPort();
 	}
 
 	@Override
@@ -179,17 +189,13 @@ public class ClientPublicationPlugin
 
 	@Override
 	public void uninstall() throws Exception {
-		try {
-			this.publishingOutbound.unpublishPort();
-		} catch (Exception ignored) {
-		}
-		try {
-			this.privilegedPublishingOutbound.unpublishPort();
-		} catch (Exception ignored) {
-		}
+		try { this.publishingOutbound.unpublishPort(); }              catch (Exception ignored) {}
+		try { this.privilegedPublishingOutbound.unpublishPort(); }    catch (Exception ignored) {}
+		try { this.notificationInbound.unpublishPort(); }             catch (Exception ignored) {}
 
 		this.removeRequiredInterface(PrivilegedClientCI.class);
 		this.removeRequiredInterface(PublishingCI.class);
+		this.removeOfferedInterface(AbnormalTerminationNotificationCI.class);
 
 		super.uninstall();
 	}

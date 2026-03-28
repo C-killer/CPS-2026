@@ -340,6 +340,56 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		}
 	}
 
+	public void runScenarioWaitForMessage() {
+		try {
+			System.out.println("[" + this.receivingInboundURI
+					+ "] Scenario: waitForNextMessage on " + this.channel);
+			MessageI msg = this.subscriptionPlugin.waitForNextMessage(
+					this.channel, java.time.Duration.ofSeconds(10));
+			if (msg != null) {
+				System.out.println("[" + this.receivingInboundURI
+						+ "] waitForNextMessage returned: " + msg);
+			} else {
+				System.out.println("[" + this.receivingInboundURI
+						+ "] waitForNextMessage timed out (null)");
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void runScenarioGetNextMessage() {
+		try {
+			System.out.println("[" + this.receivingInboundURI
+					+ "] Scenario: getNextMessage (Future) on " + this.channel);
+			java.util.concurrent.Future<fr.sorbonne_u.cps.pubsub.interfaces.MessageI> future =
+					this.subscriptionPlugin.getNextMessage(this.channel);
+			// Do some other work while waiting...
+			System.out.println("[" + this.receivingInboundURI
+					+ "] Future created, doing other work...");
+			Thread.sleep(50); // simulate other work
+			// Now block to retrieve the message
+			MessageI msg = future.get(10, java.util.concurrent.TimeUnit.SECONDS);
+			System.out.println("[" + this.receivingInboundURI
+					+ "] Future.get() returned: " + msg);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void runScenarioAsyncPublish() {
+		try {
+			if (this.messageToPublish != null) {
+				System.out.println("[" + this.receivingInboundURI
+						+ "] Scenario: asyncPublishAndNotify to " + this.channel);
+				this.publicationPlugin.asyncPublishAndNotify(
+						this.channel, this.messageToPublish);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public void runScenarioDestroyChannel() {
 		try {
 			System.out.println("[" + this.receivingInboundURI + "] Scenario: destroy channel " + this.channel);
