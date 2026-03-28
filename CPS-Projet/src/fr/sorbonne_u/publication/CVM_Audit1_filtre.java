@@ -43,8 +43,8 @@ public class CVM_Audit1_filtre extends AbstractCVM {
 						Broker.registrationPortURI(),
 						RegistrationClass.FREE,
 						"channel0",
-						new MessageFilter(null, null, null) // match-all for demo
-				// new WindmillFilter()
+						// new MessageFilter(null, null, null) // match-all for demo
+						new WindmillFilter()
 				});
 
 		// Meteo station 1 (publisher): strong wind from north, speed 42
@@ -83,7 +83,7 @@ public class CVM_Audit1_filtre extends AbstractCVM {
 		MeteoAlert alert = new MeteoAlert(
 				MeteoAlertI.AlertType.STORM,
 				MeteoAlertI.Level.ORANGE,
-				new RectangularRegion[]{ new RectangularRegion(new Position(0, 45), new Position(10, 52)) },
+				new RectangularRegion[] { new RectangularRegion(new Position(0, 45), new Position(10, 52)) },
 				Instant.now(),
 				Duration.ofHours(6));
 		Message office = new Message(alert, Instant.now());

@@ -31,6 +31,22 @@ public class MeteoStation extends Client {
 				scenario);
 	}
 
+	/** Constructor without scenario (for non-timed tests). */
+	protected MeteoStation(
+			String receivingInboundURI,
+			String brokerRegistrationInboundURI,
+			RegistrationClass serviceClass,
+			String channel,
+			MessageI messageToPublish) throws Exception {
+		super(
+				receivingInboundURI,
+				brokerRegistrationInboundURI,
+				serviceClass,
+				channel,
+				null,
+				messageToPublish);
+	}
+
 	/**
 	 * Convenience constructor: FREE service, no default message.
 	 * Usually not used by CVM if createComponent cannot pass null.

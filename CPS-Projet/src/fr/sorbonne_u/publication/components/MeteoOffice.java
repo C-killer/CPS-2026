@@ -14,6 +14,22 @@ import fr.sorbonne_u.publication.Client;
  */
 public class MeteoOffice extends Client {
 
+	/** Constructor without scenario (for non-timed tests). */
+	protected MeteoOffice(
+			String receivingInboundURI,
+			String brokerRegistrationInboundURI,
+			RegistrationClass serviceClass,
+			String channel,
+			MessageI messageToPublish) throws Exception {
+		super(
+				receivingInboundURI,
+				brokerRegistrationInboundURI,
+				serviceClass,
+				channel,
+				null,
+				messageToPublish);
+	}
+
 	protected MeteoOffice(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,

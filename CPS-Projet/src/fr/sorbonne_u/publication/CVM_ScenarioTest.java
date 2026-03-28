@@ -16,6 +16,9 @@ import fr.sorbonne_u.meteo.MeteoAlert;
 import fr.sorbonne_u.meteo.Position;
 import fr.sorbonne_u.meteo.RectangularRegion;
 import fr.sorbonne_u.meteo.WindData;
+import fr.sorbonne_u.publication.components.MeteoOffice;
+import fr.sorbonne_u.publication.components.MeteoStation;
+import fr.sorbonne_u.publication.components.Windmill;
 
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
 import fr.sorbonne_u.components.utils.tests.TestScenario;
@@ -420,14 +423,13 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		// -- 10 FREE subscribers (channel0, strongWindFilter) --
 		for (int i = 1; i <= 10; i++) {
 			AbstractComponent.createComponent(
-					Client.class.getCanonicalName(),
+					Windmill.class.getCanonicalName(),
 					new Object[] {
 							"windmill-" + i,
 							brokerURI,
 							RegistrationClass.FREE,
 							"channel0",
 							strongWindFilter(),
-							dummyMessage(),
 							scenario
 					});
 		}
@@ -435,14 +437,13 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		// -- 8 PREMIUM subscribers (channel1, alertFilter) --
 		for (int i = 1; i <= 8; i++) {
 			AbstractComponent.createComponent(
-					Client.class.getCanonicalName(),
+					Windmill.class.getCanonicalName(),
 					new Object[] {
 							"desk-" + i,
 							brokerURI,
 							RegistrationClass.PREMIUM,
 							"channel1",
 							alertFilter(),
-							dummyMessage(),
 							scenario
 					});
 		}
@@ -450,14 +451,13 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		// -- 5 STANDARD subscribers (channel2, pass-all filter) --
 		for (int i = 1; i <= 5; i++) {
 			AbstractComponent.createComponent(
-					Client.class.getCanonicalName(),
+					Windmill.class.getCanonicalName(),
 					new Object[] {
 							"monitor-" + i,
 							brokerURI,
 							RegistrationClass.STANDARD,
 							"channel2",
 							new MessageFilter(null, null, null),
-							dummyMessage(),
 							scenario
 					});
 		}
@@ -465,14 +465,13 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		// -- 5 STANDARD subscribers (channel3, pass-all filter) --
 		for (int i = 1; i <= 5; i++) {
 			AbstractComponent.createComponent(
-					Client.class.getCanonicalName(),
+					Windmill.class.getCanonicalName(),
 					new Object[] {
 							"sensor-" + i,
 							brokerURI,
 							RegistrationClass.STANDARD,
 							"channel3",
 							new MessageFilter(null, null, null),
-							dummyMessage(),
 							scenario
 					});
 		}
@@ -484,13 +483,12 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		};
 		for (int i = 1; i <= 8; i++) {
 			AbstractComponent.createComponent(
-					Client.class.getCanonicalName(),
+					MeteoStation.class.getCanonicalName(),
 					new Object[] {
 							"station-" + i,
 							brokerURI,
 							RegistrationClass.FREE,
 							"channel0",
-							neverMatchFilter(),
 							windMsgs[i - 1],
 							scenario
 					});
@@ -500,13 +498,12 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		Message[] alertMsgs = { alert1, alert2, alert3, alert4 };
 		for (int i = 1; i <= 4; i++) {
 			AbstractComponent.createComponent(
-					Client.class.getCanonicalName(),
+					MeteoOffice.class.getCanonicalName(),
 					new Object[] {
 							"office-" + i,
 							brokerURI,
 							RegistrationClass.PREMIUM,
 							"channel1",
-							neverMatchFilter(),
 							alertMsgs[i - 1],
 							scenario
 					});
@@ -514,37 +511,34 @@ public class CVM_ScenarioTest extends AbstractCVM {
 
 		// -- 2 STANDARD publishers (channel2) --
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				MeteoStation.class.getCanonicalName(),
 				new Object[] {
 						DATA_1,
 						brokerURI,
 						RegistrationClass.STANDARD,
 						"channel2",
-						neverMatchFilter(),
 						data1msg,
 						scenario
 				});
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				MeteoStation.class.getCanonicalName(),
 				new Object[] {
 						DATA_2,
 						brokerURI,
 						RegistrationClass.STANDARD,
 						"channel2",
-						neverMatchFilter(),
 						data2msg,
 						scenario
 				});
 
 		// -- 1 STANDARD publisher (channel3) --
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				MeteoStation.class.getCanonicalName(),
 				new Object[] {
 						REPORT_1,
 						brokerURI,
 						RegistrationClass.STANDARD,
 						"channel3",
-						neverMatchFilter(),
 						report1msg,
 						scenario
 				});

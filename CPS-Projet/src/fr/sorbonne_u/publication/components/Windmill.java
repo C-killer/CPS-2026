@@ -32,6 +32,22 @@ public class Windmill extends Client {
 				scenario); // no publication message for windmill
 	}
 
+	/** Constructor without scenario (for non-timed tests). */
+	protected Windmill(
+			String receivingInboundURI,
+			String brokerRegistrationInboundURI,
+			RegistrationClass serviceClass,
+			String channel,
+			MessageFilterI filter) throws Exception {
+		super(
+				receivingInboundURI,
+				brokerRegistrationInboundURI,
+				serviceClass,
+				channel,
+				filter,
+				null);
+	}
+
 	/**
 	 * Convenience constructor: FREE service + match-all filter.
 	 */

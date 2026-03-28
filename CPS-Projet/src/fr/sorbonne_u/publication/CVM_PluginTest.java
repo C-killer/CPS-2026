@@ -14,6 +14,9 @@ import fr.sorbonne_u.meteo.MeteoAlert;
 import fr.sorbonne_u.meteo.Position;
 import fr.sorbonne_u.meteo.RectangularRegion;
 import fr.sorbonne_u.meteo.WindData;
+import fr.sorbonne_u.publication.components.MeteoOffice;
+import fr.sorbonne_u.publication.components.MeteoStation;
+import fr.sorbonne_u.publication.components.Windmill;
 
 /**
  * @author PENG Kairui
@@ -47,7 +50,7 @@ public class CVM_PluginTest extends AbstractCVM {
 		MeteoAlert alert = new MeteoAlert(
 				MeteoAlertI.AlertType.STORM,
 				parseLevel(level),
-				new RectangularRegion[]{ new RectangularRegion(new Position(0, 45), new Position(10, 52)) },
+				new RectangularRegion[] { new RectangularRegion(new Position(0, 45), new Position(10, 52)) },
 				Instant.now(),
 				Duration.ofHours(6));
 		Message m = new Message(alert, Instant.now());
@@ -57,24 +60,33 @@ public class CVM_PluginTest extends AbstractCVM {
 	}
 
 	private static double zoneToX(int speed, String zone) {
-		if ("east".equals(zone))  return speed;
-		if ("west".equals(zone))  return -speed;
+		if ("east".equals(zone))
+			return speed;
+		if ("west".equals(zone))
+			return -speed;
 		return 0;
 	}
 
 	private static double zoneToY(int speed, String zone) {
-		if ("north".equals(zone)) return speed;
-		if ("south".equals(zone)) return -speed;
+		if ("north".equals(zone))
+			return speed;
+		if ("south".equals(zone))
+			return -speed;
 		return 0;
 	}
 
 	private static MeteoAlertI.Level parseLevel(String level) {
 		switch (level.toLowerCase()) {
-			case "red":    return MeteoAlertI.Level.RED;
-			case "yellow": return MeteoAlertI.Level.YELLOW;
-			case "green":  return MeteoAlertI.Level.GREEN;
-			case "scarlet":return MeteoAlertI.Level.SCARLET;
-			default:       return MeteoAlertI.Level.ORANGE;
+			case "red":
+				return MeteoAlertI.Level.RED;
+			case "yellow":
+				return MeteoAlertI.Level.YELLOW;
+			case "green":
+				return MeteoAlertI.Level.GREEN;
+			case "scarlet":
+				return MeteoAlertI.Level.SCARLET;
+			default:
+				return MeteoAlertI.Level.ORANGE;
 		}
 	}
 
@@ -135,66 +147,62 @@ public class CVM_PluginTest extends AbstractCVM {
 
 		final String brokerURI = Broker.registrationPortURI();
 
-		// strong wind subscriber
+		// Windmill: FREE subscriber on channel0, strong-wind filter
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				Windmill.class.getCanonicalName(),
 				new Object[] {
 						"windmill-1",
 						brokerURI,
 						RegistrationClass.FREE,
 						"channel0",
-						strongWindFilter(),
-						dummyMessage()
+						strongWindFilter()
 				});
-		// alert subscriber
+
+		// Windmill: PREMIUM subscriber on channel1, alert filter
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				Windmill.class.getCanonicalName(),
 				new Object[] {
 						"desk-1",
 						brokerURI,
 						RegistrationClass.PREMIUM,
 						"channel1",
-						alertFilter(),
-						dummyMessage()
+						alertFilter()
 				});
 
 		Message windStrong = windMessage("station1 strong wind", 42, "north");
 		Message windWeak = windMessage("station2 weak wind", 12, "south");
 		Message alertMsg = alertMessage("storm warning", "orange");
 
-		// station 1
+		// MeteoStation: FREE publisher on channel0
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				MeteoStation.class.getCanonicalName(),
 				new Object[] {
 						"station-1",
 						brokerURI,
 						RegistrationClass.FREE,
 						"channel0",
-						neverMatchFilter(),
 						windStrong
 				});
 
-		// station 2
+		// MeteoStation: STANDARD publisher on channel0
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				MeteoStation.class.getCanonicalName(),
 				new Object[] {
 						"station-2",
 						brokerURI,
 						RegistrationClass.STANDARD,
 						"channel0",
-						neverMatchFilter(),
 						windWeak
 				});
 
-		// office publisher
+		// MeteoOffice: PREMIUM publisher on channel1
 		AbstractComponent.createComponent(
-				Client.class.getCanonicalName(),
+				MeteoOffice.class.getCanonicalName(),
 				new Object[] {
 						"office-1",
 						brokerURI,
 						RegistrationClass.PREMIUM,
 						"channel1",
-						neverMatchFilter(),
 						alertMsg
 				});
 
