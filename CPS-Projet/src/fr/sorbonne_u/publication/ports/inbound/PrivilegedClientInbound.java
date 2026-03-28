@@ -11,7 +11,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI;
 import fr.sorbonne_u.publication.implementations.*;
 
 //Semaine4
-public class PrivilegedClientInbound extends AbstractInboundPort implements PrivilegedClientImpli {
+public class PrivilegedClientInbound extends AbstractInboundPort implements PrivilegedClientCI {
 	private static final long serialVersionUID = 1L;
 
 	public PrivilegedClientInbound(
@@ -29,7 +29,6 @@ public class PrivilegedClientInbound extends AbstractInboundPort implements Priv
 		}
 	}
 
-	@Override
 	public boolean channelExist(String channel) throws Exception {
 		return ((PrivilegedClientImpli) this.getOwner()).channelExist(channel);
 	}

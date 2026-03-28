@@ -11,7 +11,7 @@ import fr.sorbonne_u.publication.Client;
  */
 public class MeteoOffice extends Client {
 
-	public MeteoOffice(
+	protected MeteoOffice(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,

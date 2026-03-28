@@ -9,18 +9,20 @@ import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
 import fr.sorbonne_u.publication.Client;
 import fr.sorbonne_u.publication.implementations.ReceivingImplI;
 
-public class ReceivingInbound extends AbstractInboundPort implements ReceivingImplI {
+public class ReceivingInbound extends AbstractInboundPort implements ReceivingCI {
 
 	private static final long serialVersionUID = 1L;
 
 	public ReceivingInbound(ComponentI owner) throws Exception {
 		super(ReceivingCI.class, owner);
-		assert owner instanceof Client : "Owner must implement Client to use ReceivingInbound.";
+		assert owner instanceof ReceivingImplI || owner instanceof Client
+				: "Owner must implement ReceivingImplI or Client to use ReceivingInbound.";
 	}
 
 	public ReceivingInbound(String uri, ComponentI owner) throws Exception {
 		super(uri, ReceivingCI.class, owner);
-		assert owner instanceof Client : "Owner must implement Client to use ReceivingInbound.";
+		assert owner instanceof ReceivingImplI || owner instanceof Client
+				: "Owner must implement ReceivingImplI or Client to use ReceivingInbound.";
 	}
 
 	@Override

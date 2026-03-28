@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import fr.sorbonne_u.components.AbstractComponent;
+import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
 import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyExistingChannelException;
 import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyRegisteredException;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
@@ -24,6 +25,10 @@ import fr.sorbonne_u.publication.ports.inbound.PrivilegedClientInbound;
 import fr.sorbonne_u.publication.ports.inbound.PublishingInbound;
 import fr.sorbonne_u.publication.ports.inbound.RegistrationInbound;
 import fr.sorbonne_u.publication.ports.outbound.ReceivingOutbound;
+import fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI;
+import fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI;
+import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
+import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
 public class Broker extends AbstractComponent
@@ -54,8 +59,13 @@ public class Broker extends AbstractComponent
 	protected final ExecutorService propagationExecutor;
 	protected final ExecutorService deliveryExecutor;
 
-	public Broker(int nbChannels) throws Exception {
+	protected Broker(int nbChannels) throws Exception {
 		super(4, 0);
+
+		this.addOfferedInterface(RegistrationCI.class);
+		this.addOfferedInterface(PublishingCI.class);
+		this.addOfferedInterface(PrivilegedClientCI.class);
+		this.addRequiredInterface(ReceivingCI.class);
 
 		this.publicationExecutor = Executors.newFixedThreadPool(2);
 		this.propagationExecutor = Executors.newFixedThreadPool(4);
@@ -76,6 +86,30 @@ public class Broker extends AbstractComponent
 
 		this.privilegedClientInboundPort = new PrivilegedClientInbound(PRIVILEGED_INBOUND_URI, this);
 		this.privilegedClientInboundPort.publishPort();
+	}
+
+	@Override
+	public synchronized void finalise() throws Exception {
+		for (ReceivingOutbound rop : receivingOutboundPorts.values()) {
+			try { rop.doDisconnection(); } catch (Throwable ignored) {}
+			try { rop.unpublishPort(); } catch (Throwable ignored) {}
+		}
+		receivingOutboundPorts.clear();
+		publicationExecutor.shutdownNow();
+		propagationExecutor.shutdownNow();
+		deliveryExecutor.shutdownNow();
+		super.finalise();
+	}
+
+	@Override
+	public synchronized void shutdown() throws ComponentShutdownException {
+		try { this.registrationInboundPort.unpublishPort(); } catch (Throwable ignored) {}
+		try { this.publishingInboundPort.unpublishPort(); } catch (Throwable ignored) {}
+		try { this.privilegedClientInboundPort.unpublishPort(); } catch (Throwable ignored) {}
+		for (ReceivingOutbound rop : receivingOutboundPorts.values()) {
+			try { rop.unpublishPort(); } catch (Throwable ignored) {}
+		}
+		super.shutdown();
 	}
 
 	public static String registrationPortURI() {

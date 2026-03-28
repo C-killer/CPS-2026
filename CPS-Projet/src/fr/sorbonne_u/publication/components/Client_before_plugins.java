@@ -14,6 +14,10 @@ import fr.sorbonne_u.publication.ports.outbound.*;
 
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
+import fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI;
+import fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI;
+import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
+import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
 import fr.sorbonne_u.messages.Message;
@@ -48,7 +52,7 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 	protected String brokerPublishingInboundURI;
 
 	// 通用构造函数
-	public Client_before_plugins(
+	protected Client_before_plugins(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -57,6 +61,11 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 			MessageFilterI filter,
 			MessageI messageToPublish) throws Exception {
 		super(1, 0);
+
+		this.addOfferedInterface(ReceivingCI.class);
+		this.addRequiredInterface(RegistrationCI.class);
+		this.addRequiredInterface(PublishingCI.class);
+		this.addRequiredInterface(PrivilegedClientCI.class);
 
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
@@ -83,13 +92,18 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 
 	// Subscriber constructor (no null args)
 	// 默认subscriber构造函数
-	public Client_before_plugins(
+	protected Client_before_plugins(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
 			String channel,
 			MessageFilterI filter) throws Exception {
 		super(1, 0);
+
+		this.addOfferedInterface(ReceivingCI.class);
+		this.addRequiredInterface(RegistrationCI.class);
+		this.addRequiredInterface(PublishingCI.class);
+		this.addRequiredInterface(PrivilegedClientCI.class);
 
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
@@ -114,13 +128,18 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 
 	// Publisher constructor (no null args)
 	// 默认publisher构造函数
-	public Client_before_plugins(
+	protected Client_before_plugins(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
 			String channel,
 			MessageI messageToPublish) throws Exception {
 		super(1, 0);
+
+		this.addOfferedInterface(ReceivingCI.class);
+		this.addRequiredInterface(RegistrationCI.class);
+		this.addRequiredInterface(PublishingCI.class);
+		this.addRequiredInterface(PrivilegedClientCI.class);
 
 		this.receivingInboundURI = receivingInboundURI;
 		this.brokerRegistrationInboundURI = brokerRegistrationInboundURI;
@@ -271,7 +290,7 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 		 */
 		try {
 			this.privilegedPublishingOutbound.doDisconnection();
-		} catch (Exception ignored) {
+		} catch (Throwable ignored) {
 		}
 		super.finalise();
 	}
@@ -304,11 +323,11 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 	/*
 	 * Ajoute du semaine4
 	 */
-	public void createChannel(String channel) throws Exception {
+	public void createChannel(String channel, String autorisedUsers) throws Exception {
 		if (this.serviceClass == RegistrationClass.FREE) {
 			throw new IllegalStateException("FREE client cannot create channels");
 		}
-		this.privilegedPublishingOutbound.createChannel(this.receivingInboundURI, channel);
+		this.privilegedPublishingOutbound.createChannel(this.receivingInboundURI, channel, autorisedUsers);
 	}
 
 	public void destroyChannel(String channel) throws Exception {

@@ -11,7 +11,7 @@ import fr.sorbonne_u.publication.Client;
  */
 public class MeteoStation extends Client {
 
-	public MeteoStation(
+	protected MeteoStation(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -32,7 +32,7 @@ public class MeteoStation extends Client {
 	 * Convenience constructor: FREE service, no default message.
 	 * Usually not used by CVM if createComponent cannot pass null.
 	 */
-	public MeteoStation(
+	protected MeteoStation(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			String channel,

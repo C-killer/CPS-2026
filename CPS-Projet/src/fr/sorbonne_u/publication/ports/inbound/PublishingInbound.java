@@ -10,7 +10,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI;
 import fr.sorbonne_u.publication.implementations.PublishingImplI;
 
-public class PublishingInbound extends AbstractInboundPort implements PublishingImplI {
+public class PublishingInbound extends AbstractInboundPort implements PublishingCI {
 
 	private static final long serialVersionUID = 1L;
 

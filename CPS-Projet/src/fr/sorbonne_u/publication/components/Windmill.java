@@ -12,7 +12,7 @@ import fr.sorbonne_u.publication.Client;
  */
 public class Windmill extends Client {
 
-	public Windmill(
+	protected Windmill(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -32,7 +32,7 @@ public class Windmill extends Client {
 	/**
 	 * Convenience constructor: FREE service + match-all filter.
 	 */
-	public Windmill(
+	protected Windmill(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			String channel,

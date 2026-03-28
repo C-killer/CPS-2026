@@ -13,7 +13,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI;
 import fr.sorbonne_u.publication.implementations.RegistrationImplI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 
-public class RegistrationInbound extends AbstractInboundPort implements RegistrationImplI {
+public class RegistrationInbound extends AbstractInboundPort implements RegistrationCI {
 
 	private static final long serialVersionUID = 1L;
 

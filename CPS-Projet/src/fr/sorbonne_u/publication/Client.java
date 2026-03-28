@@ -31,7 +31,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 	protected ClientPublicationPlugin publicationPlugin;
 	protected ClientSubscriptionPlugin subscriptionPlugin;
 
-	public Client(
+	protected Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -51,7 +51,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		this.initialisePlugins();
 	}
 
-	public Client(
+	protected Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -72,7 +72,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		this.initialisePlugins();
 	}
 
-	public Client(
+	protected Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,
@@ -86,7 +86,7 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 				null);
 	}
 
-	public Client(
+	protected Client(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
 			RegistrationClass serviceClass,

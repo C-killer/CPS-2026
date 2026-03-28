@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 import fr.sorbonne_u.components.ComponentI;
 import fr.sorbonne_u.components.ports.AbstractOutboundPort;
+import fr.sorbonne_u.publication.connectors.PrivilegedClientConnector;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownIdentifierException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI;
-import fr.sorbonne_u.publication.implementations.PrivilegedClientImpli;
 
 //Semaine 4
-public class PrivilegedClientOutbound extends AbstractOutboundPort implements PrivilegedClientImpli {
+public class PrivilegedClientOutbound extends AbstractOutboundPort implements PrivilegedClientCI {
 	private static final long serialVersionUID = 1L;
 
 	public PrivilegedClientOutbound(ComponentI owner) throws Exception {
@@ -25,7 +25,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public boolean hasCreatedChannel(String receptionPortURI, String channel) throws Exception {
 		try {
-			return ((PrivilegedClientImpli) this.getConnector()).hasCreatedChannel(receptionPortURI, channel);
+			return ((PrivilegedClientCI) this.getConnector()).hasCreatedChannel(receptionPortURI, channel);
 		} catch (Exception e) {
 			throw new RemoteException("Error: hasCreatedChannel", e);
 		}
@@ -34,7 +34,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public boolean isAuthorisedUser(String channel, String uri) throws Exception {
 		try {
-			return ((PrivilegedClientImpli) this.getConnector()).isAuthorisedUser(channel, uri);
+			return ((PrivilegedClientCI) this.getConnector()).isAuthorisedUser(channel, uri);
 		} catch (Exception e) {
 			throw new RemoteException("Error: isAuthorisedUser", e);
 		}
@@ -43,7 +43,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public void modifyAuthorisedUsers(String receptionPortURI, String channel, String autorisedUsers) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).modifyAuthorisedUsers(receptionPortURI, channel,
+			((PrivilegedClientCI) this.getConnector()).modifyAuthorisedUsers(receptionPortURI, channel,
 					autorisedUsers);
 		} catch (Exception e) {
 			throw new RemoteException("Error: modifyAuthorisedUsers", e);
@@ -54,18 +54,17 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	public void removeAuthorisedUsers(String receptionPortURI, String channel, String regularExpression)
 			throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).removeAuthorisedUsers(receptionPortURI, channel,
+			((PrivilegedClientCI) this.getConnector()).removeAuthorisedUsers(receptionPortURI, channel,
 					regularExpression);
 		} catch (Exception e) {
 			throw new RemoteException("Error: removeAuthorisedUsers", e);
 		}
 	}
 
-	@Override
 	public boolean channelExist(String channel)
 			throws RemoteException {
 		try {
-			return ((PrivilegedClientImpli) this.getConnector()).channelExist(channel);
+			return ((PrivilegedClientConnector) this.getConnector()).channelExist(channel);
 		} catch (RemoteException e) {
 			throw e;
 		} catch (Exception e) {
@@ -77,7 +76,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	public boolean channelQuotaReached(String receptionPortURI)
 			throws RemoteException, UnknownIdentifierException {
 		try {
-			return ((PrivilegedClientImpli) this.getConnector())
+			return ((PrivilegedClientCI) this.getConnector())
 					.channelQuotaReached(receptionPortURI);
 		} catch (RemoteException | UnknownIdentifierException e) {
 			throw e;
@@ -89,7 +88,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public void createChannel(String receptionPortURI, String channel, String autorisedUsers) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).createChannel(receptionPortURI, channel, autorisedUsers);
+			((PrivilegedClientCI) this.getConnector()).createChannel(receptionPortURI, channel, autorisedUsers);
 		} catch (Exception e) {
 			throw new RemoteException("Error: createChannel", e);
 		}
@@ -98,7 +97,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public void destroyChannel(String receptionPortURI, String channel) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).destroyChannel(receptionPortURI, channel);
+			((PrivilegedClientCI) this.getConnector()).destroyChannel(receptionPortURI, channel);
 		} catch (Exception e) {
 			throw new RemoteException("Error: destroyChannel", e);
 		}
@@ -107,7 +106,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public void destroyChannelNow(String receptionPortURI, String channel) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).destroyChannelNow(receptionPortURI, channel);
+			((PrivilegedClientCI) this.getConnector()).destroyChannelNow(receptionPortURI, channel);
 		} catch (Exception e) {
 			throw new RemoteException("Error: destroyChannelNow", e);
 		}
@@ -116,7 +115,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public void publish(String receptionPortURI, String channel, MessageI message) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).publish(receptionPortURI, channel, message);
+			((PrivilegedClientCI) this.getConnector()).publish(receptionPortURI, channel, message);
 		} catch (Exception e) {
 			throw new RemoteException("Error: publish", e);
 		}
@@ -125,7 +124,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	@Override
 	public void publish(String receptionPortURI, String channel, ArrayList<MessageI> messages) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).publish(receptionPortURI, channel, messages);
+			((PrivilegedClientCI) this.getConnector()).publish(receptionPortURI, channel, messages);
 		} catch (Exception e) {
 			throw new RemoteException("Error: publish", e);
 		}
@@ -135,7 +134,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	public void asyncPublishAndNotify(String receptionPortURI, String channel, MessageI message,
 			String notificationInboundPortURI) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).asyncPublishAndNotify(receptionPortURI, channel, message,
+			((PrivilegedClientCI) this.getConnector()).asyncPublishAndNotify(receptionPortURI, channel, message,
 					notificationInboundPortURI);
 		} catch (Exception e) {
 			throw new RemoteException("Error: asyncPublishAndNotify", e);
@@ -146,7 +145,7 @@ public class PrivilegedClientOutbound extends AbstractOutboundPort implements Pr
 	public void asyncPublishAndNotify(String receptionPortURI, String channel, ArrayList<MessageI> messages,
 			String notificationInboundPortURI) throws Exception {
 		try {
-			((PrivilegedClientImpli) this.getConnector()).asyncPublishAndNotify(receptionPortURI, channel, messages,
+			((PrivilegedClientCI) this.getConnector()).asyncPublishAndNotify(receptionPortURI, channel, messages,
 					notificationInboundPortURI);
 		} catch (Exception e) {
 			throw new RemoteException("Error: asyncPublishAndNotify", e);

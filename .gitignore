@@ -1,3 +1,7 @@
 *.class
 
 CPS-Projet/bin/
+
+.DS_Store
+.project
+.classpath
