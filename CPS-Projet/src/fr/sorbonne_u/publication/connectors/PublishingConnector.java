@@ -13,7 +13,6 @@ import fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI;
  * @author CHU Feiyang
  */
 public class PublishingConnector extends AbstractConnector implements PublishingCI {
-	// 两种实现方式实现灵活调用,对单条消息直接用第一种,多条消息不用重复使用第一种
 	@Override
 	public void publish(String receptionPortURI, String channel, MessageI message)
 			throws RemoteException, UnknownChannelException {

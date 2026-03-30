@@ -7,6 +7,7 @@ import fr.sorbonne_u.publication.interfaces.AbnormalTerminationNotificationCI;
 /**
  * Outbound port used by the broker to send abnormal-termination
  * notifications to a client.
+ * 代理用于向client发送异常终止通知的出站端口。
  *
  * @author PENG Kairui
  * @author CHU Feiyang

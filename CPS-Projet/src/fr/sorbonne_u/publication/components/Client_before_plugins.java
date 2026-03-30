@@ -55,7 +55,6 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 	// set after register
 	protected String brokerPublishingInboundURI;
 
-	// 通用构造函数
 	protected Client_before_plugins(
 			String receivingInboundURI,
 			String brokerRegistrationInboundURI,
@@ -166,7 +165,10 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 		this.privilegedPublishingOutbound.publishPort();
 	}
 
-	@Override // 将registrationOutBound连接到Broker注册入口端口,交互基础
+	@Override
+	// 将registrationOutBound连接到Broker注册入口端口,交互基础
+	// Connect `registrationOutBound` to the broker's registration port; Interaction
+	// Basics
 	public synchronized void start() {
 		try {
 			super.start();
@@ -181,8 +183,13 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 		}
 	}
 
-	@Override // 注册,调用register,会获取
-				// Broker返回的brokerPublishingInboundURI,这是发布消息所需的动态地址,拿到地址后,立即连接publishingOutbound
+	@Override
+	// 注册,调用register,会获取
+	// Broker返回的brokerPublishingInboundURI,这是发布消息所需的动态地址,拿到地址后,立即连接publishingOutbound
+	// Upon registration, calling `register` will retrieve
+	// the `brokerPublishingInboundURI` returned by the broker; this is the dynamic
+	// address required for publishing messages. Once the address is obtained,
+	// immediately connect to `publishingOutbound`
 	public void execute() throws Exception {
 		// 1) register (receptionPortURI == receivingInboundURI)
 		try {
@@ -232,6 +239,8 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 	}
 
 	// 通过registrationOutbound告诉Broker:“我想接收channel频道里符合 filter 条件的消息”
+	// Use `registrationOutbound` to tell the Broker: “I want to receive messages
+	// from the `channel` that match the `filter` criteria.”
 	protected void doSubscribe() throws Exception {
 		MessageFilterI f = (this.filter != null) ? this.filter : new MessageFilter(null, null, null);
 		this.registrationOutbound.subscribe(this.receivingInboundURI, this.channel, f);
@@ -240,6 +249,8 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 
 	// 准备好要发送的MessageI
 	// 通过publishingOutbound将消息推送到Broker
+	// Prepare the MessageI to be sent
+	// Push the message to the broker using publishingOutbound
 	protected void doPublish() throws Exception {
 		MessageI m = (this.messageToPublish != null) ? this.messageToPublish : defaultMessage();
 		/*
@@ -255,6 +266,7 @@ public class Client_before_plugins extends AbstractComponent implements Receivin
 	}
 
 	// 默认生成如风速的消息用于测试
+	// Generate default messages such as wind speed for testing purposes
 	protected MessageI defaultMessage() throws Exception {
 		// Minimal message with timestamp + a couple of properties (adjust if your
 		// Message ctor differs)

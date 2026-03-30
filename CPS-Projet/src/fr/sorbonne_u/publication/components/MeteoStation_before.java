@@ -4,6 +4,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 
 //代表系统中的生产者/发布者负责采集并向Broker发送气象数据(如风速)
+//Acts as the producer/publisher in the system, responsible for collecting and sending meteorological data (such as wind speed) to the broker
 /**
  * @author PENG Kairui
  * @author CHU Feiyang

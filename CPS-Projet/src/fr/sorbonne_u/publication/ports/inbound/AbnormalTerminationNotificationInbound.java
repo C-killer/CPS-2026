@@ -7,6 +7,7 @@ import fr.sorbonne_u.publication.interfaces.AbnormalTerminationNotificationCI;
 /**
  * Inbound port installed on a client component to receive
  * abnormal-termination notifications from the broker.
+ * 安装在客户端组件上的入站端口,用于接收来自broker的异常终止通知。
  *
  * @author PENG Kairui
  * @author CHU Feiyang

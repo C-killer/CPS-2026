@@ -5,6 +5,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.MessageFilter;
 
 //代表系统中的消费者/订阅者,它订阅特定频道(如气象频道)并根据过滤器接收数据。
+//It represents a consumer/subscriber in the system; it subscribes to a specific channel (such as a weather channel) and receives data based on filters.
 /**
  * @author PENG Kairui
  * @author CHU Feiyang

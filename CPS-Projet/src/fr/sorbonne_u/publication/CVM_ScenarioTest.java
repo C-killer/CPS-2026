@@ -37,21 +37,21 @@ public class CVM_ScenarioTest extends AbstractCVM {
 	// Clock configuration
 	public static final String CLOCK_URI = "scenario-clock";
 	public static final String START_INSTANT = "2026-03-10T10:00:00Z";
-	public static final String END_INSTANT   = "2026-03-10T10:02:00Z";
+	public static final String END_INSTANT = "2026-03-10T10:02:00Z";
 	public static final double ACCELERATION_FACTOR = 60.0;
 
 	// -------------------------------------------------------------------------
 	// Client URIs — FREE subscribers (channel0, strongWindFilter)
 	// -------------------------------------------------------------------------
-	public static final String WINDMILL_1  = "windmill-1";
-	public static final String WINDMILL_2  = "windmill-2";
-	public static final String WINDMILL_3  = "windmill-3";
-	public static final String WINDMILL_4  = "windmill-4";
-	public static final String WINDMILL_5  = "windmill-5";
-	public static final String WINDMILL_6  = "windmill-6";
-	public static final String WINDMILL_7  = "windmill-7";
-	public static final String WINDMILL_8  = "windmill-8";
-	public static final String WINDMILL_9  = "windmill-9";
+	public static final String WINDMILL_1 = "windmill-1";
+	public static final String WINDMILL_2 = "windmill-2";
+	public static final String WINDMILL_3 = "windmill-3";
+	public static final String WINDMILL_4 = "windmill-4";
+	public static final String WINDMILL_5 = "windmill-5";
+	public static final String WINDMILL_6 = "windmill-6";
+	public static final String WINDMILL_7 = "windmill-7";
+	public static final String WINDMILL_8 = "windmill-8";
+	public static final String WINDMILL_9 = "windmill-9";
 	public static final String WINDMILL_10 = "windmill-10";
 
 	// PREMIUM subscribers (channel1, alertFilter)
@@ -99,8 +99,8 @@ public class CVM_ScenarioTest extends AbstractCVM {
 	public static final String PREMIUM_CREATOR_2 = "premium-creator-2";
 
 	// STANDARD publishers (channel2 / channel3) — created dynamically
-	public static final String DATA_1   = "data-1";
-	public static final String DATA_2   = "data-2";
+	public static final String DATA_1 = "data-1";
+	public static final String DATA_2 = "data-2";
 	public static final String REPORT_1 = "report-1";
 
 	// -------------------------------------------------------------------------
@@ -126,7 +126,7 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		MeteoAlert alert = new MeteoAlert(
 				MeteoAlertI.AlertType.STORM,
 				parseLevel(level),
-				new RectangularRegion[]{ new RectangularRegion(new Position(0, 45), new Position(10, 52)) },
+				new RectangularRegion[] { new RectangularRegion(new Position(0, 45), new Position(10, 52)) },
 				Instant.now(),
 				Duration.ofHours(6));
 		Message m = new Message(alert, Instant.now());
@@ -143,24 +143,33 @@ public class CVM_ScenarioTest extends AbstractCVM {
 	}
 
 	private static double zoneToX(int speed, String zone) {
-		if ("east".equals(zone))  return speed;
-		if ("west".equals(zone))  return -speed;
+		if ("east".equals(zone))
+			return speed;
+		if ("west".equals(zone))
+			return -speed;
 		return 0;
 	}
 
 	private static double zoneToY(int speed, String zone) {
-		if ("north".equals(zone)) return speed;
-		if ("south".equals(zone)) return -speed;
+		if ("north".equals(zone))
+			return speed;
+		if ("south".equals(zone))
+			return -speed;
 		return 0;
 	}
 
 	private static MeteoAlertI.Level parseLevel(String level) {
 		switch (level.toLowerCase()) {
-			case "red":     return MeteoAlertI.Level.RED;
-			case "yellow":  return MeteoAlertI.Level.YELLOW;
-			case "green":   return MeteoAlertI.Level.GREEN;
-			case "scarlet": return MeteoAlertI.Level.SCARLET;
-			default:        return MeteoAlertI.Level.ORANGE;
+			case "red":
+				return MeteoAlertI.Level.RED;
+			case "yellow":
+				return MeteoAlertI.Level.YELLOW;
+			case "green":
+				return MeteoAlertI.Level.GREEN;
+			case "scarlet":
+				return MeteoAlertI.Level.SCARLET;
+			default:
+				return MeteoAlertI.Level.ORANGE;
 		}
 	}
 
@@ -209,10 +218,10 @@ public class CVM_ScenarioTest extends AbstractCVM {
 	protected static TestScenario buildScenario() throws Exception {
 
 		Instant start = Instant.parse(START_INSTANT);
-		Instant end   = Instant.parse(END_INSTANT);
+		Instant end = Instant.parse(END_INSTANT);
 
 		// -- Time instants --
-		// t+5s  : PREMIUM creators create their channels
+		// t+5s : PREMIUM creators create their channels
 		Instant tCreateChannels = start.plusSeconds(5);
 
 		// t+20s : FREE windmill subscribers
@@ -247,23 +256,23 @@ public class CVM_ScenarioTest extends AbstractCVM {
 								(FComponentTask) owner -> ((Client) owner).runScenarioCreateChannels()),
 
 						// ---- FREE windmill subscribers (t+20s) ----
-						new TestStep(CLOCK_URI, WINDMILL_1,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_1, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_2,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_2, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_3,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_3, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_4,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_4, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_5,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_5, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_6,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_6, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_7,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_7, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_8,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_8, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
-						new TestStep(CLOCK_URI, WINDMILL_9,  tSubscribeWindmill,
+						new TestStep(CLOCK_URI, WINDMILL_9, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
 						new TestStep(CLOCK_URI, WINDMILL_10, tSubscribeWindmill,
 								(FComponentTask) owner -> ((Client) owner).runScenarioSubscribe()),
@@ -393,16 +402,16 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		Message windStrong3 = windMessage("station3 strong wind", 52, "west");
 		Message windStrong4 = windMessage("station4 strong wind", 35, "north");
 		// channel0 — weak wind (speed<=30, filtered out by strongWindFilter)
-		Message windWeak5 = windMessage("station5 weak wind",  15, "south");
-		Message windWeak6 = windMessage("station6 weak wind",  8,  "south");
-		Message windWeak7 = windMessage("station7 weak wind",  22, "east");
-		Message windWeak8 = windMessage("station8 weak wind",  5,  "west");
+		Message windWeak5 = windMessage("station5 weak wind", 15, "south");
+		Message windWeak6 = windMessage("station6 weak wind", 8, "south");
+		Message windWeak7 = windMessage("station7 weak wind", 22, "east");
+		Message windWeak8 = windMessage("station8 weak wind", 5, "west");
 
 		// channel1 — alerts
 		Message alert1 = alertMessage("office1 storm warning", "orange");
 		Message alert2 = alertMessage("office2 flood warning", "red");
-		Message alert3 = alertMessage("office3 heatwave",      "yellow");
-		Message alert4 = alertMessage("office4 fog alert",     "orange");
+		Message alert3 = alertMessage("office3 heatwave", "yellow");
+		Message alert4 = alertMessage("office4 fog alert", "orange");
 
 		// channel2 — data from STANDARD publishers
 		Message data1msg = dataMessage("data-1 sensor reading", "sensor-array-A");
@@ -479,7 +488,7 @@ public class CVM_ScenarioTest extends AbstractCVM {
 		// -- 8 FREE publishers (channel0) --
 		Message[] windMsgs = {
 				windStrong1, windStrong2, windStrong3, windStrong4,
-				windWeak5,   windWeak6,   windWeak7,   windWeak8
+				windWeak5, windWeak6, windWeak7, windWeak8
 		};
 		for (int i = 1; i <= 8; i++) {
 			AbstractComponent.createComponent(

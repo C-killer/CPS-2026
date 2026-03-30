@@ -148,7 +148,8 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 	}
 
 	/**
-	 * Hook called by {@link fr.sorbonne_u.publication.ports.inbound.ReceivingInbound}
+	 * Hook called by
+	 * {@link fr.sorbonne_u.publication.ports.inbound.ReceivingInbound}
 	 * after the subscription plugin has logged the message.
 	 * Subclasses (e.g. {@code Windmill}) override this to add domain logic.
 	 */
@@ -362,8 +363,8 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		try {
 			System.out.println("[" + this.receivingInboundURI
 					+ "] Scenario: getNextMessage (Future) on " + this.channel);
-			java.util.concurrent.Future<fr.sorbonne_u.cps.pubsub.interfaces.MessageI> future =
-					this.subscriptionPlugin.getNextMessage(this.channel);
+			java.util.concurrent.Future<fr.sorbonne_u.cps.pubsub.interfaces.MessageI> future = this.subscriptionPlugin
+					.getNextMessage(this.channel);
 			// Do some other work while waiting...
 			System.out.println("[" + this.receivingInboundURI
 					+ "] Future created, doing other work...");

@@ -38,9 +38,11 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
  * Central broker component managing registration, subscriptions, channels
  * and message delivery.
  *
- * <p>Thread-safety: all mutable shared state uses {@link ConcurrentHashMap}
+ * <p>
+ * Thread-safety: all mutable shared state uses {@link ConcurrentHashMap}
  * and compound check-then-act operations (register, create/destroy channel,
- * unregister) are {@code synchronized} on {@code this}.</p>
+ * unregister) are {@code synchronized} on {@code this}.
+ * </p>
  *
  * @author PENG Kairui
  * @author CHU Feiyang
@@ -53,26 +55,26 @@ public class Broker extends AbstractComponent
 	protected final PrivilegedClientInbound privilegedClientInboundPort;
 
 	protected static final String REGISTRATION_INBOUND_URI = "broker-registration";
-	protected static final String PUBLISHING_INBOUND_URI   = "broker-publishing";
-	protected static final String PRIVILEGED_INBOUND_URI   = "broker-privileged";
+	protected static final String PUBLISHING_INBOUND_URI = "broker-publishing";
+	protected static final String PRIVILEGED_INBOUND_URI = "broker-privileged";
 
-	// --- Shared mutable state (all ConcurrentHashMap for safe concurrent reads) ---
-	protected final Set<String>                                channels              = ConcurrentHashMap.newKeySet();
-	protected final ConcurrentMap<String, String>              channelCreators        = new ConcurrentHashMap<>();
-	protected final ConcurrentMap<String, String>              channelAuthorisations  = new ConcurrentHashMap<>();
-	protected final ConcurrentMap<String, Set<String>>         createdChannelsByClient = new ConcurrentHashMap<>();
-	protected final ConcurrentMap<String, RegistrationClass>   registered             = new ConcurrentHashMap<>();
-	protected final ConcurrentMap<String, Map<String, MessageFilterI>> subscriptions  = new ConcurrentHashMap<>();
-	protected final ConcurrentMap<String, ReceivingOutbound>   receivingOutboundPorts = new ConcurrentHashMap<>();
+	// --- Shared mutable state (all ConcurrentHashMap for safe concurrent reads)
+	// ---
+	protected final Set<String> channels = ConcurrentHashMap.newKeySet();
+	protected final ConcurrentMap<String, String> channelCreators = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, String> channelAuthorisations = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, Set<String>> createdChannelsByClient = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, RegistrationClass> registered = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, Map<String, MessageFilterI>> subscriptions = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, ReceivingOutbound> receivingOutboundPorts = new ConcurrentHashMap<>();
 
 	/** Cached outbound ports for abnormal-termination notifications. */
-	protected final ConcurrentMap<String, AbnormalTerminationNotificationOutbound>
-			notificationOutboundPorts = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, AbnormalTerminationNotificationOutbound> notificationOutboundPorts = new ConcurrentHashMap<>();
 
 	protected static final int STANDARD_QUOTA = 3;
-	protected static final int PREMIUM_QUOTA  = 10;
+	protected static final int PREMIUM_QUOTA = 10;
 
-	// --- Thread pools (§3.6.3) ---
+	// --- Thread pools (§3.6.3) ---线程池
 	protected final ExecutorService publicationExecutor;
 	protected final ExecutorService propagationExecutor;
 	/** Delivery pool for PREMIUM clients — larger, higher throughput. */
@@ -95,11 +97,11 @@ public class Broker extends AbstractComponent
 		this.addRequiredInterface(ReceivingCI.class);
 		this.addRequiredInterface(AbnormalTerminationNotificationCI.class);
 
-		this.publicationExecutor      = Executors.newFixedThreadPool(2);
-		this.propagationExecutor      = Executors.newFixedThreadPool(4);
-		this.deliveryPremiumExecutor  = Executors.newFixedThreadPool(4);
+		this.publicationExecutor = Executors.newFixedThreadPool(2);
+		this.propagationExecutor = Executors.newFixedThreadPool(4);
+		this.deliveryPremiumExecutor = Executors.newFixedThreadPool(4);
 		this.deliveryStandardExecutor = Executors.newFixedThreadPool(2);
-		this.deliveryFreeExecutor     = Executors.newFixedThreadPool(1);
+		this.deliveryFreeExecutor = Executors.newFixedThreadPool(1);
 
 		for (int i = 0; i < nbChannels; i++) {
 			String c = "channel" + i;
@@ -121,14 +123,26 @@ public class Broker extends AbstractComponent
 	@Override
 	public synchronized void finalise() throws Exception {
 		for (ReceivingOutbound rop : receivingOutboundPorts.values()) {
-			try { rop.doDisconnection(); } catch (Throwable ignored) {}
-			try { rop.unpublishPort(); }   catch (Throwable ignored) {}
+			try {
+				rop.doDisconnection();
+			} catch (Throwable ignored) {
+			}
+			try {
+				rop.unpublishPort();
+			} catch (Throwable ignored) {
+			}
 		}
 		receivingOutboundPorts.clear();
 
 		for (AbnormalTerminationNotificationOutbound np : notificationOutboundPorts.values()) {
-			try { np.doDisconnection(); } catch (Throwable ignored) {}
-			try { np.unpublishPort(); }   catch (Throwable ignored) {}
+			try {
+				np.doDisconnection();
+			} catch (Throwable ignored) {
+			}
+			try {
+				np.unpublishPort();
+			} catch (Throwable ignored) {
+			}
 		}
 		notificationOutboundPorts.clear();
 
@@ -142,14 +156,29 @@ public class Broker extends AbstractComponent
 
 	@Override
 	public synchronized void shutdown() throws ComponentShutdownException {
-		try { this.registrationInboundPort.unpublishPort(); }     catch (Throwable ignored) {}
-		try { this.publishingInboundPort.unpublishPort(); }       catch (Throwable ignored) {}
-		try { this.privilegedClientInboundPort.unpublishPort(); } catch (Throwable ignored) {}
+		try {
+			this.registrationInboundPort.unpublishPort();
+		} catch (Throwable ignored) {
+		}
+		try {
+			this.publishingInboundPort.unpublishPort();
+		} catch (Throwable ignored) {
+		}
+		try {
+			this.privilegedClientInboundPort.unpublishPort();
+		} catch (Throwable ignored) {
+		}
 		for (ReceivingOutbound rop : receivingOutboundPorts.values()) {
-			try { rop.unpublishPort(); } catch (Throwable ignored) {}
+			try {
+				rop.unpublishPort();
+			} catch (Throwable ignored) {
+			}
 		}
 		for (AbnormalTerminationNotificationOutbound np : notificationOutboundPorts.values()) {
-			try { np.unpublishPort(); } catch (Throwable ignored) {}
+			try {
+				np.unpublishPort();
+			} catch (Throwable ignored) {
+			}
 		}
 		super.shutdown();
 	}
@@ -238,15 +267,18 @@ public class Broker extends AbstractComponent
 
 	@Override
 	public boolean channelAuthorised(String receptionPortURI, String channel) throws Exception {
-		if (!channels.contains(channel)) return false;
+		if (!channels.contains(channel))
+			return false;
 		String regex = channelAuthorisations.get(channel);
-		if (regex == null) return true;
+		if (regex == null)
+			return true;
 		return receptionPortURI.matches(regex);
 	}
 
 	@Override
 	public boolean hasCreatedChannel(String receptionPortURI, String channel) throws Exception {
-		if (!channels.contains(channel)) return false;
+		if (!channels.contains(channel))
+			return false;
 		return receptionPortURI.equals(channelCreators.get(channel));
 	}
 
@@ -303,7 +335,8 @@ public class Broker extends AbstractComponent
 		if (!channels.contains(channel))
 			throw new RemoteException("unsubscribe: unknown channel " + channel);
 		Map<String, MessageFilterI> subs = subscriptions.get(channel);
-		if (subs != null) subs.remove(receptionPortURI);
+		if (subs != null)
+			subs.remove(receptionPortURI);
 	}
 
 	@Override
@@ -312,7 +345,8 @@ public class Broker extends AbstractComponent
 		if (!channels.contains(channel))
 			throw new RemoteException("modifyFilter: unknown channel " + channel);
 		Map<String, MessageFilterI> subs = subscriptions.get(channel);
-		if (subs == null || !subs.containsKey(receptionPortURI)) return false;
+		if (subs == null || !subs.containsKey(receptionPortURI))
+			return false;
 		subs.put(receptionPortURI, filter);
 		return true;
 	}
@@ -329,11 +363,15 @@ public class Broker extends AbstractComponent
 			throw new RemoteException("publish: not registered " + receptionPortURI);
 		if (!channelAuthorised(receptionPortURI, channel))
 			throw new Exception("publish: unauthorised client for channel " + channel);
-		if (message == null) return;
+		if (message == null)
+			return;
 
 		this.publicationExecutor.submit(() -> {
-			try { this.propagateMessages(channel, new MessageI[] { message }); }
-			catch (Exception e) { e.printStackTrace(); }
+			try {
+				this.propagateMessages(channel, new MessageI[] { message });
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 	}
 
@@ -346,12 +384,16 @@ public class Broker extends AbstractComponent
 			throw new RemoteException("publish: not registered " + receptionPortURI);
 		if (!channelAuthorised(receptionPortURI, channel))
 			throw new Exception("publish: unauthorised client for channel " + channel);
-		if (messages == null || messages.isEmpty()) return;
+		if (messages == null || messages.isEmpty())
+			return;
 
 		final MessageI[] batch = messages.toArray(new MessageI[0]);
 		this.publicationExecutor.submit(() -> {
-			try { this.propagateMessages(channel, batch); }
-			catch (Exception e) { e.printStackTrace(); }
+			try {
+				this.propagateMessages(channel, batch);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 	}
 
@@ -396,8 +438,9 @@ public class Broker extends AbstractComponent
 
 	/**
 	 * Send an abnormal-termination notification to the client via its
-	 * notification inbound port.  The outbound port is lazily created
+	 * notification inbound port. The outbound port is lazily created
 	 * and cached.
+	 * 给client发送异步警告
 	 */
 	private void sendAbnormalTerminationNotification(
 			String notificationInboundPortURI, Exception cause) {
@@ -406,8 +449,7 @@ public class Broker extends AbstractComponent
 			return;
 		}
 		try {
-			AbnormalTerminationNotificationOutbound np =
-					getOrConnectNotificationOutbound(notificationInboundPortURI);
+			AbnormalTerminationNotificationOutbound np = getOrConnectNotificationOutbound(notificationInboundPortURI);
 			np.notifyAbnormalTermination(cause);
 		} catch (Exception notifEx) {
 			System.err.println("[Broker] failed to send abnormal termination notification: "
@@ -416,12 +458,12 @@ public class Broker extends AbstractComponent
 		}
 	}
 
-	private synchronized AbnormalTerminationNotificationOutbound
-			getOrConnectNotificationOutbound(String notificationInboundPortURI)
+	private synchronized AbnormalTerminationNotificationOutbound getOrConnectNotificationOutbound(
+			String notificationInboundPortURI)
 			throws Exception {
-		AbnormalTerminationNotificationOutbound np =
-				notificationOutboundPorts.get(notificationInboundPortURI);
-		if (np != null) return np;
+		AbnormalTerminationNotificationOutbound np = notificationOutboundPorts.get(notificationInboundPortURI);
+		if (np != null)
+			return np;
 
 		np = new AbnormalTerminationNotificationOutbound(this);
 		np.publishPort();
@@ -434,10 +476,17 @@ public class Broker extends AbstractComponent
 	// =========================================================================
 	// Internal message pipeline
 	// =========================================================================
-
+	/*
+	 * publish → propagateMessages → deliverToOneSubscriber → client.receive()
+	 */
+	/*
+	 * propagateMessages distributed in parallel to multiple subscribers
+	 * 并行分发给多个订阅者
+	 */
 	protected void propagateMessages(String channel, MessageI[] messages) {
 		Map<String, MessageFilterI> subs = subscriptions.get(channel);
-		if (subs == null || subs.isEmpty()) return;
+		if (subs == null || subs.isEmpty())
+			return;
 
 		for (Map.Entry<String, MessageFilterI> e : subs.entrySet()) {
 			final String clientURI = e.getKey();
@@ -453,6 +502,10 @@ public class Broker extends AbstractComponent
 		}
 	}
 
+	/*
+	 * Select a thread pool based on the client level
+	 * 根据client等级选择线程池
+	 */
 	protected void deliverToOneSubscriber(
 			String channel, String clientURI, MessageFilterI filter,
 			MessageI[] messages) {
@@ -477,18 +530,23 @@ public class Broker extends AbstractComponent
 	 */
 	private ExecutorService deliveryExecutorFor(String clientURI) {
 		RegistrationClass rc = registered.get(clientURI);
-		if (rc == null) return deliveryFreeExecutor;
+		if (rc == null)
+			return deliveryFreeExecutor;
 		switch (rc) {
-			case PREMIUM:  return deliveryPremiumExecutor;
-			case STANDARD: return deliveryStandardExecutor;
-			default:       return deliveryFreeExecutor;
+			case PREMIUM:
+				return deliveryPremiumExecutor;
+			case STANDARD:
+				return deliveryStandardExecutor;
+			default:
+				return deliveryFreeExecutor;
 		}
 	}
 
 	protected synchronized ReceivingOutbound getOrConnectReceivingOutbound(
 			String clientReceptionInboundURI) throws RemoteException {
 		ReceivingOutbound rop = receivingOutboundPorts.get(clientReceptionInboundURI);
-		if (rop != null) return rop;
+		if (rop != null)
+			return rop;
 
 		try {
 			rop = new ReceivingOutbound(this);
@@ -515,9 +573,14 @@ public class Broker extends AbstractComponent
 		RegistrationClass rc = registered.get(receptionPortURI);
 		int quota;
 		switch (rc) {
-			case STANDARD: quota = STANDARD_QUOTA; break;
-			case PREMIUM:  quota = PREMIUM_QUOTA;  break;
-			default:       quota = 0;
+			case STANDARD:
+				quota = STANDARD_QUOTA;
+				break;
+			case PREMIUM:
+				quota = PREMIUM_QUOTA;
+				break;
+			default:
+				quota = 0;
 		}
 		int current = createdChannelsByClient
 				.getOrDefault(receptionPortURI, ConcurrentHashMap.newKeySet())
@@ -565,7 +628,8 @@ public class Broker extends AbstractComponent
 		subscriptions.remove(channel);
 
 		Set<String> created = createdChannelsByClient.get(receptionPortURI);
-		if (created != null) created.remove(channel);
+		if (created != null)
+			created.remove(channel);
 	}
 
 	@Override
