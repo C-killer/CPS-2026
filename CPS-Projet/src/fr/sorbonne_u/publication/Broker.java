@@ -37,9 +37,11 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
  * and message delivery.
  *
  * <p>
- * Thread-safety: all mutable shared state uses {@link ConcurrentHashMap}
- * and compound check-then-act operations (register, create/destroy channel,
- * unregister) are {@code synchronized} on {@code this}.
+ * Thread-safety: all mutable shared state uses {@link ConcurrentHashMap}.
+ * Compound check-then-act operations use fine-grained locks:
+ * {@code registrationLock} for register/unregister,
+ * {@code channelLock} for create/destroy channel.
+ * Outbound port caches use optimistic putIfAbsent.
  * </p>
  *
  * @author PENG Kairui
@@ -55,6 +57,10 @@ public class Broker extends AbstractComponent
 	protected static final String REGISTRATION_INBOUND_URI = "broker-registration";
 	protected static final String PUBLISHING_INBOUND_URI = "broker-publishing";
 	protected static final String PRIVILEGED_INBOUND_URI = "broker-privileged";
+
+	// --- Fine-grained locks (replace global synchronized(this)) ---
+	private final Object registrationLock = new Object();
+	private final Object channelLock = new Object();
 
 	// --- Shared mutable state (all ConcurrentHashMap for safe concurrent reads)
 	// ---
@@ -117,7 +123,7 @@ public class Broker extends AbstractComponent
 	}
 
 	@Override
-	public synchronized void finalise() throws Exception {
+	public void finalise() throws Exception {
 		for (ReceivingOutbound rop : receivingOutboundPorts.values()) {
 			try {
 				rop.doDisconnection();
@@ -147,7 +153,7 @@ public class Broker extends AbstractComponent
 	}
 
 	@Override
-	public synchronized void shutdown() throws ComponentShutdownException {
+	public void shutdown() throws ComponentShutdownException {
 		try {
 			this.registrationInboundPort.unpublishPort();
 		} catch (Throwable ignored) {
@@ -194,34 +200,40 @@ public class Broker extends AbstractComponent
 	}
 
 	@Override
-	public synchronized String register(String receptionPortURI, RegistrationClass rc)
+	public String register(String receptionPortURI, RegistrationClass rc)
 			throws Exception {
 		if (receptionPortURI == null || rc == null) {
 			throw new RemoteException("register: null parameter.");
 		}
-		if (registered.containsKey(receptionPortURI)) {
-			throw new AlreadyRegisteredException("register: already registered " + receptionPortURI);
+		synchronized (registrationLock) {
+			if (registered.containsKey(receptionPortURI)) {
+				throw new AlreadyRegisteredException("register: already registered " + receptionPortURI);
+			}
+			registered.put(receptionPortURI, rc);
 		}
-		registered.put(receptionPortURI, rc);
 		return (rc == RegistrationClass.FREE) ? PUBLISHING_INBOUND_URI : PRIVILEGED_INBOUND_URI;
 	}
 
 	@Override
-	public synchronized String modifyServiceClass(String receptionPortURI, RegistrationClass rc)
+	public String modifyServiceClass(String receptionPortURI, RegistrationClass rc)
 			throws Exception {
-		if (!registered.containsKey(receptionPortURI)) {
-			throw new AlreadyRegisteredException("modifyServiceClass: unknown identifier " + receptionPortURI);
+		synchronized (registrationLock) {
+			if (!registered.containsKey(receptionPortURI)) {
+				throw new AlreadyRegisteredException("modifyServiceClass: unknown identifier " + receptionPortURI);
+			}
+			registered.put(receptionPortURI, rc);
 		}
-		registered.put(receptionPortURI, rc);
 		return (rc == RegistrationClass.FREE) ? PUBLISHING_INBOUND_URI : PRIVILEGED_INBOUND_URI;
 	}
 
 	@Override
-	public synchronized void unregister(String receptionPortURI) throws Exception {
-		if (!registered.containsKey(receptionPortURI)) {
-			throw new UnknownIdentifierException("unregister: unknown identifier " + receptionPortURI);
+	public void unregister(String receptionPortURI) throws Exception {
+		synchronized (registrationLock) {
+			if (!registered.containsKey(receptionPortURI)) {
+				throw new UnknownIdentifierException("unregister: unknown identifier " + receptionPortURI);
+			}
+			registered.remove(receptionPortURI);
 		}
-		registered.remove(receptionPortURI);
 
 		for (Map<String, MessageFilterI> subs : subscriptions.values()) {
 			subs.remove(receptionPortURI);
@@ -237,13 +249,15 @@ public class Broker extends AbstractComponent
 			}
 		}
 
-		Set<String> created = createdChannelsByClient.remove(receptionPortURI);
-		if (created != null) {
-			for (String ch : created) {
-				channels.remove(ch);
-				channelCreators.remove(ch);
-				channelAuthorisations.remove(ch);
-				subscriptions.remove(ch);
+		synchronized (channelLock) {
+			Set<String> created = createdChannelsByClient.remove(receptionPortURI);
+			if (created != null) {
+				for (String ch : created) {
+					channels.remove(ch);
+					channelCreators.remove(ch);
+					channelAuthorisations.remove(ch);
+					subscriptions.remove(ch);
+				}
 			}
 		}
 	}
@@ -282,19 +296,23 @@ public class Broker extends AbstractComponent
 	@Override
 	public void modifyAuthorisedUsers(String receptionPortURI, String channel,
 			String autorisedUsers) throws Exception {
-		if (!hasCreatedChannel(receptionPortURI, channel)) {
-			throw new Exception("Only the channel creator can modify authorised users.");
+		synchronized (channelLock) {
+			if (!hasCreatedChannel(receptionPortURI, channel)) {
+				throw new Exception("Only the channel creator can modify authorised users.");
+			}
+			channelAuthorisations.put(channel, autorisedUsers);
 		}
-		channelAuthorisations.put(channel, autorisedUsers);
 	}
 
 	@Override
 	public void removeAuthorisedUsers(String receptionPortURI, String channel,
 			String regularExpression) throws Exception {
-		if (!hasCreatedChannel(receptionPortURI, channel)) {
-			throw new Exception("Only the channel creator can remove authorised users.");
+		synchronized (channelLock) {
+			if (!hasCreatedChannel(receptionPortURI, channel)) {
+				throw new Exception("Only the channel creator can remove authorised users.");
+			}
+			channelAuthorisations.put(channel, ".*");
 		}
-		channelAuthorisations.put(channel, ".*");
 	}
 
 	// =========================================================================
@@ -308,7 +326,7 @@ public class Broker extends AbstractComponent
 	}
 
 	@Override
-	public synchronized void subscribe(String receptionPortURI, String channel,
+	public void subscribe(String receptionPortURI, String channel,
 			MessageFilterI filter) throws Exception {
 		if (!channels.contains(channel))
 			throw new RemoteException("subscribe: unknown channel " + channel);
@@ -450,18 +468,23 @@ public class Broker extends AbstractComponent
 		}
 	}
 
-	private synchronized AbnormalTerminationNotificationOutbound getOrConnectNotificationOutbound(
+	private AbnormalTerminationNotificationOutbound getOrConnectNotificationOutbound(
 			String notificationInboundPortURI)
 			throws Exception {
-		AbnormalTerminationNotificationOutbound np = notificationOutboundPorts.get(notificationInboundPortURI);
-		if (np != null)
-			return np;
+		AbnormalTerminationNotificationOutbound existing = notificationOutboundPorts.get(notificationInboundPortURI);
+		if (existing != null)
+			return existing;
 
-		np = new AbnormalTerminationNotificationOutbound(this);
+		AbnormalTerminationNotificationOutbound np = new AbnormalTerminationNotificationOutbound(this);
 		np.publishPort();
 		np.doConnection(notificationInboundPortURI,
 				AbnormalTerminationNotificationConnector.class.getCanonicalName());
-		notificationOutboundPorts.put(notificationInboundPortURI, np);
+		AbnormalTerminationNotificationOutbound prev = notificationOutboundPorts.putIfAbsent(notificationInboundPortURI, np);
+		if (prev != null) {
+			np.doDisconnection();
+			np.unpublishPort();
+			return prev;
+		}
 		return np;
 	}
 
@@ -504,24 +527,17 @@ public class Broker extends AbstractComponent
 
 		String deliveryURI = deliveryExecutorURIFor(clientURI);
 		this.runTask(deliveryURI, c -> {
-			// CPS pattern: use a temporary thread for the blocking
-			// outbound call (rop.receive), so the delivery-pool thread
-			// is freed immediately and can serve other deliveries.
-			final Broker broker = (Broker) c;
-			new Thread(() -> {
-				try {
-					ReceivingOutbound rop = broker.getOrConnectReceivingOutbound(clientURI);
-					for (MessageI m : messages) {
-						if (filter == null || filter.match(m)) {
-							// blocking outbound call on temporary thread
-							rop.receive(channel, m);
-						}
+			try {
+				Broker broker = (Broker) c;
+				ReceivingOutbound rop = broker.getOrConnectReceivingOutbound(clientURI);
+				for (MessageI m : messages) {
+					if (filter == null || filter.match(m)) {
+						rop.receive(channel, m);
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
-			}).start();
-			// delivery-pool thread released here
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 	}
 
@@ -543,18 +559,24 @@ public class Broker extends AbstractComponent
 		}
 	}
 
-	protected synchronized ReceivingOutbound getOrConnectReceivingOutbound(
+	protected ReceivingOutbound getOrConnectReceivingOutbound(
 			String clientReceptionInboundURI) throws RemoteException {
-		ReceivingOutbound rop = receivingOutboundPorts.get(clientReceptionInboundURI);
-		if (rop != null)
-			return rop;
+		ReceivingOutbound existing = receivingOutboundPorts.get(clientReceptionInboundURI);
+		if (existing != null)
+			return existing;
 
 		try {
-			rop = new ReceivingOutbound(this);
+			ReceivingOutbound rop = new ReceivingOutbound(this);
 			rop.publishPort();
 			rop.doConnection(clientReceptionInboundURI,
 					ReceivingConnector.class.getCanonicalName());
-			receivingOutboundPorts.put(clientReceptionInboundURI, rop);
+			ReceivingOutbound prev = receivingOutboundPorts.putIfAbsent(clientReceptionInboundURI, rop);
+			if (prev != null) {
+				// another thread beat us — clean up and use theirs
+				rop.doDisconnection();
+				rop.unpublishPort();
+				return prev;
+			}
 			return rop;
 		} catch (Exception ex) {
 			throw new RemoteException(
@@ -590,51 +612,57 @@ public class Broker extends AbstractComponent
 	}
 
 	@Override
-	public synchronized void createChannel(String receptionPortURI, String channel,
+	public void createChannel(String receptionPortURI, String channel,
 			String autorisedUsers) throws Exception {
 		if (!registered.containsKey(receptionPortURI))
 			throw new UnknownIdentifierException("unknown identifier " + receptionPortURI);
-		if (channels.contains(channel))
-			throw new AlreadyExistingChannelException("channel already exists " + channel);
 
-		RegistrationClass rc = registered.get(receptionPortURI);
-		if (rc == RegistrationClass.FREE)
-			throw new ChannelQuotaExceededException("FREE client cannot create channels");
-		if (channelQuotaReached(receptionPortURI))
-			throw new ChannelQuotaExceededException("quota exceeded for " + receptionPortURI);
+		synchronized (channelLock) {
+			if (channels.contains(channel))
+				throw new AlreadyExistingChannelException("channel already exists " + channel);
 
-		channels.add(channel);
-		channelCreators.put(channel, receptionPortURI);
-		channelAuthorisations.put(channel, autorisedUsers == null ? ".*" : autorisedUsers);
-		createdChannelsByClient
-				.computeIfAbsent(receptionPortURI, k -> ConcurrentHashMap.newKeySet())
-				.add(channel);
+			RegistrationClass rc = registered.get(receptionPortURI);
+			if (rc == RegistrationClass.FREE)
+				throw new ChannelQuotaExceededException("FREE client cannot create channels");
+			if (channelQuotaReached(receptionPortURI))
+				throw new ChannelQuotaExceededException("quota exceeded for " + receptionPortURI);
+
+			channels.add(channel);
+			channelCreators.put(channel, receptionPortURI);
+			channelAuthorisations.put(channel, autorisedUsers == null ? ".*" : autorisedUsers);
+			createdChannelsByClient
+					.computeIfAbsent(receptionPortURI, k -> ConcurrentHashMap.newKeySet())
+					.add(channel);
+		}
 	}
 
 	@Override
-	public synchronized void destroyChannel(String receptionPortURI, String channel)
+	public void destroyChannel(String receptionPortURI, String channel)
 			throws Exception {
 		if (!registered.containsKey(receptionPortURI))
 			throw new UnknownIdentifierException("unknown identifier " + receptionPortURI);
-		if (!channels.contains(channel))
-			throw new UnknownChannelException("unknown channel " + channel);
 
-		String creator = channelCreators.get(channel);
-		if (creator == null || !creator.equals(receptionPortURI))
-			throw new UnknownIdentifierException("client is not the creator of " + channel);
+		synchronized (channelLock) {
+			if (!channels.contains(channel))
+				throw new UnknownChannelException("unknown channel " + channel);
 
-		channels.remove(channel);
-		channelCreators.remove(channel);
-		channelAuthorisations.remove(channel);
-		subscriptions.remove(channel);
+			String creator = channelCreators.get(channel);
+			if (creator == null || !creator.equals(receptionPortURI))
+				throw new UnknownIdentifierException("client is not the creator of " + channel);
 
-		Set<String> created = createdChannelsByClient.get(receptionPortURI);
-		if (created != null)
-			created.remove(channel);
+			channels.remove(channel);
+			channelCreators.remove(channel);
+			channelAuthorisations.remove(channel);
+			subscriptions.remove(channel);
+
+			Set<String> created = createdChannelsByClient.get(receptionPortURI);
+			if (created != null)
+				created.remove(channel);
+		}
 	}
 
 	@Override
-	public synchronized void destroyChannelNow(String receptionPortURI, String channel)
+	public void destroyChannelNow(String receptionPortURI, String channel)
 			throws Exception {
 		destroyChannel(receptionPortURI, channel);
 	}
