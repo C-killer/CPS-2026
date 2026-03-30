@@ -18,13 +18,17 @@ import fr.sorbonne_u.publication.ports.inbound.ReceivingInbound;
 
 /**
  * Subscription plugin managing channel subscriptions, message reception,
- * and advanced reception modes ({@code waitForNextMessage}, {@code getNextMessage}).
+ * and advanced reception modes ({@code waitForNextMessage},
+ * {@code getNextMessage}).
  *
- * <p>When a message arrives on a channel, the plugin first checks whether any
- * thread is waiting for a message on that channel (via {@code waitForNextMessage}
- * or {@code getNextMessage}).  Waiting requests are served in FIFO order.
+ * <p>
+ * When a message arrives on a channel, the plugin first checks whether any
+ * thread is waiting for a message on that channel (via
+ * {@code waitForNextMessage}
+ * or {@code getNextMessage}). Waiting requests are served in FIFO order.
  * Only when no waiter exists does the plugin fall through to the normal
- * {@code receive()} path (logging + domain hook).</p>
+ * {@code receive()} path (logging + domain hook).
+ * </p>
  *
  * @author PENG Kairui
  * @author CHU Feiyang
@@ -42,8 +46,7 @@ public class ClientSubscriptionPlugin
 	 * Each entry is a {@link CompletableFuture} that will be completed
 	 * with the next message arriving on the corresponding channel.
 	 */
-	private final ConcurrentHashMap<String, ConcurrentLinkedQueue<CompletableFuture<MessageI>>>
-			pendingWaiters = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, ConcurrentLinkedQueue<CompletableFuture<MessageI>>> pendingWaiters = new ConcurrentHashMap<>();
 
 	// =========================================================================
 	// Plugin lifecycle
@@ -137,17 +140,18 @@ public class ClientSubscriptionPlugin
 	/**
 	 * Entry point for a single incoming message.
 	 *
-	 * <p>If a pending waiter ({@code waitForNextMessage} or {@code getNextMessage})
+	 * <p>
+	 * If a pending waiter ({@code waitForNextMessage} or {@code getNextMessage})
 	 * exists for this channel, the message is dispatched directly to it (FIFO)
-	 * and no further processing occurs.  Otherwise the message follows the
+	 * and no further processing occurs. Otherwise the message follows the
 	 * normal path: console log + domain hook
-	 * ({@link Client#onMessageReceived}).</p>
+	 * ({@link Client#onMessageReceived}).
+	 * </p>
 	 */
 	@Override
 	public void receive(String channel, MessageI message) {
 		// 1. Try waiter-first dispatch
-		ConcurrentLinkedQueue<CompletableFuture<MessageI>> queue =
-				pendingWaiters.get(channel);
+		ConcurrentLinkedQueue<CompletableFuture<MessageI>> queue = pendingWaiters.get(channel);
 		if (queue != null) {
 			CompletableFuture<MessageI> waiter;
 			while ((waiter = queue.poll()) != null) {
@@ -170,7 +174,8 @@ public class ClientSubscriptionPlugin
 
 	@Override
 	public void receive(String channel, MessageI[] messages) {
-		if (messages == null) return;
+		if (messages == null)
+			return;
 		for (MessageI m : messages) {
 			receive(channel, m);
 		}
@@ -183,9 +188,11 @@ public class ClientSubscriptionPlugin
 	/**
 	 * Block the calling thread until a message is received on {@code channel}.
 	 *
-	 * <p>The request is queued in FIFO order.  When a message arrives and this
+	 * <p>
+	 * The request is queued in FIFO order. When a message arrives and this
 	 * request is at the head of the queue, the message is returned directly
-	 * (bypassing the normal {@code receive()} path).</p>
+	 * (bypassing the normal {@code receive()} path).
+	 * </p>
 	 */
 	@Override
 	public MessageI waitForNextMessage(String channel) throws Exception {
@@ -206,8 +213,7 @@ public class ClientSubscriptionPlugin
 		} catch (TimeoutException e) {
 			// Remove the unfulfilled waiter so it doesn't leak
 			future.cancel(false);
-			ConcurrentLinkedQueue<CompletableFuture<MessageI>> queue =
-					pendingWaiters.get(channel);
+			ConcurrentLinkedQueue<CompletableFuture<MessageI>> queue = pendingWaiters.get(channel);
 			if (queue != null) {
 				queue.remove(future);
 			}
@@ -217,10 +223,12 @@ public class ClientSubscriptionPlugin
 
 	/**
 	 * Return a {@link Future} that will be completed with the next message
-	 * on {@code channel}.  The calling thread is <em>not</em> blocked.
+	 * on {@code channel}. The calling thread is <em>not</em> blocked.
 	 *
-	 * <p>Multiple calls create multiple futures, each consuming one message
-	 * in FIFO order.</p>
+	 * <p>
+	 * Multiple calls create multiple futures, each consuming one message
+	 * in FIFO order.
+	 * </p>
 	 */
 	@Override
 	public Future<MessageI> getNextMessage(String channel) throws Exception {

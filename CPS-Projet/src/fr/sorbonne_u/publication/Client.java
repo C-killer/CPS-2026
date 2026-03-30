@@ -171,9 +171,36 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 
 		System.out.println("[" + this.receivingInboundURI + "] execute begin");
 
-		this.registrationPlugin.register(this.serviceClass);
+		// use a temporary thread for the blocking outbound
+		// call (register), so the component thread is freed immediately.
+		final Client self = this;
+		new Thread(() -> {
+			try {
+				// --- blocking call on temporary thread ---
+				self.registrationPlugin.register(self.serviceClass);
+				String brokerPublishingInboundURI = self.registrationPlugin.getBrokerPublishingInboundURI();
 
-		String brokerPublishingInboundURI = this.registrationPlugin.getBrokerPublishingInboundURI();
+				// --- continuation on component thread via runTask ---
+				self.runTask(c -> {
+					try {
+						((Client) c).executeAfterRegistration(brokerPublishingInboundURI);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}).start();
+		// component thread released here
+	}
+
+	/**
+	 * Continuation after registration completes.
+	 * Runs on a component thread (via runTask).
+	 */
+	protected void executeAfterRegistration(String brokerPublishingInboundURI)
+			throws Exception {
 
 		this.logMessage("Registered. Publishing inbound URI = " +
 				brokerPublishingInboundURI);
@@ -216,25 +243,64 @@ public class Client extends AbstractComponent implements ReceivingImplI {
 		}
 
 		if (this.channel != null) {
-			this.subscriptionPlugin.subscribe(
-					this.channel,
-					(this.filter != null) ? this.filter : new MessageFilter(null, null, null));
+			// temporary thread for blocking subscribe call
+			final Client self = this;
+			new Thread(() -> {
+				try {
+					// --- blocking call on temporary thread ---
+					self.subscriptionPlugin.subscribe(
+							self.channel,
+							(self.filter != null) ? self.filter
+									: new MessageFilter(null, null, null));
 
-			System.out.println("[" + this.receivingInboundURI +
-					"] subscribed to " + this.channel);
+					// --- continuation on component thread ---
+					self.runTask(c -> {
+						try {
+							((Client) c).executeAfterSubscription();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}).start();
+			// component thread released here
 		}
+	}
+
+	/**
+	 * Continuation after subscription completes.
+	 */
+	protected void executeAfterSubscription() throws Exception {
+
+		System.out.println("[" + this.receivingInboundURI +
+				"] subscribed to " + this.channel);
 
 		if (this.messageToPublish != null
 				&& !"dummy".equals(this.messageToPublish.getPayload())) {
 
-			Thread.sleep(300);
+			// CPS: temporary thread for blocking publish call
+			final Client self = this;
+			new Thread(() -> {
+				try {
+					Thread.sleep(300);
 
-			this.publicationPlugin.publish(
-					this.channel,
-					this.messageToPublish);
+					// --- blocking call on temporary thread ---
+					self.publicationPlugin.publish(
+							self.channel,
+							self.messageToPublish);
 
-			System.out.println("[" + this.receivingInboundURI +
-					"] published to " + this.channel);
+					// --- continuation on component thread ---
+					self.runTask(c -> {
+						System.out.println("[" + self.receivingInboundURI +
+								"] published to " + self.channel);
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}).start();
+			// component thread released here
 		}
 	}
 

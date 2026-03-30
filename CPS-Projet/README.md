@@ -286,13 +286,13 @@ concurrente.
 - **5 dispatched to waiter** = 3 waitForNextMessage + 2 getNextMessage
 - **43 receive standard** = 6 messages × 8 souscripteurs − 5 consommés par waiters
 
-### Pools de livraison par classe de service
+### Pools de livraison par classe de service (BCM executor services)
 
-| Classe | Pool | Threads |
-|--------|------|---------|
-| PREMIUM | `deliveryPremiumExecutor` | 4 |
-| STANDARD | `deliveryStandardExecutor` | 2 |
-| FREE | `deliveryFreeExecutor` | 1 |
+| Classe | Executor Service URI | Threads |
+|--------|---------------------|---------|
+| PREMIUM | `delivery-premium-pool` | 4 |
+| STANDARD | `delivery-standard-pool` | 2 |
+| FREE | `delivery-free-pool` | 1 |
 
 ### Ce qui est vérifié
 

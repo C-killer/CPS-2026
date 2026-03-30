@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
@@ -74,15 +72,12 @@ public class Broker extends AbstractComponent
 	protected static final int STANDARD_QUOTA = 3;
 	protected static final int PREMIUM_QUOTA = 10;
 
-	// --- Thread pools (§3.6.3) ---线程池
-	protected final ExecutorService publicationExecutor;
-	protected final ExecutorService propagationExecutor;
-	/** Delivery pool for PREMIUM clients — larger, higher throughput. */
-	protected final ExecutorService deliveryPremiumExecutor;
-	/** Delivery pool for STANDARD clients — medium throughput. */
-	protected final ExecutorService deliveryStandardExecutor;
-	/** Delivery pool for FREE clients — basic throughput. */
-	protected final ExecutorService deliveryFreeExecutor;
+	// --- BCM executor service URIs (§3.6.3) ---线程池
+	public static final String PUBLICATION_HANDLER_URI = "publication-pool";
+	public static final String PROPAGATION_HANDLER_URI = "propagation-pool";
+	public static final String DELIVERY_PREMIUM_HANDLER_URI = "delivery-premium-pool";
+	public static final String DELIVERY_STANDARD_HANDLER_URI = "delivery-standard-pool";
+	public static final String DELIVERY_FREE_HANDLER_URI = "delivery-free-pool";
 
 	// =========================================================================
 	// Construction / lifecycle
@@ -97,11 +92,12 @@ public class Broker extends AbstractComponent
 		this.addRequiredInterface(ReceivingCI.class);
 		this.addRequiredInterface(AbnormalTerminationNotificationCI.class);
 
-		this.publicationExecutor = Executors.newFixedThreadPool(2);
-		this.propagationExecutor = Executors.newFixedThreadPool(4);
-		this.deliveryPremiumExecutor = Executors.newFixedThreadPool(4);
-		this.deliveryStandardExecutor = Executors.newFixedThreadPool(2);
-		this.deliveryFreeExecutor = Executors.newFixedThreadPool(1);
+		// BCM managed executor services
+		this.createNewExecutorService(PUBLICATION_HANDLER_URI, 2, false);
+		this.createNewExecutorService(PROPAGATION_HANDLER_URI, 4, false);
+		this.createNewExecutorService(DELIVERY_PREMIUM_HANDLER_URI, 4, false);
+		this.createNewExecutorService(DELIVERY_STANDARD_HANDLER_URI, 2, false);
+		this.createNewExecutorService(DELIVERY_FREE_HANDLER_URI, 1, false);
 
 		for (int i = 0; i < nbChannels; i++) {
 			String c = "channel" + i;
@@ -146,11 +142,7 @@ public class Broker extends AbstractComponent
 		}
 		notificationOutboundPorts.clear();
 
-		publicationExecutor.shutdownNow();
-		propagationExecutor.shutdownNow();
-		deliveryPremiumExecutor.shutdownNow();
-		deliveryStandardExecutor.shutdownNow();
-		deliveryFreeExecutor.shutdownNow();
+		// BCM manages executor service shutdown automatically
 		super.finalise();
 	}
 
@@ -366,9 +358,9 @@ public class Broker extends AbstractComponent
 		if (message == null)
 			return;
 
-		this.publicationExecutor.submit(() -> {
+		this.runTask(PUBLICATION_HANDLER_URI, c -> {
 			try {
-				this.propagateMessages(channel, new MessageI[] { message });
+				((Broker) c).propagateMessages(channel, new MessageI[] { message });
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -388,9 +380,9 @@ public class Broker extends AbstractComponent
 			return;
 
 		final MessageI[] batch = messages.toArray(new MessageI[0]);
-		this.publicationExecutor.submit(() -> {
+		this.runTask(PUBLICATION_HANDLER_URI, c -> {
 			try {
-				this.propagateMessages(channel, batch);
+				((Broker) c).propagateMessages(channel, batch);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -409,9 +401,9 @@ public class Broker extends AbstractComponent
 		if (!channelAuthorised(receptionPortURI, channel))
 			throw new Exception("asyncPublish: unauthorised client for channel " + channel);
 
-		this.publicationExecutor.submit(() -> {
+		this.runTask(PUBLICATION_HANDLER_URI, c -> {
 			try {
-				this.propagateMessages(channel, new MessageI[] { message });
+				((Broker) c).propagateMessages(channel, new MessageI[] { message });
 			} catch (Exception e) {
 				sendAbnormalTerminationNotification(notificationInboundPortURI, e);
 			}
@@ -427,9 +419,9 @@ public class Broker extends AbstractComponent
 			throw new Exception("asyncPublish: unauthorised client for channel " + channel);
 
 		final MessageI[] batch = messages.toArray(new MessageI[0]);
-		this.publicationExecutor.submit(() -> {
+		this.runTask(PUBLICATION_HANDLER_URI, c -> {
 			try {
-				this.propagateMessages(channel, batch);
+				((Broker) c).propagateMessages(channel, batch);
 			} catch (Exception e) {
 				sendAbnormalTerminationNotification(notificationInboundPortURI, e);
 			}
@@ -492,9 +484,9 @@ public class Broker extends AbstractComponent
 			final String clientURI = e.getKey();
 			final MessageFilterI filter = e.getValue();
 
-			this.propagationExecutor.submit(() -> {
+			this.runTask(PROPAGATION_HANDLER_URI, c -> {
 				try {
-					this.deliverToOneSubscriber(channel, clientURI, filter, messages);
+					((Broker) c).deliverToOneSubscriber(channel, clientURI, filter, messages);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -510,35 +502,44 @@ public class Broker extends AbstractComponent
 			String channel, String clientURI, MessageFilterI filter,
 			MessageI[] messages) {
 
-		deliveryExecutorFor(clientURI).submit(() -> {
-			try {
-				ReceivingOutbound rop = getOrConnectReceivingOutbound(clientURI);
-				for (MessageI m : messages) {
-					if (filter == null || filter.match(m)) {
-						rop.receive(channel, m);
+		String deliveryURI = deliveryExecutorURIFor(clientURI);
+		this.runTask(deliveryURI, c -> {
+			// CPS pattern: use a temporary thread for the blocking
+			// outbound call (rop.receive), so the delivery-pool thread
+			// is freed immediately and can serve other deliveries.
+			final Broker broker = (Broker) c;
+			new Thread(() -> {
+				try {
+					ReceivingOutbound rop = broker.getOrConnectReceivingOutbound(clientURI);
+					for (MessageI m : messages) {
+						if (filter == null || filter.match(m)) {
+							// blocking outbound call on temporary thread
+							rop.receive(channel, m);
+						}
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			}).start();
+			// delivery-pool thread released here
 		});
 	}
 
 	/**
-	 * Select the delivery thread pool based on the client's service class.
-	 * PREMIUM clients get the largest pool (lowest latency), FREE the smallest.
+	 * Select the BCM delivery executor service URI based on the client's
+	 * service class. PREMIUM clients get the largest pool, FREE the smallest.
 	 */
-	private ExecutorService deliveryExecutorFor(String clientURI) {
+	private String deliveryExecutorURIFor(String clientURI) {
 		RegistrationClass rc = registered.get(clientURI);
 		if (rc == null)
-			return deliveryFreeExecutor;
+			return DELIVERY_FREE_HANDLER_URI;
 		switch (rc) {
 			case PREMIUM:
-				return deliveryPremiumExecutor;
+				return DELIVERY_PREMIUM_HANDLER_URI;
 			case STANDARD:
-				return deliveryStandardExecutor;
+				return DELIVERY_STANDARD_HANDLER_URI;
 			default:
-				return deliveryFreeExecutor;
+				return DELIVERY_FREE_HANDLER_URI;
 		}
 	}
 
