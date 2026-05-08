@@ -19,5 +19,6 @@
   "java.configuration.updateBuildConfiguration": "automatic",
   "editor.formatOnSave": true,
   "editor.tabSize": 4,
-  "editor.insertSpaces": false
+  "editor.insertSpaces": false,
+  "java.debug.settings.onBuildFailureProceed": true
 }
