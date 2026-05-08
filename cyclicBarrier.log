@@ -1,0 +1,62 @@
+1778249004729|DCVM Cyclic Barrier up and running!
+1778249004744|All connected!
+1778249004748|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249004748|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249004748|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249004750|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249004750|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249004751|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249004751|DCVM Cyclic Barrier releases 3 sites.
+1778249004756|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249004767|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249004798|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249004798|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249004798|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249004798|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249004798|DCVM Cyclic Barrier releases 3 sites.
+1778249005221|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249005221|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249005308|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249005309|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249005319|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249005319|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249005319|DCVM Cyclic Barrier releases 3 sites.
+1778249005320|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249005320|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249005320|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249005321|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249005323|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249005327|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249005327|DCVM Cyclic Barrier releases 3 sites.
+1778249005331|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249005331|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249005332|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249005332|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249005332|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249005334|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249005334|DCVM Cyclic Barrier releases 3 sites.
+1778249020342|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249020342|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249020343|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249020344|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249020344|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249020344|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249020344|DCVM Cyclic Barrier releases 3 sites.
+1778249020351|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249020351|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249020354|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249020354|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249020354|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249020354|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249020354|DCVM Cyclic Barrier releases 3 sites.
+1778249020367|DCVM Cyclic Barrier accepts: jvm1 localhost 58763
+1778249020368|DCVM Cyclic Barrier has received 1 out of 3 expected.
+1778249020372|DCVM Cyclic Barrier accepts: jvm2 localhost 58764
+1778249020372|DCVM Cyclic Barrier has received 2 out of 3 expected.
+1778249020376|DCVM Cyclic Barrier accepts: jvm3 localhost 58765
+1778249020376|DCVM Cyclic Barrier has received 3 out of 3 expected.
+1778249020376|DCVM Cyclic Barrier releases 3 sites.
+1778249020378|DCVMCyclicBarrier.run() finished.
+1778249020378|DCVMCyclicBarrier.run() finished.
+1778249020378|DCVMCyclicBarrier.run() finished.
+1778249020378|DCVM Cyclic Barrier shuts down!

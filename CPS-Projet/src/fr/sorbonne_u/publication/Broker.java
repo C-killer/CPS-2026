@@ -1,14 +1,25 @@
 package fr.sorbonne_u.publication;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.exceptions.ComponentShutdownException;
+import fr.sorbonne_u.cps.gossip.interfaces.GossipImplementationI;
+import fr.sorbonne_u.cps.gossip.interfaces.GossipMessageI;
+import fr.sorbonne_u.cps.gossip.interfaces.GossipReceiverCI;
+import fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI;
 import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyExistingChannelException;
 import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyRegisteredException;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
@@ -18,6 +29,11 @@ import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.publication.connectors.AbnormalTerminationNotificationConnector;
 import fr.sorbonne_u.publication.connectors.ReceivingConnector;
+import fr.sorbonne_u.publication.gossip.GossipMessage;
+import fr.sorbonne_u.publication.gossip.GossipPayloadType;
+import fr.sorbonne_u.publication.gossip.connectors.GossipConnector;
+import fr.sorbonne_u.publication.gossip.ports.GossipReceiverInbound;
+import fr.sorbonne_u.publication.gossip.ports.GossipSenderOutbound;
 import fr.sorbonne_u.publication.implementations.PrivilegedClientImpli;
 import fr.sorbonne_u.publication.implementations.RegistrationImplI;
 import fr.sorbonne_u.publication.interfaces.AbnormalTerminationNotificationCI;
@@ -48,12 +64,18 @@ import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
  * @author CHU Feiyang
  */
 public class Broker extends AbstractComponent
-		implements RegistrationImplI, PrivilegedClientImpli {
+		implements RegistrationImplI, PrivilegedClientImpli, GossipImplementationI {
 
 	protected final RegistrationInbound registrationInboundPort;
 	protected final PublishingInbound publishingInboundPort;
 	protected final PrivilegedClientInbound privilegedClientInboundPort;
 
+	// --- Port URIs (instance-specific for multi-broker support) ---
+	protected final String registrationInboundURI;
+	protected final String publishingInboundURI;
+	protected final String privilegedInboundURI;
+
+	// Default URIs for backward compatibility (single-broker)
 	protected static final String REGISTRATION_INBOUND_URI = "broker-registration";
 	protected static final String PUBLISHING_INBOUND_URI = "broker-publishing";
 	protected static final String PRIVILEGED_INBOUND_URI = "broker-privileged";
@@ -78,19 +100,68 @@ public class Broker extends AbstractComponent
 	protected static final int STANDARD_QUOTA = 3;
 	protected static final int PREMIUM_QUOTA = 10;
 
-	// --- BCM executor service URIs (§3.6.3) ---线程池
+	// --- BCM executor service URIs (§3.6.3) ---
 	public static final String PUBLICATION_HANDLER_URI = "publication-pool";
 	public static final String PROPAGATION_HANDLER_URI = "propagation-pool";
 	public static final String DELIVERY_PREMIUM_HANDLER_URI = "delivery-premium-pool";
 	public static final String DELIVERY_STANDARD_HANDLER_URI = "delivery-standard-pool";
 	public static final String DELIVERY_FREE_HANDLER_URI = "delivery-free-pool";
+	public static final String GOSSIP_HANDLER_URI = "gossip-pool";
+
+	// --- Gossip protocol fields (§3.7) ---
+	protected final String brokerURI;
+	/** URI du port entrant gossip de CE courtier, utilise comme emitterURI dans les messages gossip. */
+	protected String gossipReceiverInboundURI;
+	protected GossipReceiverInbound gossipReceiverInbound;
+	protected final ConcurrentMap<String, GossipSenderOutbound> gossipSenderOutbounds = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, Instant> processedGossipURIs = new ConcurrentHashMap<>();
+	/** URIs des ports entrants gossip des voisins, pour connexion dans start(). */
+	protected final String[] neighborGossipInboundURIs;
+
+	private static final long GOSSIP_CLEANUP_INTERVAL_MS = 30_000L;
+	private static final long GOSSIP_URI_MAX_AGE_MS = 60_000L;
 
 	// =========================================================================
 	// Construction / lifecycle
 	// =========================================================================
 
+	/**
+	 * Constructeur pour le mode mono-courtier (backward compatible).
+	 */
 	protected Broker(int nbChannels) throws Exception {
-		super(4, 0);
+		this("broker-local", nbChannels, REGISTRATION_INBOUND_URI,
+				PUBLISHING_INBOUND_URI, PRIVILEGED_INBOUND_URI,
+				null, new String[0]);
+	}
+
+	/**
+	 * Constructeur complet pour le mode multi-courtier reparti.
+	 *
+	 * @param brokerURI                  URI unique de ce courtier
+	 * @param nbChannels                 nombre de canaux pre-crees (FREE)
+	 * @param registrationInboundURI     URI du port entrant Registration
+	 * @param publishingInboundURI       URI du port entrant Publishing
+	 * @param privilegedInboundURI       URI du port entrant PrivilegedClient
+	 * @param gossipReceiverInboundURI   URI du port entrant Gossip (null si pas de gossip)
+	 * @param neighborGossipInboundURIs  URIs des ports gossip des voisins
+	 */
+	protected Broker(
+			String brokerURI,
+			int nbChannels,
+			String registrationInboundURI,
+			String publishingInboundURI,
+			String privilegedInboundURI,
+			String gossipReceiverInboundURI,
+			String[] neighborGossipInboundURIs) throws Exception {
+		super(5, 1);
+
+		this.brokerURI = brokerURI;
+		this.registrationInboundURI = registrationInboundURI;
+		this.publishingInboundURI = publishingInboundURI;
+		this.privilegedInboundURI = privilegedInboundURI;
+		this.gossipReceiverInboundURI = gossipReceiverInboundURI;
+		this.neighborGossipInboundURIs = neighborGossipInboundURIs != null
+				? neighborGossipInboundURIs : new String[0];
 
 		this.addOfferedInterface(RegistrationCI.class);
 		this.addOfferedInterface(PublishingCI.class);
@@ -104,6 +175,7 @@ public class Broker extends AbstractComponent
 		this.createNewExecutorService(DELIVERY_PREMIUM_HANDLER_URI, 4, false);
 		this.createNewExecutorService(DELIVERY_STANDARD_HANDLER_URI, 2, false);
 		this.createNewExecutorService(DELIVERY_FREE_HANDLER_URI, 1, false);
+		this.createNewExecutorService(GOSSIP_HANDLER_URI, 2, true);
 
 		for (int i = 0; i < nbChannels; i++) {
 			String c = "channel" + i;
@@ -112,14 +184,52 @@ public class Broker extends AbstractComponent
 			channelAuthorisations.put(c, ".*");
 		}
 
-		this.registrationInboundPort = new RegistrationInbound(REGISTRATION_INBOUND_URI, this);
+		this.registrationInboundPort = new RegistrationInbound(registrationInboundURI, this);
 		this.registrationInboundPort.publishPort();
 
-		this.publishingInboundPort = new PublishingInbound(PUBLISHING_INBOUND_URI, this);
+		this.publishingInboundPort = new PublishingInbound(publishingInboundURI, this);
 		this.publishingInboundPort.publishPort();
 
-		this.privilegedClientInboundPort = new PrivilegedClientInbound(PRIVILEGED_INBOUND_URI, this);
+		this.privilegedClientInboundPort = new PrivilegedClientInbound(privilegedInboundURI, this);
 		this.privilegedClientInboundPort.publishPort();
+
+		// Gossip protocol: port entrant recepteur
+		if (gossipReceiverInboundURI != null) {
+			this.addOfferedInterface(GossipReceiverCI.class);
+			this.addRequiredInterface(GossipSenderCI.class);
+			this.gossipReceiverInbound = new GossipReceiverInbound(gossipReceiverInboundURI, this);
+			this.gossipReceiverInbound.publishPort();
+		}
+	}
+
+	@Override
+	public void execute() throws Exception {
+		// Connexion gossip AVANT super.execute() pour garantir que les
+		// voisins sont connectes avant toute activite client
+		if (neighborGossipInboundURIs.length > 0) {
+			for (String neighborURI : neighborGossipInboundURIs) {
+				GossipSenderOutbound gso = new GossipSenderOutbound(this);
+				gso.publishPort();
+				gso.doConnection(neighborURI, GossipConnector.class.getCanonicalName());
+				gossipSenderOutbounds.put(neighborURI, gso);
+			}
+			System.out.println("[Broker " + brokerURI + "] connected to "
+					+ gossipSenderOutbounds.size() + " gossip neighbors.");
+
+			// Nettoyage periodique des URIs gossip deja traites
+			this.scheduleTaskAtFixedRate(
+					GOSSIP_HANDLER_URI,
+					c -> {
+						Instant cutoff = Instant.now().minusMillis(GOSSIP_URI_MAX_AGE_MS);
+						processedGossipURIs.entrySet()
+								.removeIf(e -> e.getValue().isBefore(cutoff));
+					},
+					GOSSIP_CLEANUP_INTERVAL_MS,
+					GOSSIP_CLEANUP_INTERVAL_MS,
+					TimeUnit.MILLISECONDS);
+		}
+
+		super.execute();
 	}
 
 	@Override
@@ -148,7 +258,19 @@ public class Broker extends AbstractComponent
 		}
 		notificationOutboundPorts.clear();
 
-		// BCM manages executor service shutdown automatically
+		// Gossip outbound ports
+		for (GossipSenderOutbound gso : gossipSenderOutbounds.values()) {
+			try {
+				gso.doDisconnection();
+			} catch (Throwable ignored) {
+			}
+			try {
+				gso.unpublishPort();
+			} catch (Throwable ignored) {
+			}
+		}
+		gossipSenderOutbounds.clear();
+
 		super.finalise();
 	}
 
@@ -166,6 +288,12 @@ public class Broker extends AbstractComponent
 			this.privilegedClientInboundPort.unpublishPort();
 		} catch (Throwable ignored) {
 		}
+		if (this.gossipReceiverInbound != null) {
+			try {
+				this.gossipReceiverInbound.unpublishPort();
+			} catch (Throwable ignored) {
+			}
+		}
 		for (ReceivingOutbound rop : receivingOutboundPorts.values()) {
 			try {
 				rop.unpublishPort();
@@ -178,11 +306,33 @@ public class Broker extends AbstractComponent
 			} catch (Throwable ignored) {
 			}
 		}
+		for (GossipSenderOutbound gso : gossipSenderOutbounds.values()) {
+			try {
+				gso.unpublishPort();
+			} catch (Throwable ignored) {
+			}
+		}
 		super.shutdown();
 	}
 
+	/** Retourne l'URI du port Registration (backward compatible). */
 	public static String registrationPortURI() {
 		return REGISTRATION_INBOUND_URI;
+	}
+
+	/** Retourne l'URI du port Registration de cette instance. */
+	public String getRegistrationInboundURI() {
+		return registrationInboundURI;
+	}
+
+	/** Retourne l'URI du port Publishing de cette instance. */
+	public String getPublishingInboundURI() {
+		return publishingInboundURI;
+	}
+
+	/** Retourne l'URI du port PrivilegedClient de cette instance. */
+	public String getPrivilegedInboundURI() {
+		return privilegedInboundURI;
 	}
 
 	// =========================================================================
@@ -211,7 +361,14 @@ public class Broker extends AbstractComponent
 			}
 			registered.put(receptionPortURI, rc);
 		}
-		return (rc == RegistrationClass.FREE) ? PUBLISHING_INBOUND_URI : PRIVILEGED_INBOUND_URI;
+
+		// Gossip: propager l'enregistrement aux voisins
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("clientURI", receptionPortURI);
+		payload.put("registrationClass", rc);
+		gossipEvent(GossipPayloadType.REGISTER, payload);
+
+		return (rc == RegistrationClass.FREE) ? publishingInboundURI : privilegedInboundURI;
 	}
 
 	@Override
@@ -223,7 +380,14 @@ public class Broker extends AbstractComponent
 			}
 			registered.put(receptionPortURI, rc);
 		}
-		return (rc == RegistrationClass.FREE) ? PUBLISHING_INBOUND_URI : PRIVILEGED_INBOUND_URI;
+
+		// Gossip: propager la modification de classe de service
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("clientURI", receptionPortURI);
+		payload.put("registrationClass", rc);
+		gossipEvent(GossipPayloadType.REGISTER, payload);
+
+		return (rc == RegistrationClass.FREE) ? publishingInboundURI : privilegedInboundURI;
 	}
 
 	@Override
@@ -249,6 +413,7 @@ public class Broker extends AbstractComponent
 			}
 		}
 
+		List<String> destroyedChannels = new ArrayList<>();
 		synchronized (channelLock) {
 			Set<String> created = createdChannelsByClient.remove(receptionPortURI);
 			if (created != null) {
@@ -257,8 +422,22 @@ public class Broker extends AbstractComponent
 					channelCreators.remove(ch);
 					channelAuthorisations.remove(ch);
 					subscriptions.remove(ch);
+					destroyedChannels.add(ch);
 				}
 			}
+		}
+
+		// Gossip: propager le desenregistrement
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("clientURI", receptionPortURI);
+		gossipEvent(GossipPayloadType.UNREGISTER, payload);
+
+		// Gossip: propager la destruction des canaux crees par ce client
+		for (String ch : destroyedChannels) {
+			Map<String, Serializable> chPayload = new HashMap<>();
+			chPayload.put("channel", ch);
+			chPayload.put("creator", receptionPortURI);
+			gossipEvent(GossipPayloadType.DESTROY_CHANNEL, chPayload);
 		}
 	}
 
@@ -302,6 +481,12 @@ public class Broker extends AbstractComponent
 			}
 			channelAuthorisations.put(channel, autorisedUsers);
 		}
+
+		// Gossip: propager la modification des autorisations
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("authorisedUsers", autorisedUsers);
+		gossipEvent(GossipPayloadType.MODIFY_AUTH, payload);
 	}
 
 	@Override
@@ -313,6 +498,12 @@ public class Broker extends AbstractComponent
 			}
 			channelAuthorisations.put(channel, ".*");
 		}
+
+		// Gossip: propager la reinitialisation des autorisations
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("authorisedUsers", ".*");
+		gossipEvent(GossipPayloadType.MODIFY_AUTH, payload);
 	}
 
 	// =========================================================================
@@ -376,13 +567,20 @@ public class Broker extends AbstractComponent
 		if (message == null)
 			return;
 
+		final MessageI[] batch = new MessageI[] { message };
 		this.runTask(PUBLICATION_HANDLER_URI, c -> {
 			try {
-				((Broker) c).propagateMessages(channel, new MessageI[] { message });
+				((Broker) c).propagateMessages(channel, batch);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
+
+		// Gossip: propager la publication aux courtiers voisins
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("messages", batch);
+		gossipEvent(GossipPayloadType.PUBLISH, payload);
 	}
 
 	@Override
@@ -405,6 +603,12 @@ public class Broker extends AbstractComponent
 				e.printStackTrace();
 			}
 		});
+
+		// Gossip: propager la publication aux courtiers voisins
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("messages", batch);
+		gossipEvent(GossipPayloadType.PUBLISH, payload);
 	}
 
 	// =========================================================================
@@ -419,13 +623,19 @@ public class Broker extends AbstractComponent
 		if (!channelAuthorised(receptionPortURI, channel))
 			throw new Exception("asyncPublish: unauthorised client for channel " + channel);
 
+		final MessageI[] batch = new MessageI[] { message };
 		this.runTask(PUBLICATION_HANDLER_URI, c -> {
 			try {
-				((Broker) c).propagateMessages(channel, new MessageI[] { message });
+				((Broker) c).propagateMessages(channel, batch);
 			} catch (Exception e) {
 				sendAbnormalTerminationNotification(notificationInboundPortURI, e);
 			}
 		});
+
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("messages", batch);
+		gossipEvent(GossipPayloadType.PUBLISH, payload);
 	}
 
 	@Override
@@ -444,6 +654,11 @@ public class Broker extends AbstractComponent
 				sendAbnormalTerminationNotification(notificationInboundPortURI, e);
 			}
 		});
+
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("messages", batch);
+		gossipEvent(GossipPayloadType.PUBLISH, payload);
 	}
 
 	/**
@@ -634,6 +849,13 @@ public class Broker extends AbstractComponent
 					.computeIfAbsent(receptionPortURI, k -> ConcurrentHashMap.newKeySet())
 					.add(channel);
 		}
+
+		// Gossip: propager la creation du canal
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("creator", receptionPortURI);
+		payload.put("authorisedUsers", autorisedUsers == null ? ".*" : autorisedUsers);
+		gossipEvent(GossipPayloadType.CREATE_CHANNEL, payload);
 	}
 
 	@Override
@@ -659,11 +881,191 @@ public class Broker extends AbstractComponent
 			if (created != null)
 				created.remove(channel);
 		}
+
+		// Gossip: propager la destruction du canal
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("creator", receptionPortURI);
+		gossipEvent(GossipPayloadType.DESTROY_CHANNEL, payload);
 	}
 
 	@Override
 	public void destroyChannelNow(String receptionPortURI, String channel)
 			throws Exception {
 		destroyChannel(receptionPortURI, channel);
+	}
+
+	// =========================================================================
+	// Gossip protocol implementation (§3.7)
+	// =========================================================================
+
+	@Override
+	public void receive(GossipMessageI[] gossipMessages) throws Exception {
+		this.runTask(GOSSIP_HANDLER_URI, c -> {
+			((Broker) c).update(gossipMessages);
+		});
+	}
+
+	@Override
+	public void update(GossipMessageI[] fromSender) {
+		List<GossipMessageI> toPropagate = new ArrayList<>();
+
+		for (GossipMessageI gm : fromSender) {
+			String uri = gm.gossipMessageURI();
+
+			// Deduplication atomique
+			if (processedGossipURIs.putIfAbsent(uri, gm.timestamp()) != null) {
+				continue;
+			}
+
+			// Integrer le message dans l'etat local
+			integrateGossipMessage(gm);
+			toPropagate.add(gm);
+		}
+
+		if (!toPropagate.isEmpty()) {
+			gossipToNeighbors(toPropagate);
+		}
+	}
+
+	/**
+	 * Integre un message gossip dans l'etat local du courtier.
+	 * Les evenements sont traites sans re-validation (deja valides a la source).
+	 */
+	private void integrateGossipMessage(GossipMessageI gm) {
+		GossipMessage msg = (GossipMessage) gm;
+		switch (msg.getType()) {
+			case PUBLISH: {
+				String channel = (String) msg.getPayloadValue("channel");
+				MessageI[] messages = (MessageI[]) msg.getPayloadValue("messages");
+				// Pas de verif channels.contains() : si CREATE_CHANNEL arrive apres
+				// PUBLISH (ordre non garanti), propagateMessages ne trouvera
+				// simplement aucun abonne et ne fera rien.
+				if (channel != null && messages != null) {
+					propagateMessages(channel, messages);
+				}
+				break;
+			}
+			case REGISTER: {
+				String clientURI = (String) msg.getPayloadValue("clientURI");
+				RegistrationClass rc = (RegistrationClass) msg.getPayloadValue("registrationClass");
+				if (clientURI != null && rc != null) {
+					// put (et non putIfAbsent) pour que modifyServiceClass puisse
+					// mettre a jour la classe de service sur les courtiers distants
+					registered.put(clientURI, rc);
+				}
+				break;
+			}
+			case UNREGISTER: {
+				String clientURI = (String) msg.getPayloadValue("clientURI");
+				if (clientURI != null) {
+					registered.remove(clientURI);
+					// Nettoyer les abonnements du client sur ce broker
+					for (Map<String, MessageFilterI> subs : subscriptions.values()) {
+						subs.remove(clientURI);
+					}
+					// Nettoyer le port sortant cache
+					ReceivingOutbound rop = receivingOutboundPorts.remove(clientURI);
+					if (rop != null) {
+						try { rop.doDisconnection(); } catch (Throwable ignored) {}
+						try { rop.unpublishPort(); } catch (Throwable ignored) {}
+					}
+				}
+				break;
+			}
+			case CREATE_CHANNEL: {
+				String channel = (String) msg.getPayloadValue("channel");
+				String creator = (String) msg.getPayloadValue("creator");
+				String auth = (String) msg.getPayloadValue("authorisedUsers");
+				if (channel != null) {
+					synchronized (channelLock) {
+						if (!channels.contains(channel)) {
+							channels.add(channel);
+							String c = creator != null ? creator : "REMOTE";
+							channelCreators.put(channel, c);
+							channelAuthorisations.put(channel, auth != null ? auth : ".*");
+							createdChannelsByClient
+									.computeIfAbsent(c, k -> ConcurrentHashMap.newKeySet())
+									.add(channel);
+						}
+					}
+				}
+				break;
+			}
+			case DESTROY_CHANNEL: {
+				String channel = (String) msg.getPayloadValue("channel");
+				String creator = (String) msg.getPayloadValue("creator");
+				if (channel != null) {
+					synchronized (channelLock) {
+						channels.remove(channel);
+						channelCreators.remove(channel);
+						channelAuthorisations.remove(channel);
+						subscriptions.remove(channel);
+						if (creator != null) {
+							Set<String> created = createdChannelsByClient.get(creator);
+							if (created != null) {
+								created.remove(channel);
+							}
+						}
+					}
+				}
+				break;
+			}
+			case MODIFY_AUTH: {
+				String channel = (String) msg.getPayloadValue("channel");
+				String newAuth = (String) msg.getPayloadValue("authorisedUsers");
+				if (channel != null && newAuth != null) {
+					channelAuthorisations.put(channel, newAuth);
+				}
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Transmet les messages gossip a tous les voisins, en remplacant l'URI
+	 * de l'emetteur par celui de ce courtier.
+	 */
+	private void gossipToNeighbors(List<GossipMessageI> messages) {
+		for (Map.Entry<String, GossipSenderOutbound> entry : gossipSenderOutbounds.entrySet()) {
+			String neighborURI = entry.getKey();
+			GossipSenderOutbound outbound = entry.getValue();
+
+			// Filtrer : ne pas renvoyer un message au voisin qui l'a emis
+			List<GossipMessageI> filtered = new ArrayList<>();
+			for (GossipMessageI gm : messages) {
+				GossipMessage g = (GossipMessage) gm;
+				if (!neighborURI.equals(g.getEmitterURI())) {
+					filtered.add(gm.copyWithNewEmitterURI(this.gossipReceiverInboundURI));
+				}
+			}
+			if (filtered.isEmpty()) continue;
+
+			final GossipMessageI[] arr = filtered.toArray(new GossipMessageI[0]);
+			this.runTask(GOSSIP_HANDLER_URI, c -> {
+				try {
+					outbound.send(arr);
+				} catch (Exception e) {
+					System.err.println("[Broker " + brokerURI
+							+ "] gossip send failed to " + neighborURI
+							+ ": " + e.getMessage());
+				}
+			});
+		}
+	}
+
+	/**
+	 * Cree un message gossip pour un evenement local et le propage aux voisins.
+	 * Ne fait rien si aucun voisin n'est connecte (mode mono-courtier).
+	 */
+	private void gossipEvent(GossipPayloadType type, Map<String, Serializable> payload) {
+		if (gossipSenderOutbounds.isEmpty()) return;
+
+		String uri = brokerURI + "-gossip-" + UUID.randomUUID();
+		// emitterURI = notre gossip inbound URI, pour que le voisin puisse
+		// eviter de nous renvoyer ce message (filtrage par emitter)
+		GossipMessage gm = new GossipMessage(uri, gossipReceiverInboundURI, type, payload);
+		processedGossipURIs.put(uri, gm.timestamp());
+		gossipToNeighbors(Collections.singletonList(gm));
 	}
 }

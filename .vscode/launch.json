@@ -3,6 +3,59 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "GlobalRegistry",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.components.registry.GlobalRegistry",
+			"args": "CPS-Projet/config.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "CyclicBarrier",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.components.cvm.utils.DCVMCyclicBarrier",
+			"args": "CPS-Projet/config.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "DistributedCVM-jvm1",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedCVM",
+			"args": "jvm1 CPS-Projet/config.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "DistributedCVM-jvm2",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedCVM",
+			"args": "jvm2 CPS-Projet/config.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "DistributedCVM-jvm3",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedCVM",
+			"args": "jvm3 CPS-Projet/config.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "CVM_GossipTest",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.CVM_GossipTest",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
 			"name": "CVM_ScenarioTest",
 			"request": "launch",
 			"vmArgs": "-ea",
@@ -55,14 +108,18 @@
 			"request": "launch",
 			"mainClass": "${file}",
 			"console": "integratedTerminal"
-		},
+		}
+	],
+	"compounds": [
 		{
-			"type": "java",
-			"name": "Launch CPS Project",
-			"request": "launch",
-			"mainClass": "fr.sorbonne_u.cps.projet2026.Main",
-			"projectName": "CPS-Projet",
-			"console": "integratedTerminal"
+			"name": "Distributed (all 5)",
+			"configurations": [
+				"GlobalRegistry",
+				"CyclicBarrier",
+				"DistributedCVM-jvm1",
+				"DistributedCVM-jvm2",
+				"DistributedCVM-jvm3"
+			]
 		}
 	]
 }
