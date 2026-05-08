@@ -22,7 +22,10 @@ import fr.sorbonne_u.cps.gossip.interfaces.GossipReceiverCI;
 import fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI;
 import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyExistingChannelException;
 import fr.sorbonne_u.cps.pubsub.exceptions.AlreadyRegisteredException;
+import fr.sorbonne_u.cps.pubsub.exceptions.NotSubscribedChannelException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnauthorisedClientException;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnknownClientException;
 import fr.sorbonne_u.cps.pubsub.exceptions.UnknownIdentifierException;
 import fr.sorbonne_u.cps.pubsub.interfaces.ChannelQuotaExceededException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
@@ -376,7 +379,7 @@ public class Broker extends AbstractComponent
 			throws Exception {
 		synchronized (registrationLock) {
 			if (!registered.containsKey(receptionPortURI)) {
-				throw new AlreadyRegisteredException("modifyServiceClass: unknown identifier " + receptionPortURI);
+				throw new UnknownClientException("modifyServiceClass: unknown client " + receptionPortURI);
 			}
 			registered.put(receptionPortURI, rc);
 		}
@@ -477,7 +480,7 @@ public class Broker extends AbstractComponent
 			String autorisedUsers) throws Exception {
 		synchronized (channelLock) {
 			if (!hasCreatedChannel(receptionPortURI, channel)) {
-				throw new Exception("Only the channel creator can modify authorised users.");
+				throw new UnauthorisedClientException("Only the channel creator can modify authorised users.");
 			}
 			channelAuthorisations.put(channel, autorisedUsers);
 		}
@@ -494,7 +497,7 @@ public class Broker extends AbstractComponent
 			String regularExpression) throws Exception {
 		synchronized (channelLock) {
 			if (!hasCreatedChannel(receptionPortURI, channel)) {
-				throw new Exception("Only the channel creator can remove authorised users.");
+				throw new UnauthorisedClientException("Only the channel creator can remove authorised users.");
 			}
 			channelAuthorisations.put(channel, ".*");
 		}
@@ -520,11 +523,11 @@ public class Broker extends AbstractComponent
 	public void subscribe(String receptionPortURI, String channel,
 			MessageFilterI filter) throws Exception {
 		if (!channels.contains(channel))
-			throw new RemoteException("subscribe: unknown channel " + channel);
+			throw new UnknownChannelException("subscribe: unknown channel " + channel);
 		if (!registered.containsKey(receptionPortURI))
-			throw new RemoteException("subscribe: not registered " + receptionPortURI);
+			throw new UnknownClientException("subscribe: not registered " + receptionPortURI);
 		if (!channelAuthorised(receptionPortURI, channel))
-			throw new Exception("subscribe: unauthorised client for channel " + channel);
+			throw new UnauthorisedClientException("subscribe: unauthorised client for channel " + channel);
 
 		subscriptions
 				.computeIfAbsent(channel, k -> new ConcurrentHashMap<>())
@@ -534,20 +537,21 @@ public class Broker extends AbstractComponent
 	@Override
 	public void unsubscribe(String receptionPortURI, String channel) throws Exception {
 		if (!channels.contains(channel))
-			throw new RemoteException("unsubscribe: unknown channel " + channel);
+			throw new UnknownChannelException("unsubscribe: unknown channel " + channel);
 		Map<String, MessageFilterI> subs = subscriptions.get(channel);
-		if (subs != null)
-			subs.remove(receptionPortURI);
+		if (subs == null || !subs.containsKey(receptionPortURI))
+			throw new NotSubscribedChannelException("unsubscribe: not subscribed to " + channel);
+		subs.remove(receptionPortURI);
 	}
 
 	@Override
 	public boolean modifyFilter(String receptionPortURI, String channel,
 			MessageFilterI filter) throws Exception {
 		if (!channels.contains(channel))
-			throw new RemoteException("modifyFilter: unknown channel " + channel);
+			throw new UnknownChannelException("modifyFilter: unknown channel " + channel);
 		Map<String, MessageFilterI> subs = subscriptions.get(channel);
 		if (subs == null || !subs.containsKey(receptionPortURI))
-			return false;
+			throw new NotSubscribedChannelException("modifyFilter: not subscribed to " + channel);
 		subs.put(receptionPortURI, filter);
 		return true;
 	}
@@ -559,11 +563,11 @@ public class Broker extends AbstractComponent
 	@Override
 	public void publish(String receptionPortURI, String channel, MessageI message) throws Exception {
 		if (!channels.contains(channel))
-			throw new RemoteException("publish: unknown channel " + channel);
+			throw new UnknownChannelException("publish: unknown channel " + channel);
 		if (!registered.containsKey(receptionPortURI))
-			throw new RemoteException("publish: not registered " + receptionPortURI);
+			throw new UnknownClientException("publish: not registered " + receptionPortURI);
 		if (!channelAuthorised(receptionPortURI, channel))
-			throw new Exception("publish: unauthorised client for channel " + channel);
+			throw new UnauthorisedClientException("publish: unauthorised client for channel " + channel);
 		if (message == null)
 			return;
 
@@ -587,11 +591,11 @@ public class Broker extends AbstractComponent
 	public void publish(String receptionPortURI, String channel,
 			ArrayList<MessageI> messages) throws Exception {
 		if (!channels.contains(channel))
-			throw new RemoteException("publish: unknown channel " + channel);
+			throw new UnknownChannelException("publish: unknown channel " + channel);
 		if (!registered.containsKey(receptionPortURI))
-			throw new RemoteException("publish: not registered " + receptionPortURI);
+			throw new UnknownClientException("publish: not registered " + receptionPortURI);
 		if (!channelAuthorised(receptionPortURI, channel))
-			throw new Exception("publish: unauthorised client for channel " + channel);
+			throw new UnauthorisedClientException("publish: unauthorised client for channel " + channel);
 		if (messages == null || messages.isEmpty())
 			return;
 
@@ -858,11 +862,17 @@ public class Broker extends AbstractComponent
 		gossipEvent(GossipPayloadType.CREATE_CHANNEL, payload);
 	}
 
+	/**
+	 * Detruit un canal apres avoir termine la livraison des messages en cours.
+	 * Les nouvelles publications sont bloquees (le canal est retire de {@code channels}),
+	 * puis les messages deja soumis aux pools de propagation/livraison sont draines
+	 * avant de supprimer les abonnements.
+	 */
 	@Override
 	public void destroyChannel(String receptionPortURI, String channel)
 			throws Exception {
 		if (!registered.containsKey(receptionPortURI))
-			throw new UnknownIdentifierException("unknown identifier " + receptionPortURI);
+			throw new UnknownClientException("unknown client " + receptionPortURI);
 
 		synchronized (channelLock) {
 			if (!channels.contains(channel))
@@ -870,7 +880,48 @@ public class Broker extends AbstractComponent
 
 			String creator = channelCreators.get(channel);
 			if (creator == null || !creator.equals(receptionPortURI))
-				throw new UnknownIdentifierException("client is not the creator of " + channel);
+				throw new UnauthorisedClientException("client is not the creator of " + channel);
+
+			// Etape 1 : retirer le canal pour bloquer toute nouvelle publication
+			channels.remove(channel);
+			channelCreators.remove(channel);
+			channelAuthorisations.remove(channel);
+
+			Set<String> created = createdChannelsByClient.get(receptionPortURI);
+			if (created != null)
+				created.remove(channel);
+		}
+
+		// Etape 2 : laisser le temps aux messages en cours de propagation/livraison
+		// de terminer (les taches deja soumises aux executor pools s'executent)
+		try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+
+		// Etape 3 : supprimer les abonnements
+		subscriptions.remove(channel);
+
+		// Gossip: propager la destruction du canal
+		Map<String, Serializable> payload = new HashMap<>();
+		payload.put("channel", channel);
+		payload.put("creator", receptionPortURI);
+		gossipEvent(GossipPayloadType.DESTROY_CHANNEL, payload);
+	}
+
+	/**
+	 * Detruit un canal immediatement, y compris les messages non encore expedies.
+	 */
+	@Override
+	public void destroyChannelNow(String receptionPortURI, String channel)
+			throws Exception {
+		if (!registered.containsKey(receptionPortURI))
+			throw new UnknownClientException("unknown client " + receptionPortURI);
+
+		synchronized (channelLock) {
+			if (!channels.contains(channel))
+				throw new UnknownChannelException("unknown channel " + channel);
+
+			String creator = channelCreators.get(channel);
+			if (creator == null || !creator.equals(receptionPortURI))
+				throw new UnauthorisedClientException("client is not the creator of " + channel);
 
 			channels.remove(channel);
 			channelCreators.remove(channel);
@@ -887,12 +938,6 @@ public class Broker extends AbstractComponent
 		payload.put("channel", channel);
 		payload.put("creator", receptionPortURI);
 		gossipEvent(GossipPayloadType.DESTROY_CHANNEL, payload);
-	}
-
-	@Override
-	public void destroyChannelNow(String receptionPortURI, String channel)
-			throws Exception {
-		destroyChannel(receptionPortURI, channel);
 	}
 
 	// =========================================================================
