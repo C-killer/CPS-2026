@@ -126,17 +126,70 @@
 			"request": "launch",
 			"mainClass": "${file}",
 			"console": "integratedTerminal"
+		},
+		{
+			"type": "java",
+			"name": "GlobalRegistry-3jvm",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.components.registry.GlobalRegistry",
+			"args": "CPS-Projet/config-3jvm.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "CyclicBarrier-3jvm",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.components.cvm.utils.DCVMCyclicBarrier",
+			"args": "CPS-Projet/config-3jvm.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "Scenario-jvm1",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedScenarioCVM",
+			"args": "jvm1 CPS-Projet/config-3jvm.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "Scenario-jvm2",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedScenarioCVM",
+			"args": "jvm2 CPS-Projet/config-3jvm.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "Scenario-jvm3",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedScenarioCVM",
+			"args": "jvm3 CPS-Projet/config-3jvm.xml",
+			"projectName": "CPS-2026"
 		}
 	],
 	"compounds": [
 		{
-			"name": "2) Distributed JVMs (after infra)",
+			"name": "2) Distributed 5-JVM (after infra)",
 			"configurations": [
 				"DistributedCVM-jvm1",
 				"DistributedCVM-jvm2",
 				"DistributedCVM-jvm3",
 				"DistributedCVM-jvm4",
 				"DistributedCVM-jvm5"
+			]
+		},
+		{
+			"name": "4) Scenario 3-JVM (after 3jvm infra)",
+			"configurations": [
+				"Scenario-jvm1",
+				"Scenario-jvm2",
+				"Scenario-jvm3"
 			]
 		}
 	]

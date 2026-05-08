@@ -448,6 +448,67 @@ java -cp "..." fr.sorbonne_u.publication.DistributedCVM jvm5 CPS-Projet/config.x
 
 ---
 
+## 9. DistributedScenarioCVM (3 JVMs, temporisé)
+
+**Objectif** : Scénario de test temporisé réparti sur 3 JVMs — satisfait
+simultanément les deux exigences du §4.5 point 3 : *scénario temporisé*
+et *déploiement sur ≥3 machines virtuelles Java*.
+
+### Topologie gossip
+
+```
+    Broker-1 ---- Broker-2
+        \          /
+         Broker-3
+```
+
+### Composants (10 clients répartis sur 3 JVMs)
+
+| JVM | Broker | Composants | Classe | Canal |
+|-----|--------|-----------|--------|-------|
+| jvm1 | Broker-1 | ClocksServer + station-1, station-2 (pub ch0) + office-1 (pub ch1) | FREE / PREMIUM | channel0, channel1 |
+| jvm2 | Broker-2 | windmill-1/2/3 (sub ch0, strongWindFilter) + creator-1 (crée storm-alerts, pub RED) | FREE / PREMIUM | channel0, storm-alerts |
+| jvm3 | Broker-3 | desk-1 (sub ch1) + desk-2 (sub storm-alerts) + station-3 (pub ch0, weak wind) | PREMIUM / FREE | channel1, storm-alerts, channel0 |
+
+### Scénario temporisé (accélération 60x)
+
+| Temps | JVM | Action | Fonctionnalité démontrée |
+|-------|-----|--------|--------------------------|
+| t+5s | JVM2 | creator-1 crée `storm-alerts` | Création dynamique de canal + gossip CREATE\_CHANNEL |
+| t+15s | JVM2 | windmill-1/2/3 souscrivent à channel0 | Souscription locale |
+| t+15s | JVM3 | desk-1 souscrit à channel1, desk-2 souscrit à storm-alerts | Souscription à canal dynamique propagé par gossip |
+| t+25s | JVM1 | station-1/2 publient vent fort (45kt, 38kt) sur channel0 | Publication cross-JVM via gossip (JVM1→JVM2) |
+| t+30s | JVM1 | office-1 publie alerte ORANGE sur channel1 | Alerte cross-JVM via gossip (JVM1→JVM3) |
+| t+35s | JVM2 | creator-1 publie alerte RED sur storm-alerts | Publication sur canal dynamique cross-JVM (JVM2→JVM3) |
+| t+45s | JVM3 | station-3 publie vent faible 10kt sur channel0 | Filtrage : strongWindFilter rejette (speed ≤ 30) |
+
+### Résultats attendus
+
+- **windmill-1/2/3** (JVM2) reçoivent les vents forts de JVM1 (45kt, 38kt) via gossip, calculent l'orientation
+- **windmill-1/2/3** ne reçoivent **pas** le vent faible de station-3 (10kt, filtré)
+- **desk-1** (JVM3) reçoit l'alerte ORANGE de JVM1 → arrêt de sécurité
+- **desk-2** (JVM3) reçoit l'alerte RED de JVM2 via canal dynamique storm-alerts → arrêt de sécurité
+- Coordination temporelle assurée par ClocksServer partagé (JVM1, accessible par RMI)
+
+### Lancement (VSCode)
+
+```
+1. Lancer "GlobalRegistry-3jvm"               — attendre 2s
+2. Lancer "CyclicBarrier-3jvm"                 — attendre 2s
+3. Lancer "4) Scenario 3-JVM (after 3jvm infra)" — 3 JVMs simultanément
+```
+
+### Ce qui est vérifié
+
+- **§4.5 point 3** : scénario temporisé + ≥3 JVMs + application météo/éolienne
+- Création dynamique de canal en mode distribué (storm-alerts : JVM2 → gossip → JVM3)
+- Publication cross-JVM temporisée (horloge accélérée 60x partagée)
+- Filtrage applicatif cross-JVM (strongWindFilter)
+- Arrêt de sécurité des éoliennes via alerte cross-JVM
+- 3 classes de service (FREE, STANDARD, PREMIUM) sur 3 JVMs distinctes
+
+---
+
 ## Récapitulatif des couvertures par étape
 
 | Fonctionnalité (§ cahier des charges) | Tests |
@@ -455,10 +516,11 @@ java -cp "..." fr.sorbonne_u.publication.DistributedCVM jvm5 CPS-Projet/config.x
 | §2 Messages et filtres | CVM_Audit1, CVM_Audit1_filtre, CVM_FilterTest |
 | §3.1 Clients FREE | CVM_Audit1, CVM_PluginTest |
 | §3.2 Clients privilégiés | CVM_PluginTest, CVM_ScenarioTest |
-| §3.4 Application météo/éolienne | CVM_Audit1_filtre, CVM_PluginTest, CVM_ScenarioTest, DistributedCVM |
+| §3.4 Application météo/éolienne | CVM_Audit1_filtre, CVM_PluginTest, CVM_ScenarioTest, DistributedCVM, DistributedScenarioCVM |
 | §3.5 Greffons (plugins) | CVM_PluginTest, CVM_ScenarioTest, CVM_AsyncTest |
 | §3.5.3 Réception avancée | CVM_AsyncTest |
 | §3.6.2 asyncPublishAndNotify | CVM_AsyncTest |
 | §3.6.3 Pools de threads | CVM_AsyncTest, CVM_ScenarioTest, DistributedCVM |
-| §3.7 Gossip / répartition | CVM_GossipTest, DistributedCVM |
-| §3.7.4 Déploiement ≥3 JVMs | DistributedCVM (5 JVMs) |
+| §3.7 Gossip / répartition | CVM_GossipTest, DistributedCVM, DistributedScenarioCVM |
+| §3.7.4 Déploiement ≥3 JVMs | DistributedCVM (5 JVMs), DistributedScenarioCVM (3 JVMs) |
+| §4.5.3 Scénario temporisé + ≥3 JVMs | **DistributedScenarioCVM** |
