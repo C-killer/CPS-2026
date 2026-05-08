@@ -302,3 +302,163 @@ concurrente.
 - `asyncPublishAndNotify` avec port de notification (`AbnormalTerminationNotificationCI`)
 - 5 publications concurrentes sur le même courtier (thread-safe)
 - Différenciation des performances par classe de service
+
+---
+
+## 7. CVM_GossipTest
+
+**Objectif** : Valider le protocole de bavardage (gossip) en mono-JVM avec
+2 courtiers interconnectés.
+
+### Composants
+
+| URI | JVM | Rôle | Classe | Canal | Broker |
+|-----|-----|------|--------|-------|--------|
+| Broker-A | local | Courtier | — | 2 canaux | gossip → Broker-B |
+| Broker-B | local | Courtier | — | 2 canaux | gossip → Broker-A |
+| `windmill-on-B` | local | Souscripteur | FREE | channel0 | Broker-B |
+| `station-on-A` | local | Publieur | FREE | channel0 | Broker-A |
+
+### Déroulement
+
+```
+1. Broker-A et Broker-B démarrent, chacun pré-crée channel0/channel1
+2. Connexion gossip bidirectionnelle (A↔B)
+3. windmill-on-B souscrit à channel0 sur Broker-B
+4. station-on-A publie WindData(force=40.3) sur channel0 via Broker-A
+5. Broker-A propage le message via gossip à Broker-B
+6. Broker-B délivre le message à windmill-on-B
+7. windmill-on-B calcule l'orientation : (-0.868, -0.496)
+```
+
+### Ce qui est vérifié
+
+- Publication cross-broker via protocole gossip
+- `GossipMessage` : URI, timestamp, emitterURI, copyWithNewEmitterURI
+- Déduplication (putIfAbsent sur processedGossipURIs)
+- Intégration transparente : le client ne sait pas qu'un autre broker existe
+
+---
+
+## 8. DistributedCVM (5 JVMs)
+
+**Objectif** : Déploiement réparti sur 5 machines virtuelles Java avec topologie
+gossip en anneau + raccourci (non full-mesh), démontrant la propagation multi-hop,
+la déduplication, et les 3 classes de service.
+
+### Topologie gossip
+
+```
+    Broker-A ---- Broker-B
+       |             |
+    Broker-E ---- Broker-C
+         \        /
+          Broker-D
+```
+
+| Broker | JVM | Voisins gossip | Hops depuis A |
+|--------|-----|---------------|---------------|
+| A | jvm1 | B, E | 0 |
+| B | jvm2 | A, C | 1 |
+| C | jvm3 | B, E, D | 2 (via B) ou 2 (via E) |
+| D | jvm4 | C, E | 2 (via E) ou 3 (via B→C) |
+| E | jvm5 | A, C, D | 1 |
+
+### Composants (20 clients répartis sur 5 JVMs)
+
+| JVM | Broker | Composants | Classe | Canal |
+|-----|--------|-----------|--------|-------|
+| jvm1 | A | 3 MeteoStation (station-A1/A2/A3) | FREE | channel0 (pub) |
+| jvm2 | B | 4 Windmill (windmill-B1..B4) | FREE | channel0 (sub, speed>30) |
+| jvm3 | C | 1 MeteoOffice (office-C1) + 1 MeteoStation (station-C1) | PREMIUM/FREE | channel1 (pub) + channel0 (pub) |
+| jvm4 | D | 2 Windmill (monitor-D1/D2) + 1 Windmill (desk-D1) | STANDARD/PREMIUM | channel0 (sub) + channel1 (sub) |
+| jvm5 | E | 3 Windmill (windmill-E1..E3) + 2 Windmill (desk-E1/E2) + 1 MeteoStation (station-E1) | FREE/PREMIUM/FREE | channel0 (sub) + channel1 (sub) + channel0 (pub, weak) |
+
+### Messages
+
+| Source | Canal | Contenu | force | Passe strongWindFilter? |
+|--------|-------|---------|-------|------------------------|
+| station-A1 (jvm1) | ch0 | WindData north | 45 | oui |
+| station-A2 (jvm1) | ch0 | WindData east | 38 | oui |
+| station-A3 (jvm1) | ch0 | WindData west | 52 | oui |
+| station-C1 (jvm3) | ch0 | WindData north | 40 | oui |
+| station-E1 (jvm5) | ch0 | WindData south | **10** | **non (filtré)** |
+| office-C1 (jvm3) | ch1 | MeteoAlert STORM ORANGE | — | — |
+
+### Propagation vérifiée
+
+**channel0 (vent) — multi-hop :**
+```
+station-A1/A2/A3 (jvm1/Broker-A)
+  → Broker-B (jvm2) : windmill-B1..B4 reçoivent (1 hop)
+  → Broker-E (jvm5) : windmill-E1..E3 reçoivent (1 hop)
+  → Broker-C (jvm3) : station-C1 reçoit (2 hops via B ou E)
+  → Broker-D (jvm4) : monitor-D1/D2 reçoivent (2 hops via E→D ou B→C→D)
+```
+
+**channel1 (alerte) — multi-hop :**
+```
+office-C1 (jvm3/Broker-C)
+  → Broker-D (jvm4) : desk-D1 → SAFETY STOP (1 hop)
+  → Broker-E (jvm5) : desk-E1/E2 → SAFETY STOP (1 hop)
+  → Broker-B → Broker-A (2 hops, pas de subscribers sur A/B pour ch1)
+```
+
+**Filtrage vérifié :**
+- station-E1 (speed=10) publié sur channel0 — aucun windmill ne le reçoit (filtré par strongWindFilter >30)
+
+**Déduplication vérifiée :**
+- Broker-D reçoit les messages de A via deux chemins (A→E→D et A→B→C→D), mais chaque message n'est traité qu'une seule fois
+
+### Lancement (VSCode)
+
+```
+1. Lancer "GlobalRegistry"          — attendre 1-2s
+2. Lancer "CyclicBarrier"           — attendre 1-2s
+3. Lancer "2) Distributed JVMs"     — 5 JVMs simultanément
+```
+
+Ou en ligne de commande :
+```bash
+# Terminal 1 : GlobalRegistry
+java -cp "..." fr.sorbonne_u.components.registry.GlobalRegistry CPS-Projet/config.xml
+
+# Terminal 2 : CyclicBarrier
+java -cp "..." fr.sorbonne_u.components.cvm.utils.DCVMCyclicBarrier CPS-Projet/config.xml
+
+# Terminaux 3-7 : JVMs
+java -cp "..." fr.sorbonne_u.publication.DistributedCVM jvm1 CPS-Projet/config.xml
+java -cp "..." fr.sorbonne_u.publication.DistributedCVM jvm2 CPS-Projet/config.xml
+java -cp "..." fr.sorbonne_u.publication.DistributedCVM jvm3 CPS-Projet/config.xml
+java -cp "..." fr.sorbonne_u.publication.DistributedCVM jvm4 CPS-Projet/config.xml
+java -cp "..." fr.sorbonne_u.publication.DistributedCVM jvm5 CPS-Projet/config.xml
+```
+
+### Ce qui est vérifié
+
+- Protocole gossip sur topologie non-full-mesh (anneau + raccourci)
+- Propagation multi-hop (A→B→C→D, A→E→D)
+- Déduplication atomique (`putIfAbsent` sur `processedGossipURIs`)
+- Filtrage emitter (ne renvoie pas au voisin qui a émis le message)
+- 3 classes de service avec pools de threads différenciés (FREE/STANDARD/PREMIUM)
+- Filtrage applicatif cross-JVM (strongWindFilter, alertFilter)
+- Arrêt de sécurité des éoliennes via alerte cross-JVM
+- Chaque JVM contient un broker local + ses clients (§3.7.4)
+- 5 JVMs (> 3 minimum requis par le cahier des charges)
+
+---
+
+## Récapitulatif des couvertures par étape
+
+| Fonctionnalité (§ cahier des charges) | Tests |
+|--------------------------------------|-------|
+| §2 Messages et filtres | CVM_Audit1, CVM_Audit1_filtre, CVM_FilterTest |
+| §3.1 Clients FREE | CVM_Audit1, CVM_PluginTest |
+| §3.2 Clients privilégiés | CVM_PluginTest, CVM_ScenarioTest |
+| §3.4 Application météo/éolienne | CVM_Audit1_filtre, CVM_PluginTest, CVM_ScenarioTest, DistributedCVM |
+| §3.5 Greffons (plugins) | CVM_PluginTest, CVM_ScenarioTest, CVM_AsyncTest |
+| §3.5.3 Réception avancée | CVM_AsyncTest |
+| §3.6.2 asyncPublishAndNotify | CVM_AsyncTest |
+| §3.6.3 Pools de threads | CVM_AsyncTest, CVM_ScenarioTest, DistributedCVM |
+| §3.7 Gossip / répartition | CVM_GossipTest, DistributedCVM |
+| §3.7.4 Déploiement ≥3 JVMs | DistributedCVM (5 JVMs) |

@@ -18,5 +18,13 @@
         rmiRegistryCreator="false"
         hostname="localhost"
         mainclass="fr.sorbonne_u.publication.DistributedCVM"/>
+    <jvm2hostname jvmuri="jvm4"
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="fr.sorbonne_u.publication.DistributedCVM"/>
+    <jvm2hostname jvmuri="jvm5"
+        rmiRegistryCreator="false"
+        hostname="localhost"
+        mainclass="fr.sorbonne_u.publication.DistributedCVM"/>
   </jvms2hostnames>
 </deployment>

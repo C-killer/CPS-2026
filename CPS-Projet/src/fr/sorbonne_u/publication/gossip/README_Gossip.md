@@ -38,11 +38,10 @@ public void update(GossipMessageI[] fromSender) {
     for (GossipMessageI gm : fromSender) {
         String uri = gm.gossipMessageURI();
 
-        // 去重：已处理过的消息直接跳过
-        if (processedGossipURIs.containsKey(uri)) {
+        // 去重：putIfAbsent 保证原子性，多线程下也不会重复处理
+        if (processedGossipURIs.putIfAbsent(uri, gm.timestamp()) != null) {
             continue;
         }
-        processedGossipURIs.put(uri, gm.timestamp());
 
         // 整合到本地状态
         integrateGossipMessage(gm);
@@ -153,7 +152,7 @@ protected final ConcurrentMap<String, GossipSenderOutbound> gossipSenderOutbound
 // 已处理消息的 URI 记录（key = gossip URI, value = timestamp），用于去重
 protected final ConcurrentMap<String, Instant> processedGossipURIs;
 
-// 邻居的 gossip 入站端口 URI 列表，在 start() 中建立连接
+// 邻居的 gossip 入站端口 URI 列表，在 execute() 中建立连接
 protected final String[] neighborGossipInboundURIs;
 ```
 
@@ -169,9 +168,9 @@ Gossip 的接收和转发都在此线程池中异步执行，与消息发布和�
 
 ## 8. 生命周期
 
-### 启动阶段（`start()`）
+### 执行阶段（`execute()`）
 
-1. 为每个邻居创建 `GossipSenderOutbound` 端口并建立连接
+1. 在 `super.execute()` 之前，为每个邻居创建 `GossipSenderOutbound` 端口并建立连接，确保 gossip 网络在客户端活动开始前就绑定完毕
 2. 启动定时任务，定期清理过期的 `processedGossipURIs` 条目
 
 ### 运行阶段

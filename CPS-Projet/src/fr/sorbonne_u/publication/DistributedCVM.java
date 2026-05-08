@@ -1,31 +1,58 @@
 package fr.sorbonne_u.publication;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import fr.sorbonne_u.components.AbstractComponent;
 import fr.sorbonne_u.components.cvm.AbstractDistributedCVM;
+import fr.sorbonne_u.cps.meteo.interfaces.MeteoAlertI;
+import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI.RegistrationClass;
 import fr.sorbonne_u.messages.Message;
 import fr.sorbonne_u.messages.MessageFilter;
+import fr.sorbonne_u.meteo.MeteoAlert;
 import fr.sorbonne_u.meteo.Position;
+import fr.sorbonne_u.meteo.RectangularRegion;
 import fr.sorbonne_u.meteo.WindData;
+import fr.sorbonne_u.publication.components.MeteoOffice;
 import fr.sorbonne_u.publication.components.MeteoStation;
 import fr.sorbonne_u.publication.components.Windmill;
 
 /**
- * Deploiement reparti du systeme de publication/souscription sur 3 JVMs.
+ * Deploiement reparti sur 5 JVMs avec topologie gossip en anneau + raccourci.
  *
- * <p>Topologie gossip (maillage complet) :</p>
+ * <p>Topologie gossip (pas de maillage complet, multi-hop) :</p>
  * <pre>
- *     JVM1 (Broker-1) &lt;----&gt; JVM2 (Broker-2)
- *           \                      /
- *            \                    /
- *             v                  v
- *              JVM3 (Broker-3)
+ *     Broker-A ---- Broker-B
+ *        |             |
+ *     Broker-E ---- Broker-C
+ *          \        /
+ *          Broker-D
  * </pre>
  *
- * <p>Chaque JVM contient un courtier local et des composants clients.
- * Les messages publies sur un courtier sont propages aux autres via gossip.</p>
+ * <p>Repartition :</p>
+ * <ul>
+ *   <li>JVM1 (Broker-A) : 3 MeteoStation publishers (FREE, channel0)</li>
+ *   <li>JVM2 (Broker-B) : 4 Windmill subscribers (FREE, channel0, strongWindFilter)</li>
+ *   <li>JVM3 (Broker-C) : 1 MeteoOffice alert publisher (PREMIUM, channel1)
+ *                        + 1 MeteoStation publisher (FREE, channel0)</li>
+ *   <li>JVM4 (Broker-D) : 2 Windmill subscribers (STANDARD, channel0)
+ *                        + 1 desk subscriber (PREMIUM, channel1)</li>
+ *   <li>JVM5 (Broker-E) : 3 Windmill subscribers (FREE, channel0, strongWindFilter)
+ *                        + 2 desk subscribers (PREMIUM, channel1, alertFilter)
+ *                        + 1 late publisher (FREE, channel0, weak wind)</li>
+ * </ul>
+ *
+ * <p>Fonctionnalites demontrees :</p>
+ * <ol>
+ *   <li>Propagation multi-hop (A→B→C→D, A→E→D) avec deduplication sur D</li>
+ *   <li>3 classes de service (FREE, STANDARD, PREMIUM) avec pools differencies</li>
+ *   <li>Filtrage des messages (strongWindFilter : vent &gt;30 accepte, &lt;=30 rejete)</li>
+ *   <li>Alertes cross-JVM multi-hop (channel1 : C→B→A, C→E, C→D)</li>
+ *   <li>Weak wind filtre (station-E1 speed=10 ne passe pas strongWindFilter)</li>
+ * </ol>
+ * <p>Note : la creation dynamique de canaux est demontree dans
+ * {@link CVM_ScenarioTest} avec TestScenario (coordination temporelle).</p>
  *
  * @author PENG Kairui
  * @author CHU Feiyang
@@ -36,118 +63,280 @@ public class DistributedCVM extends AbstractDistributedCVM {
 	public static final String JVM1_URI = "jvm1";
 	public static final String JVM2_URI = "jvm2";
 	public static final String JVM3_URI = "jvm3";
+	public static final String JVM4_URI = "jvm4";
+	public static final String JVM5_URI = "jvm5";
 
-	public static final int NB_CHANNELS = 2;
+	public static final int NB_CHANNELS = 2; // channel0, channel1
 
-	// --- Broker-1 (JVM1) ---
-	public static final String BROKER1_URI = "broker-1";
-	public static final String BROKER1_REG = "broker1-registration";
-	public static final String BROKER1_PUB = "broker1-publishing";
-	public static final String BROKER1_PRIV = "broker1-privileged";
-	public static final String BROKER1_GOSSIP = "broker1-gossip-receiver";
+	// --- Broker-A (JVM1) ---
+	public static final String BA_URI = "broker-A";
+	public static final String BA_REG = "brokerA-registration";
+	public static final String BA_PUB = "brokerA-publishing";
+	public static final String BA_PRIV = "brokerA-privileged";
+	public static final String BA_GOSSIP = "brokerA-gossip-receiver";
 
-	// --- Broker-2 (JVM2) ---
-	public static final String BROKER2_URI = "broker-2";
-	public static final String BROKER2_REG = "broker2-registration";
-	public static final String BROKER2_PUB = "broker2-publishing";
-	public static final String BROKER2_PRIV = "broker2-privileged";
-	public static final String BROKER2_GOSSIP = "broker2-gossip-receiver";
+	// --- Broker-B (JVM2) ---
+	public static final String BB_URI = "broker-B";
+	public static final String BB_REG = "brokerB-registration";
+	public static final String BB_PUB = "brokerB-publishing";
+	public static final String BB_PRIV = "brokerB-privileged";
+	public static final String BB_GOSSIP = "brokerB-gossip-receiver";
 
-	// --- Broker-3 (JVM3) ---
-	public static final String BROKER3_URI = "broker-3";
-	public static final String BROKER3_REG = "broker3-registration";
-	public static final String BROKER3_PUB = "broker3-publishing";
-	public static final String BROKER3_PRIV = "broker3-privileged";
-	public static final String BROKER3_GOSSIP = "broker3-gossip-receiver";
+	// --- Broker-C (JVM3) ---
+	public static final String BC_URI = "broker-C";
+	public static final String BC_REG = "brokerC-registration";
+	public static final String BC_PUB = "brokerC-publishing";
+	public static final String BC_PRIV = "brokerC-privileged";
+	public static final String BC_GOSSIP = "brokerC-gossip-receiver";
 
-	/** Fichier de configuration par defaut. */
+	// --- Broker-D (JVM4) ---
+	public static final String BD_URI = "broker-D";
+	public static final String BD_REG = "brokerD-registration";
+	public static final String BD_PUB = "brokerD-publishing";
+	public static final String BD_PRIV = "brokerD-privileged";
+	public static final String BD_GOSSIP = "brokerD-gossip-receiver";
+
+	// --- Broker-E (JVM5) ---
+	public static final String BE_URI = "broker-E";
+	public static final String BE_REG = "brokerE-registration";
+	public static final String BE_PUB = "brokerE-publishing";
+	public static final String BE_PRIV = "brokerE-privileged";
+	public static final String BE_GOSSIP = "brokerE-gossip-receiver";
+
+	/*
+	 * Topologie gossip (anneau + raccourci) :
+	 *   A -- B
+	 *   |    |
+	 *   E -- C
+	 *    \  /
+	 *     D
+	 *
+	 * A: voisins B, E
+	 * B: voisins A, C
+	 * C: voisins B, E, D
+	 * D: voisins C, E
+	 * E: voisins A, C, D
+	 */
+
 	public static final String DEFAULT_CONFIG = "config.xml";
 
 	public DistributedCVM(String[] args) throws Exception {
 		super(args);
 	}
 
-	/**
-	 * Construit les arguments par defaut pour un JVM URI donne.
-	 */
 	private static String[] defaultArgs(String jvmURI) {
 		return new String[] { jvmURI, DEFAULT_CONFIG };
 	}
+
+	// =====================================================================
+	// Message / filter factories
+	// =====================================================================
+
+	static Message windMessage(double x, double y, int speed, String zone) throws Exception {
+		double vx = "east".equals(zone) ? speed : "west".equals(zone) ? -speed : 0;
+		double vy = "north".equals(zone) ? speed : "south".equals(zone) ? -speed : 0;
+		WindData wd = new WindData(new Position(x, y), vx, vy);
+		Message m = new Message(wd, Instant.now());
+		m.putProperty("type", "wind");
+		m.putProperty("speed", wd.force());
+		m.putProperty("zone", zone);
+		return m;
+	}
+
+	static Message alertMessage(String level) throws Exception {
+		MeteoAlertI.Level lv;
+		switch (level) {
+			case "red": lv = MeteoAlertI.Level.RED; break;
+			case "yellow": lv = MeteoAlertI.Level.YELLOW; break;
+			case "green": lv = MeteoAlertI.Level.GREEN; break;
+			default: lv = MeteoAlertI.Level.ORANGE;
+		}
+		MeteoAlert alert = new MeteoAlert(
+				MeteoAlertI.AlertType.STORM, lv,
+				new RectangularRegion[] {
+						new RectangularRegion(new Position(-100, -100), new Position(100, 100))
+				},
+				Instant.now(), Duration.ofHours(6));
+		Message m = new Message(alert, Instant.now());
+		m.putProperty("type", "alert");
+		m.putProperty("level", level);
+		return m;
+	}
+
+	static Message dataMessage(String desc) throws Exception {
+		Message m = new Message(desc, Instant.now());
+		m.putProperty("type", "data");
+		m.putProperty("source", desc);
+		return m;
+	}
+
+	static MessageFilterI strongWindFilter() {
+		return new MessageFilter(
+				new MessageFilter.PropertyFilterI[] {
+						new MessageFilter.PropertyFilter("speed",
+								new MessageFilter.ValueFilter.GreaterThanFilter(30.0))
+				}, null, null);
+	}
+
+	static MessageFilterI alertFilter() {
+		return new MessageFilter(
+				new MessageFilter.PropertyFilterI[] {
+						new MessageFilter.PropertyFilter("type",
+								new MessageFilter.ValueFilter("alert"))
+				}, null, null);
+	}
+
+	// =====================================================================
+	// Deploy
+	// =====================================================================
 
 	@Override
 	public void instantiateAndPublish() throws Exception {
 
 		if (thisJVMURI.equals(JVM1_URI)) {
-			// --- JVM1 : Broker-1 + publishers ---
+			// =============================================================
+			// JVM1 : Broker-A + 3 MeteoStation publishers (FREE, channel0)
+			// Voisins gossip : B, E
+			// =============================================================
 			AbstractComponent.createComponent(
 					Broker.class.getCanonicalName(),
 					new Object[] {
-							BROKER1_URI, NB_CHANNELS,
-							BROKER1_REG, BROKER1_PUB, BROKER1_PRIV,
-							BROKER1_GOSSIP,
-							new String[] { BROKER2_GOSSIP, BROKER3_GOSSIP }
+							BA_URI, NB_CHANNELS,
+							BA_REG, BA_PUB, BA_PRIV,
+							BA_GOSSIP,
+							new String[] { BB_GOSSIP, BE_GOSSIP }
 					});
 
-			// Stations meteologiques (publishers FREE) sur Broker-1
-			WindData wd1 = new WindData(new Position(1, 1), 40.0, 25.0);
-			Message wind1 = new Message(wd1, Instant.now());
-			wind1.putProperty("type", "wind");
-			wind1.putProperty("speed", wd1.force());
-			wind1.putProperty("zone", "north");
-
+			// 3 stations meteo : strong wind (>30)
 			AbstractComponent.createComponent(
 					MeteoStation.class.getCanonicalName(),
-					new Object[] {
-							"station-jvm1",
-							BROKER1_REG,
-							RegistrationClass.FREE,
-							"channel0",
-							wind1
-					});
+					new Object[] { "station-A1", BA_REG, RegistrationClass.FREE,
+							"channel0", windMessage(2, 3, 45, "north") });
+			AbstractComponent.createComponent(
+					MeteoStation.class.getCanonicalName(),
+					new Object[] { "station-A2", BA_REG, RegistrationClass.FREE,
+							"channel0", windMessage(5, 8, 38, "east") });
+			AbstractComponent.createComponent(
+					MeteoStation.class.getCanonicalName(),
+					new Object[] { "station-A3", BA_REG, RegistrationClass.FREE,
+							"channel0", windMessage(-3, 1, 52, "west") });
 
 		} else if (thisJVMURI.equals(JVM2_URI)) {
-			// --- JVM2 : Broker-2 + subscribers ---
+			// =============================================================
+			// JVM2 : Broker-B + 4 Windmill subscribers (FREE, channel0)
+			// Voisins gossip : A, C
+			// =============================================================
 			AbstractComponent.createComponent(
 					Broker.class.getCanonicalName(),
 					new Object[] {
-							BROKER2_URI, NB_CHANNELS,
-							BROKER2_REG, BROKER2_PUB, BROKER2_PRIV,
-							BROKER2_GOSSIP,
-							new String[] { BROKER1_GOSSIP, BROKER3_GOSSIP }
+							BB_URI, NB_CHANNELS,
+							BB_REG, BB_PUB, BB_PRIV,
+							BB_GOSSIP,
+							new String[] { BA_GOSSIP, BC_GOSSIP }
 					});
 
-			// Windmill (subscriber FREE) sur Broker-2
-			AbstractComponent.createComponent(
-					Windmill.class.getCanonicalName(),
-					new Object[] {
-							"windmill-jvm2",
-							BROKER2_REG,
-							RegistrationClass.FREE,
-							"channel0",
-							new MessageFilter(null, null, null)
-					});
+			for (int i = 1; i <= 4; i++) {
+				AbstractComponent.createComponent(
+						Windmill.class.getCanonicalName(),
+						new Object[] { "windmill-B" + i, BB_REG, RegistrationClass.FREE,
+								"channel0", strongWindFilter() });
+			}
 
 		} else if (thisJVMURI.equals(JVM3_URI)) {
-			// --- JVM3 : Broker-3 + mixed ---
+			// =============================================================
+			// JVM3 : Broker-C + 1 MeteoOffice (PREMIUM pub ch1)
+			//                  + 1 MeteoStation (FREE pub ch0)
+			// Voisins gossip : B, E, D
+			// C est un hub : 3 voisins, teste le fan-out gossip
+			// =============================================================
 			AbstractComponent.createComponent(
 					Broker.class.getCanonicalName(),
 					new Object[] {
-							BROKER3_URI, NB_CHANNELS,
-							BROKER3_REG, BROKER3_PUB, BROKER3_PRIV,
-							BROKER3_GOSSIP,
-							new String[] { BROKER1_GOSSIP, BROKER2_GOSSIP }
+							BC_URI, NB_CHANNELS,
+							BC_REG, BC_PUB, BC_PRIV,
+							BC_GOSSIP,
+							new String[] { BB_GOSSIP, BE_GOSSIP, BD_GOSSIP }
 					});
 
-			// Windmill (subscriber FREE) sur Broker-3
+			// Alert publisher → channel1 (propage C→B→A, C→E, C→D)
+			AbstractComponent.createComponent(
+					MeteoOffice.class.getCanonicalName(),
+					new Object[] { "office-C1", BC_REG, RegistrationClass.PREMIUM,
+							"channel1", alertMessage("orange") });
+
+			// Station publisher → channel0 (teste publication depuis un noeud central)
+			AbstractComponent.createComponent(
+					MeteoStation.class.getCanonicalName(),
+					new Object[] { "station-C1", BC_REG, RegistrationClass.FREE,
+							"channel0", windMessage(20, 20, 40, "north") });
+
+		} else if (thisJVMURI.equals(JVM4_URI)) {
+			// =============================================================
+			// JVM4 : Broker-D + 2 Windmill subscribers (STANDARD, ch0)
+			//                  + 1 desk subscriber (PREMIUM, ch1)
+			// Voisins gossip : C, E
+			// D est le noeud le plus eloigne de A (multi-hop: A→B→C→D ou A→E→D)
+			// =============================================================
+			AbstractComponent.createComponent(
+					Broker.class.getCanonicalName(),
+					new Object[] {
+							BD_URI, NB_CHANNELS,
+							BD_REG, BD_PUB, BD_PRIV,
+							BD_GOSSIP,
+							new String[] { BC_GOSSIP, BE_GOSSIP }
+					});
+
+			// 2 STANDARD subscribers channel0 (teste livraison multi-hop + pool STANDARD)
+			for (int i = 1; i <= 2; i++) {
+				AbstractComponent.createComponent(
+						Windmill.class.getCanonicalName(),
+						new Object[] { "monitor-D" + i, BD_REG, RegistrationClass.STANDARD,
+								"channel0", strongWindFilter() });
+			}
+
+			// 1 PREMIUM desk channel1 (alert arrive par multi-hop C→D)
 			AbstractComponent.createComponent(
 					Windmill.class.getCanonicalName(),
+					new Object[] { "desk-D1", BD_REG, RegistrationClass.PREMIUM,
+							"channel1", alertFilter() });
+
+		} else if (thisJVMURI.equals(JVM5_URI)) {
+			// =============================================================
+			// JVM5 : Broker-E + 3 windmills (FREE sub ch0)
+			//                  + 2 desks (PREMIUM sub ch1)
+			//                  + 1 late publisher (FREE, ch0, weak wind)
+			// Voisins gossip : A, C, D
+			// =============================================================
+			AbstractComponent.createComponent(
+					Broker.class.getCanonicalName(),
 					new Object[] {
-							"windmill-jvm3",
-							BROKER3_REG,
-							RegistrationClass.FREE,
-							"channel0",
-							new MessageFilter(null, null, null)
+							BE_URI, NB_CHANNELS,
+							BE_REG, BE_PUB, BE_PRIV,
+							BE_GOSSIP,
+							new String[] { BA_GOSSIP, BC_GOSSIP, BD_GOSSIP }
 					});
+
+			// 3 windmills → channel0 (strongWindFilter)
+			for (int i = 1; i <= 3; i++) {
+				AbstractComponent.createComponent(
+						Windmill.class.getCanonicalName(),
+						new Object[] { "windmill-E" + i, BE_REG, RegistrationClass.FREE,
+								"channel0", strongWindFilter() });
+			}
+
+			// 2 desks → channel1 (alertFilter)
+			for (int i = 1; i <= 2; i++) {
+				AbstractComponent.createComponent(
+						Windmill.class.getCanonicalName(),
+						new Object[] { "desk-E" + i, BE_REG, RegistrationClass.PREMIUM,
+								"channel1", alertFilter() });
+			}
+
+			// 1 late publisher → channel0 (weak wind, speed=10, sera filtre)
+			AbstractComponent.createComponent(
+					MeteoStation.class.getCanonicalName(),
+					new Object[] { "station-E1", BE_REG, RegistrationClass.FREE,
+							"channel0", windMessage(50, 50, 10, "south") });
 
 		} else {
 			System.err.println("Unknown JVM URI: " + thisJVMURI);
@@ -158,8 +347,6 @@ public class DistributedCVM extends AbstractDistributedCVM {
 
 	@Override
 	public void interconnect() throws Exception {
-		// Les connexions gossip sont faites dans Broker.execute()
-		// via les neighborGossipInboundURIs
 		super.interconnect();
 	}
 
@@ -174,30 +361,25 @@ public class DistributedCVM extends AbstractDistributedCVM {
 	}
 
 	/**
-	 * Lancement : chaque JVM doit etre lancee separement.
-	 *
-	 * <p>Sans argument, lance les 3 JVMs par defaut (jvm1, jvm2, jvm3)
-	 * avec config.xml. Sinon :</p>
+	 * Lancement :
 	 * <pre>
-	 *   java ... DistributedCVM jvm1 config.xml
+	 *   java ... DistributedCVM jvm1 [config.xml]
+	 *   ...
+	 *   java ... DistributedCVM jvm5 [config.xml]
 	 * </pre>
-	 * Il faut d'abord demarrer le GlobalRegistry et le CyclicBarrier BCM.
 	 */
 	public static void main(String[] args) {
 		if (args.length < 1) {
 			System.err.println("Usage: DistributedCVM <jvmURI> [config.xml]");
-			System.err.println("  jvmURI: jvm1 | jvm2 | jvm3");
-			System.err.println("  config.xml defaults to: " + DEFAULT_CONFIG);
-			System.err.println("  Lancer d'abord GlobalRegistry et CyclicBarrier.");
+			System.err.println("  jvmURI: jvm1 | jvm2 | jvm3 | jvm4 | jvm5");
 			System.exit(1);
 		}
-		// Si un seul argument (jvmURI), utiliser config.xml par defaut
 		if (args.length == 1) {
 			args = defaultArgs(args[0]);
 		}
 		try {
 			DistributedCVM dcvm = new DistributedCVM(args);
-			dcvm.startStandardLifeCycle(15000L);
+			dcvm.startStandardLifeCycle(20000L);
 			Thread.sleep(5000L);
 			System.exit(0);
 		} catch (Throwable e) {

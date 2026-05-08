@@ -48,6 +48,24 @@
 		},
 		{
 			"type": "java",
+			"name": "DistributedCVM-jvm4",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedCVM",
+			"args": "jvm4 CPS-Projet/config.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
+			"name": "DistributedCVM-jvm5",
+			"request": "launch",
+			"vmArgs": "-ea",
+			"mainClass": "fr.sorbonne_u.publication.DistributedCVM",
+			"args": "jvm5 CPS-Projet/config.xml",
+			"projectName": "CPS-2026"
+		},
+		{
+			"type": "java",
 			"name": "CVM_GossipTest",
 			"request": "launch",
 			"vmArgs": "-ea",
@@ -112,13 +130,13 @@
 	],
 	"compounds": [
 		{
-			"name": "Distributed (all 5)",
+			"name": "2) Distributed JVMs (after infra)",
 			"configurations": [
-				"GlobalRegistry",
-				"CyclicBarrier",
 				"DistributedCVM-jvm1",
 				"DistributedCVM-jvm2",
-				"DistributedCVM-jvm3"
+				"DistributedCVM-jvm3",
+				"DistributedCVM-jvm4",
+				"DistributedCVM-jvm5"
 			]
 		}
 	]
