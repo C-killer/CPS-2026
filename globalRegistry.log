@@ -1,230 +1,230 @@
-1778251764866|Global registry up and running!
-1778251789344|Global registry accepted the 1th connection.
-1778251789348|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-f8e5e24b-8d15-493b-8c09-db859cd9564a rmi=localhost
-1778251789376|GlobalRegistry processing put clock-server-101 rmi=localhost
-1778251789403|Global registry accepted the 2th connection.
-1778251789403|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-c7f990f4-b9da-4a28-861f-064ac40677bb rmi=localhost
-1778251789404|Global registry accepted the 3th connection.
-1778251789409|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-dc568c29-b47a-465e-a381-803bee57fd4c rmi=localhost
-1778251789409|All (3) connected!
-1778251789439|GlobalRegistry processing put b3-registration rmi=localhost
-1778251789440|GlobalRegistry processing put b2-registration rmi=localhost
-1778251789458|GlobalRegistry processing put b3-publishing rmi=localhost
-1778251789459|GlobalRegistry processing put b2-publishing rmi=localhost
-1778251789474|GlobalRegistry processing put b2-privileged rmi=localhost
-1778251789474|GlobalRegistry processing put b3-privileged rmi=localhost
-1778251789489|GlobalRegistry processing put b2-gossip-receiver rmi=localhost
-1778251789489|GlobalRegistry processing put b3-gossip-receiver rmi=localhost
-1778251789499|GlobalRegistry processing put windmill-1 rmi=localhost
-1778251789500|GlobalRegistry processing put desk-1 rmi=localhost
-1778251789540|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-79b33b52-8f3e-4701-82ac-91fca00ad2ff rmi=localhost
-1778251789541|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-79f60bca-b80e-4957-b6ac-cc3c1069eb55 rmi=localhost
-1778251789562|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-30560232-4c1d-4c40-ba72-e5758d751935 rmi=localhost
-1778251789568|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-f082e25d-e5b4-4e94-9eb0-cf7d31933b25 rmi=localhost
-1778251789580|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-bd112db4-fd15-4324-81d7-d55dee99553f rmi=localhost
-1778251789581|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-7dc17647-4e32-4334-88d1-526f281e9431 rmi=localhost
-1778251789592|GlobalRegistry processing put windmill-1-port-notification rmi=localhost
-1778251789592|GlobalRegistry processing put desk-1-port-notification rmi=localhost
-1778251789602|GlobalRegistry processing put windmill-1-port rmi=localhost
-1778251789602|GlobalRegistry processing put desk-1-port rmi=localhost
-1778251789605|GlobalRegistry processing put windmill-2 rmi=localhost
-1778251789607|GlobalRegistry processing put desk-2 rmi=localhost
-1778251789609|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-51c41e35-0fe7-4290-b688-558ad7a10ef0 rmi=localhost
-1778251789610|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-f9102a96-da01-48fb-8ec4-592b9096f826 rmi=localhost
-1778251789612|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-2c845bbe-b4a8-440d-b78b-f66179a20cf7 rmi=localhost
-1778251789614|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-8bfb753c-7165-43e1-a10c-e7d81111e13b rmi=localhost
-1778251789617|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-1e12f3d5-84ad-4e6f-8123-b48ea52915ce rmi=localhost
-1778251789619|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-b1613d1b-8e3a-46ce-bc98-81e9dd1b57b5 rmi=localhost
-1778251789622|GlobalRegistry processing put windmill-2-port-notification rmi=localhost
-1778251789622|GlobalRegistry processing put desk-2-port-notification rmi=localhost
-1778251789626|GlobalRegistry processing put desk-2-port rmi=localhost
-1778251789626|GlobalRegistry processing put windmill-2-port rmi=localhost
-1778251789629|GlobalRegistry processing put windmill-3 rmi=localhost
-1778251789631|GlobalRegistry processing put station-3 rmi=localhost
-1778251789632|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-2591b50e-eae1-4973-935f-660ab4b5886e rmi=localhost
-1778251789639|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-1932753a-7265-4c5d-9712-39d22afeff0d rmi=localhost
-1778251789639|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-702d0a3a-9993-4eee-bf27-dad098c2034f rmi=localhost
-1778251789643|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-95494612-d40a-41ca-aed0-00261d75ceeb rmi=localhost
-1778251789644|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-6a4905c8-c456-47d2-a451-416980c35041 rmi=localhost
-1778251789648|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-25071aa6-f9bf-40d9-80b8-356fff883708 rmi=localhost
-1778251789648|GlobalRegistry processing put windmill-3-port-notification rmi=localhost
-1778251789653|GlobalRegistry processing put windmill-3-port rmi=localhost
-1778251789653|GlobalRegistry processing put station-3-port-notification rmi=localhost
-1778251789661|GlobalRegistry processing put station-3-port rmi=localhost
-1778251789662|GlobalRegistry processing put creator-1 rmi=localhost
-1778251789667|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-a290ed90-f783-47a8-add2-24634a9acc19 rmi=localhost
-1778251789668|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-e1071fe4-b47a-4b49-9cd8-aeb0295d9591 rmi=localhost
-1778251789675|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-b789d45b-2a65-453d-b68f-621514f663d7 rmi=localhost
-1778251789680|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-41b89049-0e96-4056-b2b1-1b2fb63abd9c rmi=localhost
-1778251789684|GlobalRegistry processing put jvm3-dcc rmi=localhost
-1778251789685|GlobalRegistry processing put creator-1-port-notification rmi=localhost
-1778251789690|GlobalRegistry processing put creator-1-port rmi=localhost
-1778251789698|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-bdf20ec3-5739-4d98-b9c0-ecba31ebc350 rmi=localhost
-1778251789712|GlobalRegistry processing put jvm2-dcc rmi=localhost
-1778251789971|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-b36f1bde-4ef7-4904-b8bb-0e414b257d0b rmi=localhost
-1778251789973|GlobalRegistry processing put b1-registration rmi=localhost
-1778251789975|GlobalRegistry processing put b1-publishing rmi=localhost
-1778251789978|GlobalRegistry processing put b1-privileged rmi=localhost
-1778251789980|GlobalRegistry processing put b1-gossip-receiver rmi=localhost
-1778251789983|GlobalRegistry processing put station-1 rmi=localhost
-1778251789988|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-6cbea6b4-8da0-411d-9802-06a47cefbb11 rmi=localhost
-1778251789992|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-d395448a-6e2d-49f1-bf08-0d9554b38306 rmi=localhost
-1778251789997|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-8123df91-40b4-4970-aa1a-e0b02b4f0769 rmi=localhost
-1778251789999|GlobalRegistry processing put station-1-port-notification rmi=localhost
-1778251790001|GlobalRegistry processing put station-1-port rmi=localhost
-1778251790003|GlobalRegistry processing put station-2 rmi=localhost
-1778251790004|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-6b1aa912-fb31-4e34-9ab5-3b9e04848d68 rmi=localhost
-1778251790005|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-aec9b350-9445-48ba-9105-0e7b1d961144 rmi=localhost
-1778251790006|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-68c02164-e832-487e-84c0-75c59df532dc rmi=localhost
-1778251790007|GlobalRegistry processing put station-2-port-notification rmi=localhost
-1778251790008|GlobalRegistry processing put station-2-port rmi=localhost
-1778251790010|GlobalRegistry processing put office-1 rmi=localhost
-1778251790012|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-25f4b4fe-a652-449f-9145-c0377e80c740 rmi=localhost
-1778251790013|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-5ff31a0c-545b-45c8-9983-32d38e465822 rmi=localhost
-1778251790013|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-c979505e-208b-402d-b063-925a8931112f rmi=localhost
-1778251790014|GlobalRegistry processing put office-1-port-notification rmi=localhost
-1778251790014|GlobalRegistry processing put office-1-port rmi=localhost
-1778251790016|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-49d7c3a4-a5be-458e-a3e1-030bab0deb67 rmi=localhost
-1778251790017|GlobalRegistry processing put jvm1-dcc rmi=localhost
-1778251790031|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-2d3151a8-2bf0-4a94-8a41-d78beff05add rmi=localhost
-1778251790035|GlobalRegistry processing lookup b2-gossip-receiver
-1778251790047|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-5929195b-82ea-47b6-8955-906da4b75c17 rmi=localhost
-1778251790048|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-f48df637-8730-4600-8c34-4913d89c0fac rmi=localhost
-1778251790050|GlobalRegistry processing lookup b1-gossip-receiver
-1778251790053|GlobalRegistry processing lookup b1-gossip-receiver
-1778251790058|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-eadb80b3-6b14-4dd0-b90f-5a5885aedfca rmi=localhost
-1778251790062|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-519a174c-13d9-4d16-b2c8-8529a293af82 rmi=localhost
-1778251790069|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-b7493238-951f-4932-9d15-2dfc3ff7f8d0 rmi=localhost
-1778251790071|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-7c74eb9c-1fa4-46a2-bc65-87e3abd015a4 rmi=localhost
-1778251790073|GlobalRegistry processing lookup b3-gossip-receiver
-1778251790079|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-b44d9432-d2cd-4eb0-9a7c-2d52291cb312 rmi=localhost
-1778251790079|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-debdc858-83d3-4180-b08b-22a6906dabb2 rmi=localhost
-1778251790083|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-0681611a-0abc-45f2-9781-de0d853e1d9b rmi=localhost
-1778251790083|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-47513a6b-e1d8-4fe7-a135-ab7ac8f03c1d rmi=localhost
-1778251790085|GlobalRegistry processing lookup clock-server-101
-1778251790087|GlobalRegistry processing lookup clock-server-101
-1778251790088|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-427bea50-5fab-4bbc-b094-93e72a5dec44 rmi=localhost
-1778251790088|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-aebba196-38bd-4033-bb8b-ebda4a51252b rmi=localhost
-1778251790090|GlobalRegistry processing lookup clock-server-101
-1778251790091|GlobalRegistry processing lookup clock-server-101
-1778251790091|GlobalRegistry processing lookup clock-server-101
-1778251790094|GlobalRegistry processing lookup clock-server-101
-1778251790098|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-06489dab-c1f4-4fb7-b530-e98e3c84e90a rmi=localhost
-1778251790100|GlobalRegistry processing lookup clock-server-101
-1778251790102|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-3bd1db59-d11a-402c-b66c-c23f3b53b89d rmi=localhost
-1778251790103|GlobalRegistry processing lookup b3-gossip-receiver
-1778251790104|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-661cb5b2-e34c-412d-b249-2f4eeec13d21 rmi=localhost
-1778251790105|GlobalRegistry processing lookup b2-gossip-receiver
-1778251794094|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-519a174c-13d9-4d16-b2c8-8529a293af82
-1778251794097|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-debdc858-83d3-4180-b08b-22a6906dabb2
-1778251794098|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-b44d9432-d2cd-4eb0-9a7c-2d52291cb312
-1778251794098|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-b7493238-951f-4932-9d15-2dfc3ff7f8d0
-1778251794099|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-06489dab-c1f4-4fb7-b530-e98e3c84e90a
-1778251794099|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-0681611a-0abc-45f2-9781-de0d853e1d9b
-1778251794099|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-47513a6b-e1d8-4fe7-a135-ab7ac8f03c1d
-1778251794099|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-eadb80b3-6b14-4dd0-b90f-5a5885aedfca
-1778251794100|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-427bea50-5fab-4bbc-b094-93e72a5dec44
-1778251794100|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-aebba196-38bd-4033-bb8b-ebda4a51252b
-1778251794530|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-26024524-b6b8-43f4-b2f4-f704f4303356 rmi=localhost
-1778251794535|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-2fe7d5d1-adcb-48af-b860-d3b5fe1af802 rmi=localhost
-1778251794539|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-77820660-56bb-414d-a47f-f69a01a3292f rmi=localhost
-1778251794603|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-05d28e54-000c-4d70-85e7-92cb959d56d5 rmi=localhost
-1778251794673|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-9840da1a-7329-47f7-aa7a-dfad2192a4df rmi=localhost
-1778251820045|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-7c74eb9c-1fa4-46a2-bc65-87e3abd015a4
-1778251820049|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-2d3151a8-2bf0-4a94-8a41-d78beff05add
-1778251820052|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-b36f1bde-4ef7-4904-b8bb-0e414b257d0b
-1778251820053|GlobalRegistry processing remove desk-1
-1778251820053|GlobalRegistry processing remove office-1
-1778251820054|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-49d7c3a4-a5be-458e-a3e1-030bab0deb67
-1778251820054|GlobalRegistry processing remove desk-2
-1778251820055|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-bdf20ec3-5739-4d98-b9c0-ecba31ebc350
-1778251820056|GlobalRegistry processing remove station-1
-1778251820056|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-a290ed90-f783-47a8-add2-24634a9acc19
-1778251820056|GlobalRegistry processing remove station-2
-1778251820056|GlobalRegistry processing remove windmill-1
-1778251820057|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-f8e5e24b-8d15-493b-8c09-db859cd9564a
-1778251820057|GlobalRegistry processing remove station-3
-1778251820057|GlobalRegistry processing remove windmill-2
-1778251820058|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-9840da1a-7329-47f7-aa7a-dfad2192a4df
-1778251820058|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-05d28e54-000c-4d70-85e7-92cb959d56d5
-1778251820058|GlobalRegistry processing remove windmill-3
-1778251820059|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-26024524-b6b8-43f4-b2f4-f704f4303356
-1778251820059|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-f48df637-8730-4600-8c34-4913d89c0fac
-1778251820060|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-2fe7d5d1-adcb-48af-b860-d3b5fe1af802
-1778251820061|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-661cb5b2-e34c-412d-b249-2f4eeec13d21
-1778251820062|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-c7f990f4-b9da-4a28-861f-064ac40677bb
-1778251820062|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-77820660-56bb-414d-a47f-f69a01a3292f
-1778251820065|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-3bd1db59-d11a-402c-b66c-c23f3b53b89d
-1778251820068|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-5929195b-82ea-47b6-8955-906da4b75c17
-1778251820069|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-dc568c29-b47a-465e-a381-803bee57fd4c
-1778251820071|GlobalRegistry processing remove creator-1
-1778251820074|GlobalRegistry processing remove b1-registration
-1778251820074|GlobalRegistry processing remove jvm2-dcc
-1778251820075|GlobalRegistry processing remove b1-publishing
-1778251820075|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-30560232-4c1d-4c40-ba72-e5758d751935
-1778251820076|GlobalRegistry processing remove b1-privileged
-1778251820077|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-7dc17647-4e32-4334-88d1-526f281e9431
-1778251820077|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-79f60bca-b80e-4957-b6ac-cc3c1069eb55
-1778251820077|GlobalRegistry processing remove b1-gossip-receiver
-1778251820078|GlobalRegistry processing remove desk-1-port-notification
-1778251820078|GlobalRegistry processing remove windmill-1-port
-1778251820079|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-f082e25d-e5b4-4e94-9eb0-cf7d31933b25
-1778251820079|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-5ff31a0c-545b-45c8-9983-32d38e465822
-1778251820080|GlobalRegistry processing remove desk-1-port
-1778251820080|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-c979505e-208b-402d-b063-925a8931112f
-1778251820081|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-bd112db4-fd15-4324-81d7-d55dee99553f
-1778251820081|GlobalRegistry processing remove office-1-port-notification
-1778251820081|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-79b33b52-8f3e-4701-82ac-91fca00ad2ff
-1778251820083|GlobalRegistry processing remove windmill-1-port-notification
-1778251820084|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-25f4b4fe-a652-449f-9145-c0377e80c740
-1778251820084|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-8bfb753c-7165-43e1-a10c-e7d81111e13b
-1778251820084|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-2c845bbe-b4a8-440d-b78b-f66179a20cf7
-1778251820085|GlobalRegistry processing remove office-1-port
-1778251820085|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-b1613d1b-8e3a-46ce-bc98-81e9dd1b57b5
-1778251820086|GlobalRegistry processing remove jvm1-dcc
-1778251820086|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-1e12f3d5-84ad-4e6f-8123-b48ea52915ce
-1778251820087|GlobalRegistry processing remove desk-2-port-notification
-1778251820087|GlobalRegistry processing remove windmill-2-port-notification
-1778251820087|GlobalRegistry processing remove station-1-port
-1778251820088|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-d395448a-6e2d-49f1-bf08-0d9554b38306
-1778251820088|GlobalRegistry processing remove windmill-2-port
-1778251820088|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-8123df91-40b4-4970-aa1a-e0b02b4f0769
-1778251820089|GlobalRegistry processing remove station-1-port-notification
-1778251820089|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-51c41e35-0fe7-4290-b688-558ad7a10ef0
-1778251820089|GlobalRegistry processing remove desk-2-port
-1778251820089|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-6cbea6b4-8da0-411d-9802-06a47cefbb11
-1778251820090|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-1932753a-7265-4c5d-9712-39d22afeff0d
-1778251820091|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-6b1aa912-fb31-4e34-9ab5-3b9e04848d68
-1778251820091|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-f9102a96-da01-48fb-8ec4-592b9096f826
-1778251820091|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-95494612-d40a-41ca-aed0-00261d75ceeb
-1778251820091|GlobalRegistry processing remove station-2-port
-1778251820092|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-aec9b350-9445-48ba-9105-0e7b1d961144
-1778251820092|GlobalRegistry processing remove windmill-3-port-notification
-1778251820092|GlobalRegistry processing remove jvm3-dcc
-1778251820092|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-68c02164-e832-487e-84c0-75c59df532dc
-1778251820093|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-2591b50e-eae1-4973-935f-660ab4b5886e
-1778251820093|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-702d0a3a-9993-4eee-bf27-dad098c2034f
-1778251820093|GlobalRegistry processing remove station-2-port-notification
-1778251820094|GlobalRegistry processing remove windmill-3-port
-1778251820094|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-6a4905c8-c456-47d2-a451-416980c35041
-1778251820094|GlobalRegistry processing remove clock-server-101
-1778251820095|GlobalRegistry processing remove b2-registration
-1778251820096|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-25071aa6-f9bf-40d9-80b8-356fff883708
-1778251820097|GlobalRegistry processing remove b2-publishing
-1778251820097|GlobalRegistry processing remove station-3-port-notification
-1778251820098|GlobalRegistry processing remove b2-privileged
-1778251820098|GlobalRegistry processing remove station-3-port
-1778251820099|GlobalRegistry processing remove b2-gossip-receiver
-1778251820100|GlobalRegistry processing remove b3-registration
-1778251820101|GlobalRegistry processing remove b3-publishing
-1778251820102|GlobalRegistry processing remove creator-1-port
-1778251820102|GlobalRegistry processing remove b3-privileged
-1778251820103|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-e1071fe4-b47a-4b49-9cd8-aeb0295d9591
-1778251820103|GlobalRegistry processing remove b3-gossip-receiver
-1778251820103|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-b789d45b-2a65-453d-b68f-621514f663d7
-1778251820105|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-41b89049-0e96-4056-b2b1-1b2fb63abd9c
-1778251820106|GlobalRegistry processing remove creator-1-port-notification
-1778251820110|GlobalRegistry processing shutdown
-1778251820110|GlobalRegistry processing shutdown
-1778251820110|GlobalRegistry processing shutdown
-1778251820112|Global registry shuts down!
+1778253142745|Global registry up and running!
+1778253162954|Global registry accepted the 1th connection.
+1778253162956|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-ac1095fb-f41f-4258-80d6-f591a9ce1185 rmi=localhost
+1778253162986|GlobalRegistry processing put clock-server-101 rmi=localhost
+1778253163020|Global registry accepted the 2th connection.
+1778253163020|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-0a066268-45f9-4a00-a252-e61b90f63ee6 rmi=localhost
+1778253163023|Global registry accepted the 3th connection.
+1778253163023|All (3) connected!
+1778253163023|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-5f890b40-3319-42e3-9e9e-5f0949f7760c rmi=localhost
+1778253163052|GlobalRegistry processing put b3-registration rmi=localhost
+1778253163053|GlobalRegistry processing put b2-registration rmi=localhost
+1778253163068|GlobalRegistry processing put b3-publishing rmi=localhost
+1778253163068|GlobalRegistry processing put b2-publishing rmi=localhost
+1778253163083|GlobalRegistry processing put b3-privileged rmi=localhost
+1778253163086|GlobalRegistry processing put b2-privileged rmi=localhost
+1778253163098|GlobalRegistry processing put b3-gossip-receiver rmi=localhost
+1778253163099|GlobalRegistry processing put b2-gossip-receiver rmi=localhost
+1778253163110|GlobalRegistry processing put desk-1 rmi=localhost
+1778253163112|GlobalRegistry processing put windmill-1 rmi=localhost
+1778253163132|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-67c921a2-1ee4-4e78-87a2-da7b4589e0fc rmi=localhost
+1778253163132|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-a420e736-eff6-49d9-a8fd-c34799b5b2e7 rmi=localhost
+1778253163155|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-2e31ad52-498c-4af1-a01b-14b253496d3b rmi=localhost
+1778253163156|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-fd24da4e-8c3f-45a7-96f7-bfd893030492 rmi=localhost
+1778253163180|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-946bdd89-0205-46a2-adda-2a36b863d19e rmi=localhost
+1778253163185|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-593411c6-da09-438d-92da-0da4690fceba rmi=localhost
+1778253163196|GlobalRegistry processing put windmill-1-port-notification rmi=localhost
+1778253163198|GlobalRegistry processing put desk-1-port-notification rmi=localhost
+1778253163205|GlobalRegistry processing put windmill-1-port rmi=localhost
+1778253163210|GlobalRegistry processing put desk-1-port rmi=localhost
+1778253163216|GlobalRegistry processing put windmill-2 rmi=localhost
+1778253163233|GlobalRegistry processing put desk-2 rmi=localhost
+1778253163242|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-a4b3fdb5-91b0-415a-b1cd-2037fe5ef87c rmi=localhost
+1778253163266|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-15186172-af72-48ba-bf25-845cc571a02f rmi=localhost
+1778253163268|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-b4eb891f-9f5f-47e1-b57b-160e1f1296d0 rmi=localhost
+1778253163275|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-1f16fc2f-7ce3-4bfd-87c7-21859b6c7abf rmi=localhost
+1778253163276|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-9e7a4c9d-1676-4617-863f-1bf5210aafde rmi=localhost
+1778253163284|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-98d39842-ecfe-440a-bf3f-2b83157b86b2 rmi=localhost
+1778253163285|GlobalRegistry processing put windmill-2-port-notification rmi=localhost
+1778253163290|GlobalRegistry processing put desk-2-port-notification rmi=localhost
+1778253163290|GlobalRegistry processing put windmill-2-port rmi=localhost
+1778253163292|GlobalRegistry processing put desk-2-port rmi=localhost
+1778253163296|GlobalRegistry processing put windmill-3 rmi=localhost
+1778253163302|GlobalRegistry processing put station-3 rmi=localhost
+1778253163302|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-fc41aa68-3e8a-45ea-a9f6-b2be8e0c6b5f rmi=localhost
+1778253163306|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-2824dac8-808b-47be-808e-929ddd26e639 rmi=localhost
+1778253163306|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-41cb68bc-8420-403b-8489-70666d2cc6f1 rmi=localhost
+1778253163310|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-17f7de33-0d6a-45f7-9aff-e0183427b4ad rmi=localhost
+1778253163312|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-962a8040-754a-4299-8535-fb63a2993376 rmi=localhost
+1778253163313|GlobalRegistry processing put windmill-3-port-notification rmi=localhost
+1778253163314|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-8929c26c-203e-4047-ab5e-6d1f1f29f0fe rmi=localhost
+1778253163316|GlobalRegistry processing put station-3-port-notification rmi=localhost
+1778253163316|GlobalRegistry processing put windmill-3-port rmi=localhost
+1778253163318|GlobalRegistry processing put station-3-port rmi=localhost
+1778253163321|GlobalRegistry processing put creator-1 rmi=localhost
+1778253163321|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-dc928044-ed22-45ca-9d34-47db22649e84 rmi=localhost
+1778253163324|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-527cc140-3e1c-45ff-9b9f-ef643c75227f rmi=localhost
+1778253163326|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-d2710eb3-56e0-451c-97bd-a2611d3a6c10 rmi=localhost
+1778253163328|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-d5464a74-45da-470b-a3b4-af5ef6e52fd4 rmi=localhost
+1778253163332|GlobalRegistry processing put creator-1-port-notification rmi=localhost
+1778253163336|GlobalRegistry processing put creator-1-port rmi=localhost
+1778253163336|GlobalRegistry processing put jvm3-dcc rmi=localhost
+1778253163340|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-1d4fd1a4-9154-431b-8757-b13adecf47c8 rmi=localhost
+1778253163352|GlobalRegistry processing put jvm2-dcc rmi=localhost
+1778253163554|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-f99b5a0a-ce16-4493-bd26-74f6cf1233f6 rmi=localhost
+1778253163556|GlobalRegistry processing put b1-registration rmi=localhost
+1778253163559|GlobalRegistry processing put b1-publishing rmi=localhost
+1778253163560|GlobalRegistry processing put b1-privileged rmi=localhost
+1778253163563|GlobalRegistry processing put b1-gossip-receiver rmi=localhost
+1778253163568|GlobalRegistry processing put station-1 rmi=localhost
+1778253163573|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-91b51be4-5acc-4998-95a8-5490562574a3 rmi=localhost
+1778253163578|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-6d919555-80a4-45c0-9573-b8ecbfb159e6 rmi=localhost
+1778253163581|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-98bef72b-7f59-46db-883d-9e2d5c2cf39f rmi=localhost
+1778253163583|GlobalRegistry processing put station-1-port-notification rmi=localhost
+1778253163585|GlobalRegistry processing put station-1-port rmi=localhost
+1778253163586|GlobalRegistry processing put station-2 rmi=localhost
+1778253163587|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-949c6ab3-d0c1-4a70-bfb2-60cfb078d27e rmi=localhost
+1778253163589|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-749d326b-0853-4042-aa3b-6b1da5171af4 rmi=localhost
+1778253163590|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-f4a34d71-e965-4bac-9c78-897378c3f51f rmi=localhost
+1778253163590|GlobalRegistry processing put station-2-port-notification rmi=localhost
+1778253163591|GlobalRegistry processing put station-2-port rmi=localhost
+1778253163594|GlobalRegistry processing put office-1 rmi=localhost
+1778253163595|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-4e0b699b-413d-4dd2-aa00-86c0f54aac2a rmi=localhost
+1778253163596|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-7f149c55-b206-4a0f-82fc-a3d4062ff3ab rmi=localhost
+1778253163597|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-5f29385c-5d58-44e8-a5e2-83ad8892e301 rmi=localhost
+1778253163598|GlobalRegistry processing put office-1-port-notification rmi=localhost
+1778253163599|GlobalRegistry processing put office-1-port rmi=localhost
+1778253163601|GlobalRegistry processing put fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-b768c49c-f40e-4a90-a9ce-ecb69d8265b0 rmi=localhost
+1778253163603|GlobalRegistry processing put jvm1-dcc rmi=localhost
+1778253163622|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-a12ec342-71b0-4e45-9730-b575a3ace728 rmi=localhost
+1778253163625|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-0e6cf802-13f0-43b1-b04b-08c4496e5768 rmi=localhost
+1778253163625|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-a8a25e07-7712-4f6e-84bb-422b4357da19 rmi=localhost
+1778253163627|GlobalRegistry processing lookup b1-gossip-receiver
+1778253163627|GlobalRegistry processing lookup b2-gossip-receiver
+1778253163628|GlobalRegistry processing lookup b1-gossip-receiver
+1778253163634|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-29bc6098-4461-42a5-8cdf-4730ae890cc6 rmi=localhost
+1778253163637|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-4e7d0bbd-8650-4778-ad0f-5205a5475850 rmi=localhost
+1778253163640|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-542a4e7d-a791-427a-9e86-8c9c3f74e4f1 rmi=localhost
+1778253163645|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-81f37759-e8a9-4e9e-8dbf-0c3eb0d965b2 rmi=localhost
+1778253163647|GlobalRegistry processing lookup clock-server-101
+1778253163647|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-614de1ea-2539-4c3f-8ed8-7fd4c726987f rmi=localhost
+1778253163648|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-f95e2627-9633-4b7d-a8ef-8375768859bd rmi=localhost
+1778253163649|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-64691c08-a651-4ad1-ae95-df5130482fdd rmi=localhost
+1778253163649|GlobalRegistry processing lookup b3-gossip-receiver
+1778253163652|GlobalRegistry processing lookup clock-server-101
+1778253163652|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-5573add6-1b57-4d04-b673-97de6c3c8e8f rmi=localhost
+1778253163653|GlobalRegistry processing lookup clock-server-101
+1778253163654|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-b3fc6c1b-c9e0-4b56-9939-6caa02a5fd89 rmi=localhost
+1778253163655|GlobalRegistry processing lookup clock-server-101
+1778253163655|GlobalRegistry processing lookup clock-server-101
+1778253163656|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-74e41908-3f28-4ab1-91c5-c0b16ca15a66 rmi=localhost
+1778253163658|GlobalRegistry processing lookup clock-server-101
+1778253163659|GlobalRegistry processing put fr.sorbonne_u.utils.aclocks.ClocksServerCI-6f8f19d9-520a-450d-a816-ba149083fcfe rmi=localhost
+1778253163661|GlobalRegistry processing lookup clock-server-101
+1778253163662|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-b879fab9-5a41-4d93-bdf5-fa1f01ab3c65 rmi=localhost
+1778253163663|GlobalRegistry processing lookup b2-gossip-receiver
+1778253163665|GlobalRegistry processing put fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-6ce6abc8-b348-45db-8081-55e3cf379608 rmi=localhost
+1778253163666|GlobalRegistry processing lookup b3-gossip-receiver
+1778253167712|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-542a4e7d-a791-427a-9e86-8c9c3f74e4f1
+1778253167712|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-b3fc6c1b-c9e0-4b56-9939-6caa02a5fd89
+1778253167714|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-29bc6098-4461-42a5-8cdf-4730ae890cc6
+1778253167717|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-6f8f19d9-520a-450d-a816-ba149083fcfe
+1778253167717|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-4e7d0bbd-8650-4778-ad0f-5205a5475850
+1778253167718|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-5573add6-1b57-4d04-b673-97de6c3c8e8f
+1778253167719|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-74e41908-3f28-4ab1-91c5-c0b16ca15a66
+1778253167719|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-81f37759-e8a9-4e9e-8dbf-0c3eb0d965b2
+1778253167722|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-64691c08-a651-4ad1-ae95-df5130482fdd
+1778253167723|GlobalRegistry processing remove fr.sorbonne_u.utils.aclocks.ClocksServerCI-f95e2627-9633-4b7d-a8ef-8375768859bd
+1778253168149|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-6b0dd06e-bd38-475d-8e97-269fbd6e633d rmi=localhost
+1778253168153|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-20503baf-a8cd-4ed9-b96e-31e6f489fea6 rmi=localhost
+1778253168157|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-b2dc546c-78e8-4894-b5df-3609a59a14f7 rmi=localhost
+1778253168221|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-67f0648e-0b89-46cd-8ebd-b087fee36524 rmi=localhost
+1778253168299|GlobalRegistry processing put fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-df5384b6-8d8f-4ee7-a59c-d032b89f9631 rmi=localhost
+1778253193629|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-614de1ea-2539-4c3f-8ed8-7fd4c726987f
+1778253193631|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-a12ec342-71b0-4e45-9730-b575a3ace728
+1778253193634|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-6b0dd06e-bd38-475d-8e97-269fbd6e633d
+1778253193634|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-f99b5a0a-ce16-4493-bd26-74f6cf1233f6
+1778253193634|GlobalRegistry processing remove desk-1
+1778253193636|GlobalRegistry processing remove office-1
+1778253193636|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-20503baf-a8cd-4ed9-b96e-31e6f489fea6
+1778253193637|GlobalRegistry processing remove desk-2
+1778253193637|GlobalRegistry processing remove station-1
+1778253193638|GlobalRegistry processing remove station-2
+1778253193638|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-b2dc546c-78e8-4894-b5df-3609a59a14f7
+1778253193639|GlobalRegistry processing remove station-3
+1778253193639|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-ac1095fb-f41f-4258-80d6-f591a9ce1185
+1778253193639|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-b768c49c-f40e-4a90-a9ce-ecb69d8265b0
+1778253193640|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-6ce6abc8-b348-45db-8081-55e3cf379608
+1778253193640|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-df5384b6-8d8f-4ee7-a59c-d032b89f9631
+1778253193640|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-0e6cf802-13f0-43b1-b04b-08c4496e5768
+1778253193640|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI-67f0648e-0b89-46cd-8ebd-b087fee36524
+1778253193642|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-5f890b40-3319-42e3-9e9e-5f0949f7760c
+1778253193642|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-a8a25e07-7712-4f6e-84bb-422b4357da19
+1778253193644|GlobalRegistry processing remove fr.sorbonne_u.cps.gossip.interfaces.GossipSenderCI-b879fab9-5a41-4d93-bdf5-fa1f01ab3c65
+1778253193644|GlobalRegistry processing remove windmill-1
+1778253193645|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-0a066268-45f9-4a00-a252-e61b90f63ee6
+1778253193646|GlobalRegistry processing remove windmill-2
+1778253193647|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-dc928044-ed22-45ca-9d34-47db22649e84
+1778253193648|GlobalRegistry processing remove windmill-3
+1778253193648|GlobalRegistry processing remove fr.sorbonne_u.components.reflection.interfaces.ReflectionCI-1d4fd1a4-9154-431b-8757-b13adecf47c8
+1778253193649|GlobalRegistry processing remove creator-1
+1778253193651|GlobalRegistry processing remove b1-registration
+1778253193651|GlobalRegistry processing remove b2-registration
+1778253193651|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-2e31ad52-498c-4af1-a01b-14b253496d3b
+1778253193652|GlobalRegistry processing remove b1-publishing
+1778253193653|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-593411c6-da09-438d-92da-0da4690fceba
+1778253193654|GlobalRegistry processing remove b1-privileged
+1778253193654|GlobalRegistry processing remove b2-publishing
+1778253193654|GlobalRegistry processing remove desk-1-port-notification
+1778253193655|GlobalRegistry processing remove b1-gossip-receiver
+1778253193655|GlobalRegistry processing remove b2-privileged
+1778253193655|GlobalRegistry processing remove desk-1-port
+1778253193656|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-7f149c55-b206-4a0f-82fc-a3d4062ff3ab
+1778253193657|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-5f29385c-5d58-44e8-a5e2-83ad8892e301
+1778253193657|GlobalRegistry processing remove b2-gossip-receiver
+1778253193657|GlobalRegistry processing remove office-1-port-notification
+1778253193657|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-67c921a2-1ee4-4e78-87a2-da7b4589e0fc
+1778253193659|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-4e0b699b-413d-4dd2-aa00-86c0f54aac2a
+1778253193659|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-a420e736-eff6-49d9-a8fd-c34799b5b2e7
+1778253193659|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-1f16fc2f-7ce3-4bfd-87c7-21859b6c7abf
+1778253193660|GlobalRegistry processing remove office-1-port
+1778253193660|GlobalRegistry processing remove station-1-port
+1778253193660|GlobalRegistry processing remove windmill-1-port
+1778253193661|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-98d39842-ecfe-440a-bf3f-2b83157b86b2
+1778253193661|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-6d919555-80a4-45c0-9573-b8ecbfb159e6
+1778253193662|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-fd24da4e-8c3f-45a7-96f7-bfd893030492
+1778253193662|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-98bef72b-7f59-46db-883d-9e2d5c2cf39f
+1778253193662|GlobalRegistry processing remove desk-2-port-notification
+1778253193663|GlobalRegistry processing remove station-1-port-notification
+1778253193663|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-946bdd89-0205-46a2-adda-2a36b863d19e
+1778253193663|GlobalRegistry processing remove desk-2-port
+1778253193664|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-91b51be4-5acc-4998-95a8-5490562574a3
+1778253193664|GlobalRegistry processing remove windmill-1-port-notification
+1778253193664|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-949c6ab3-d0c1-4a70-bfb2-60cfb078d27e
+1778253193664|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-15186172-af72-48ba-bf25-845cc571a02f
+1778253193665|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-b4eb891f-9f5f-47e1-b57b-160e1f1296d0
+1778253193665|GlobalRegistry processing remove station-2-port
+1778253193666|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-41cb68bc-8420-403b-8489-70666d2cc6f1
+1778253193667|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-9e7a4c9d-1676-4617-863f-1bf5210aafde
+1778253193667|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-749d326b-0853-4042-aa3b-6b1da5171af4
+1778253193667|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-f4a34d71-e965-4bac-9c78-897378c3f51f
+1778253193667|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-962a8040-754a-4299-8535-fb63a2993376
+1778253193668|GlobalRegistry processing remove windmill-2-port-notification
+1778253193668|GlobalRegistry processing remove station-2-port-notification
+1778253193668|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-8929c26c-203e-4047-ab5e-6d1f1f29f0fe
+1778253193668|GlobalRegistry processing remove windmill-2-port
+1778253193669|GlobalRegistry processing remove clock-server-101
+1778253193669|GlobalRegistry processing remove station-3-port-notification
+1778253193670|GlobalRegistry processing remove jvm1-dcc
+1778253193670|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-a4b3fdb5-91b0-415a-b1cd-2037fe5ef87c
+1778253193670|GlobalRegistry processing remove station-3-port
+1778253193671|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-2824dac8-808b-47be-808e-929ddd26e639
+1778253193673|GlobalRegistry processing remove b3-registration
+1778253193673|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-17f7de33-0d6a-45f7-9aff-e0183427b4ad
+1778253193674|GlobalRegistry processing remove b3-publishing
+1778253193674|GlobalRegistry processing remove windmill-3-port-notification
+1778253193674|GlobalRegistry processing remove b3-privileged
+1778253193675|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-fc41aa68-3e8a-45ea-a9f6-b2be8e0c6b5f
+1778253193675|GlobalRegistry processing remove b3-gossip-receiver
+1778253193677|GlobalRegistry processing remove windmill-3-port
+1778253193678|GlobalRegistry processing remove jvm3-dcc
+1778253193680|GlobalRegistry processing remove jvm2-dcc
+1778253193682|GlobalRegistry processing remove creator-1-port
+1778253193684|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.RegistrationCI-527cc140-3e1c-45ff-9b9f-ef643c75227f
+1778253193685|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PublishingCI-d2710eb3-56e0-451c-97bd-a2611d3a6c10
+1778253193687|GlobalRegistry processing remove fr.sorbonne_u.cps.pubsub.interfaces.PrivilegedClientCI-d5464a74-45da-470b-a3b4-af5ef6e52fd4
+1778253193688|GlobalRegistry processing remove creator-1-port-notification
+1778253193691|GlobalRegistry processing shutdown
+1778253193691|GlobalRegistry processing shutdown
+1778253193691|GlobalRegistry processing shutdown
+1778253193692|Global registry shuts down!

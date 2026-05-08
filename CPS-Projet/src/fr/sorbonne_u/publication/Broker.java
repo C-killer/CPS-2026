@@ -624,8 +624,10 @@ public class Broker extends AbstractComponent
 			MessageI message, String notificationInboundPortURI) throws Exception {
 		if (!channels.contains(channel))
 			throw new UnknownChannelException("asyncPublish: unknown channel " + channel);
+		if (!registered.containsKey(receptionPortURI))
+			throw new UnknownClientException("asyncPublish: not registered " + receptionPortURI);
 		if (!channelAuthorised(receptionPortURI, channel))
-			throw new Exception("asyncPublish: unauthorised client for channel " + channel);
+			throw new UnauthorisedClientException("asyncPublish: unauthorised client for channel " + channel);
 
 		final MessageI[] batch = new MessageI[] { message };
 		this.runTask(PUBLICATION_HANDLER_URI, c -> {
@@ -647,8 +649,10 @@ public class Broker extends AbstractComponent
 			ArrayList<MessageI> messages, String notificationInboundPortURI) throws Exception {
 		if (!channels.contains(channel))
 			throw new UnknownChannelException("asyncPublish: unknown channel " + channel);
+		if (!registered.containsKey(receptionPortURI))
+			throw new UnknownClientException("asyncPublish: not registered " + receptionPortURI);
 		if (!channelAuthorised(receptionPortURI, channel))
-			throw new Exception("asyncPublish: unauthorised client for channel " + channel);
+			throw new UnauthorisedClientException("asyncPublish: unauthorised client for channel " + channel);
 
 		final MessageI[] batch = messages.toArray(new MessageI[0]);
 		this.runTask(PUBLICATION_HANDLER_URI, c -> {

@@ -9,6 +9,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import fr.sorbonne_u.components.ComponentI;
+import fr.sorbonne_u.cps.pubsub.exceptions.NotSubscribedChannelException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnauthorisedClientException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnknownChannelException;
+import fr.sorbonne_u.cps.pubsub.exceptions.UnknownClientException;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageFilterI;
 import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
 import fr.sorbonne_u.cps.pubsub.interfaces.ReceivingCI;
@@ -91,13 +95,19 @@ public class ClientSubscriptionPlugin
 	// =========================================================================
 
 	@Override
-	public boolean channelExist(String channel) {
-		return true;
+	public boolean channelExist(String channel) throws Exception {
+		return this.owner()
+				.getRegistrationPlugin()
+				.getRegistrationOutbound()
+				.channelExist(channel);
 	}
 
 	@Override
-	public boolean channelAuthorised(String channel) {
-		return true;
+	public boolean channelAuthorised(String channel) throws Exception {
+		return this.owner()
+				.getRegistrationPlugin()
+				.getRegistrationOutbound()
+				.channelAuthorised(this.receivingInboundURI, channel);
 	}
 
 	@Override
@@ -240,10 +250,19 @@ public class ClientSubscriptionPlugin
 	// =========================================================================
 
 	/**
-	 * Create a new {@link CompletableFuture} and append it to the waiter queue
-	 * for the given channel.
+	 * Verifie les preconditions puis cree un {@link CompletableFuture}
+	 * ajoute a la file d'attente du canal.
 	 */
-	private CompletableFuture<MessageI> enqueueWaiter(String channel) {
+	private CompletableFuture<MessageI> enqueueWaiter(String channel) throws Exception {
+		if (!this.owner().getRegistrationPlugin().registered())
+			throw new UnknownClientException("client not registered");
+		if (!channelExist(channel))
+			throw new UnknownChannelException("unknown channel " + channel);
+		if (!channelAuthorised(channel))
+			throw new UnauthorisedClientException("not authorised for " + channel);
+		if (!subscribed(channel))
+			throw new NotSubscribedChannelException("not subscribed to " + channel);
+
 		CompletableFuture<MessageI> future = new CompletableFuture<>();
 		pendingWaiters
 				.computeIfAbsent(channel, k -> new ConcurrentLinkedQueue<>())

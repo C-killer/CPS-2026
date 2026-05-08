@@ -12,7 +12,7 @@ import fr.sorbonne_u.cps.pubsub.interfaces.MessageI;
  * @author CHU Feiyang
  */
 public interface ClientSubscriptionI extends PluginI {
-	boolean channelExist(String channel);
+	boolean channelExist(String channel) throws Exception;
 
 	boolean channelAuthorised(String channel) throws Exception;
 
