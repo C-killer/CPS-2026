@@ -78,6 +78,11 @@ public class GossipMessage implements GossipMessageI {
 	}
 
 	@Override
+	/*copyWithNewEmitterURI:
+	When a broker receives a gossip message and prepares to forward it to a neighbor, 
+	it should replace the emitterURI with its own URI. 
+	This allows the neighbor, upon receiving the message, to identify the “previous sender,” 
+	thereby preventing the message from being sent back to that broker (and avoiding a loop). */
 	public GossipMessageI copyWithNewEmitterURI(String newGossipEmitterURI) {
 		return new GossipMessage(
 				this.uri,

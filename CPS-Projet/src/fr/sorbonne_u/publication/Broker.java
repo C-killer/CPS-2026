@@ -113,14 +113,28 @@ public class Broker extends AbstractComponent
 
 	// --- Gossip protocol fields (§3.7) ---
 	protected final String brokerURI;
-	/** URI du port entrant gossip de CE courtier, utilise comme emitterURI dans les messages gossip. */
+	/**
+	 * URI du port entrant gossip de CE courtier, utilise comme emitterURI dans les
+	 * messages gossip.
+	 */
 	protected String gossipReceiverInboundURI;
 	protected GossipReceiverInbound gossipReceiverInbound;
 	protected final ConcurrentMap<String, GossipSenderOutbound> gossipSenderOutbounds = new ConcurrentHashMap<>();
+
+	/*
+	 * processedGossipURIs:
+	 * Processed gossip message URI → timestamp,
+	 * used for deduplication
+	 */
 	protected final ConcurrentMap<String, Instant> processedGossipURIs = new ConcurrentHashMap<>();
+
 	/** URIs des ports entrants gossip des voisins, pour connexion dans start(). */
 	protected final String[] neighborGossipInboundURIs;
 
+	/*
+	 * Interval for clearing expired URIs and maximum
+	 * retention period
+	 */
 	private static final long GOSSIP_CLEANUP_INTERVAL_MS = 30_000L;
 	private static final long GOSSIP_URI_MAX_AGE_MS = 60_000L;
 
@@ -140,13 +154,14 @@ public class Broker extends AbstractComponent
 	/**
 	 * Constructeur complet pour le mode multi-courtier reparti.
 	 *
-	 * @param brokerURI                  URI unique de ce courtier
-	 * @param nbChannels                 nombre de canaux pre-crees (FREE)
-	 * @param registrationInboundURI     URI du port entrant Registration
-	 * @param publishingInboundURI       URI du port entrant Publishing
-	 * @param privilegedInboundURI       URI du port entrant PrivilegedClient
-	 * @param gossipReceiverInboundURI   URI du port entrant Gossip (null si pas de gossip)
-	 * @param neighborGossipInboundURIs  URIs des ports gossip des voisins
+	 * @param brokerURI                 URI unique de ce courtier
+	 * @param nbChannels                nombre de canaux pre-crees (FREE)
+	 * @param registrationInboundURI    URI du port entrant Registration
+	 * @param publishingInboundURI      URI du port entrant Publishing
+	 * @param privilegedInboundURI      URI du port entrant PrivilegedClient
+	 * @param gossipReceiverInboundURI  URI du port entrant Gossip (null si pas de
+	 *                                  gossip)
+	 * @param neighborGossipInboundURIs URIs des ports gossip des voisins
 	 */
 	protected Broker(
 			String brokerURI,
@@ -164,7 +179,8 @@ public class Broker extends AbstractComponent
 		this.privilegedInboundURI = privilegedInboundURI;
 		this.gossipReceiverInboundURI = gossipReceiverInboundURI;
 		this.neighborGossipInboundURIs = neighborGossipInboundURIs != null
-				? neighborGossipInboundURIs : new String[0];
+				? neighborGossipInboundURIs
+				: new String[0];
 
 		this.addOfferedInterface(RegistrationCI.class);
 		this.addOfferedInterface(PublishingCI.class);
@@ -702,7 +718,8 @@ public class Broker extends AbstractComponent
 		np.publishPort();
 		np.doConnection(notificationInboundPortURI,
 				AbnormalTerminationNotificationConnector.class.getCanonicalName());
-		AbnormalTerminationNotificationOutbound prev = notificationOutboundPorts.putIfAbsent(notificationInboundPortURI, np);
+		AbnormalTerminationNotificationOutbound prev = notificationOutboundPorts.putIfAbsent(notificationInboundPortURI,
+				np);
 		if (prev != null) {
 			np.doDisconnection();
 			np.unpublishPort();
@@ -868,7 +885,8 @@ public class Broker extends AbstractComponent
 
 	/**
 	 * Detruit un canal apres avoir termine la livraison des messages en cours.
-	 * Les nouvelles publications sont bloquees (le canal est retire de {@code channels}),
+	 * Les nouvelles publications sont bloquees (le canal est retire de
+	 * {@code channels}),
 	 * puis les messages deja soumis aux pools de propagation/livraison sont draines
 	 * avant de supprimer les abonnements.
 	 */
@@ -898,7 +916,10 @@ public class Broker extends AbstractComponent
 
 		// Etape 2 : laisser le temps aux messages en cours de propagation/livraison
 		// de terminer (les taches deja soumises aux executor pools s'executent)
-		try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException ignored) {
+		}
 
 		// Etape 3 : supprimer les abonnements
 		subscriptions.remove(channel);
@@ -955,6 +976,18 @@ public class Broker extends AbstractComponent
 		});
 	}
 
+	/*
+	 * processedGossipURIs.putIfAbsent(uri, timestamp). If the URI already exists,
+	 * the message is skipped.
+	 * 
+	 * Call integrateGossipMessage(gm) to merge the message content into the local
+	 * state.
+	 * 
+	 * Collect all messages that need to be forwarded into the toPropagate list.
+	 * 
+	 * Finally, call gossipToNeighbors(toPropagate) to propagate the messages to all
+	 * neighboring nodes.
+	 */
 	@Override
 	public void update(GossipMessageI[] fromSender) {
 		List<GossipMessageI> toPropagate = new ArrayList<>();
@@ -1016,8 +1049,14 @@ public class Broker extends AbstractComponent
 					// Nettoyer le port sortant cache
 					ReceivingOutbound rop = receivingOutboundPorts.remove(clientURI);
 					if (rop != null) {
-						try { rop.doDisconnection(); } catch (Throwable ignored) {}
-						try { rop.unpublishPort(); } catch (Throwable ignored) {}
+						try {
+							rop.doDisconnection();
+						} catch (Throwable ignored) {
+						}
+						try {
+							rop.unpublishPort();
+						} catch (Throwable ignored) {
+						}
 					}
 				}
 				break;
@@ -1088,7 +1127,8 @@ public class Broker extends AbstractComponent
 					filtered.add(gm.copyWithNewEmitterURI(this.gossipReceiverInboundURI));
 				}
 			}
-			if (filtered.isEmpty()) continue;
+			if (filtered.isEmpty())
+				continue;
 
 			final GossipMessageI[] arr = filtered.toArray(new GossipMessageI[0]);
 			this.runTask(GOSSIP_HANDLER_URI, c -> {
@@ -1108,7 +1148,8 @@ public class Broker extends AbstractComponent
 	 * Ne fait rien si aucun voisin n'est connecte (mode mono-courtier).
 	 */
 	private void gossipEvent(GossipPayloadType type, Map<String, Serializable> payload) {
-		if (gossipSenderOutbounds.isEmpty()) return;
+		if (gossipSenderOutbounds.isEmpty())
+			return;
 
 		String uri = brokerURI + "-gossip-" + UUID.randomUUID();
 		// emitterURI = notre gossip inbound URI, pour que le voisin puisse
